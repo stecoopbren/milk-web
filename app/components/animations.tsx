@@ -1,52 +1,9 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
-import { motion, AnimatePresence, useInView } from "framer-motion";
+import { useRef } from "react";
+import { motion, useInView } from "framer-motion";
 
 const ease = [0.22, 1, 0.36, 1] as const;
-
-// ─── Line Mask Reveal ─────────────────────────────────────────────────────────
-// Wraps each line in overflow-hidden so the text slides up from behind a mask.
-// Usage: <RevealLines lines={["We turn", "big ideas"]} className="..." delay={0.2} />
-
-interface RevealLinesProps {
-  lines: (string | React.ReactNode)[];
-  className?: string;
-  delay?: number;
-  stagger?: number;
-  as?: "h1" | "h2" | "h3" | "p" | "span";
-}
-
-export function RevealLines({
-  lines,
-  className = "",
-  delay = 0,
-  stagger = 0.1,
-  as: Tag = "span",
-}: RevealLinesProps) {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-60px" });
-
-  return (
-    <div ref={ref}>
-      {lines.map((line, i) => (
-        <div key={i} className="overflow-hidden">
-          <motion.div
-            initial={{ y: "105%" }}
-            animate={inView ? { y: "0%" } : {}}
-            transition={{
-              duration: 0.85,
-              ease,
-              delay: delay + i * stagger,
-            }}
-          >
-            <Tag className={className}>{line}</Tag>
-          </motion.div>
-        </div>
-      ))}
-    </div>
-  );
-}
 
 // ─── Single line reveal (inline use) ─────────────────────────────────────────
 // Uses only <span> so it stays valid inside <h1>, <h2>, etc.
@@ -115,58 +72,6 @@ export function BlurReveal({ text, className = "", delay = 0 }: BlurRevealProps)
           {word}
         </motion.span>
       ))}
-    </span>
-  );
-}
-
-// ─── Cycling Word ─────────────────────────────────────────────────────────────
-// Vertical ticker — old word slides up out, new word slides up in from below.
-// Usage: <CyclingWord words={["businesses", "products"]} className="..." />
-
-interface CyclingWordProps {
-  words: string[];
-  className?: string;
-  interval?: number;
-}
-
-export function CyclingWord({
-  words,
-  className = "",
-  interval = 2200,
-}: CyclingWordProps) {
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    const t = setInterval(() => {
-      setIndex((i) => (i + 1) % words.length);
-    }, interval);
-    return () => clearInterval(t);
-  }, [words, interval]);
-
-  // Find the longest word to keep width stable
-  const longest = words.reduce((a, b) => (a.length > b.length ? a : b));
-
-  return (
-    <span
-      className="relative inline-block overflow-hidden align-bottom"
-      style={{ paddingBottom: "0.15em", marginBottom: "-0.15em" }}
-    >
-      {/* Invisible longest word keeps the container width stable */}
-      <span className={`${className} invisible select-none`} aria-hidden>
-        {longest}
-      </span>
-      <AnimatePresence mode="wait">
-        <motion.span
-          key={words[index]}
-          className={`${className} absolute left-0 bottom-0`}
-          initial={{ y: "100%", opacity: 0 }}
-          animate={{ y: "0%", opacity: 1 }}
-          exit={{ y: "-110%", opacity: 0 }}
-          transition={{ duration: 0.55, ease }}
-        >
-          {words[index]}
-        </motion.span>
-      </AnimatePresence>
     </span>
   );
 }

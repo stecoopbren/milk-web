@@ -27,14 +27,18 @@ export default function HeroSection() {
       }
     }, isDeleting ? 75 : 150);
 
+    let deleteTimeout: ReturnType<typeof setTimeout> | null = null;
     if (!isDeleting && displayText === fullText) {
-      setTimeout(() => setIsDeleting(true), 2000);
+      deleteTimeout = setTimeout(() => setIsDeleting(true), 2000);
     } else if (isDeleting && displayText === "") {
       setIsDeleting(false);
       setTextIndex((prev) => (prev + 1) % cyclingWords.length);
     }
 
-    return () => clearInterval(typeInterval);
+    return () => {
+      clearInterval(typeInterval);
+      if (deleteTimeout) clearTimeout(deleteTimeout);
+    };
   }, [displayText, isDeleting, textIndex]);
 
   return (

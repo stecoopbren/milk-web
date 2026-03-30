@@ -16,7 +16,7 @@ export default function Footer() {
 
   return (
     <SectionReveal id="contact" className="bg-[#1F1F20] px-8 lg:px-[180px] py-20" dark>
-      <div ref={ref} className="flex flex-col gap-8 w-full">
+      <div ref={ref} className="flex flex-col gap-8 w-full max-w-[1062px] mx-auto">
 
         {/* Main row: Logo+Nav LEFT — CTA RIGHT */}
         <div className="flex flex-col lg:flex-row items-start justify-between gap-12 lg:gap-0">

@@ -5,16 +5,42 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
 const links = ["Home", "Portfolio", "About Us", "Contact"];
+const ease = [0.22, 1, 0.36, 1] as const;
 
 export default function Nav() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [isDark, setIsDark] = useState(false);
 
+  // Delay entrance for hero stagger
   useEffect(() => {
-    // Delay nav entrance for hero stagger
     const t = setTimeout(() => setVisible(true), 200);
     return () => clearTimeout(t);
   }, []);
+
+  // Switch to dark mode when the footer scrolls into the nav zone
+  useEffect(() => {
+    const footer = document.getElementById("contact");
+    if (!footer) return;
+
+    const NAV_BOTTOM = 130; // px from viewport top where nav pill ends
+
+    const check = () => setIsDark(footer.getBoundingClientRect().top <= NAV_BOTTOM);
+
+    window.addEventListener("scroll", check, { passive: true });
+    check();
+    return () => window.removeEventListener("scroll", check);
+  }, []);
+
+  // Pill background — overrides the CSS class background via style prop
+  const pillBg = {
+    background: isDark
+      ? "linear-gradient(160deg, rgba(15,15,16,0.60) 0%, rgba(15,15,16,0.40) 100%)"
+      : "linear-gradient(160deg, rgba(255,255,255,0.24) 0%, rgba(255,255,255,0.07) 100%)",
+    transition: "background 0.5s ease",
+  };
+
+  const barColor = isDark ? "#EFEFEF" : "#2F2F2F";
 
   return (
     <>
@@ -22,45 +48,66 @@ export default function Nav() {
         className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-[45px] pointer-events-none"
         initial={{ opacity: 0, y: -20 }}
         animate={visible ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.6, ease }}
       >
-        {/* Mobile Nav */}
-        <div className="lg:hidden pointer-events-auto w-[calc(100%-40px)] max-w-[330px] glass-border-animated rounded-2xl flex items-center justify-between px-6 py-4">
-          <Logo />
+        {/* Mobile Nav pill */}
+        <div
+          className="lg:hidden pointer-events-auto w-[calc(100%-40px)] max-w-[330px] glass-border-animated rounded-2xl flex items-center justify-between px-6 py-4"
+          style={pillBg}
+        >
+          <Logo isDark={isDark} />
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="flex flex-col gap-[5px] w-6 h-5 justify-center items-center"
             aria-label="Toggle menu"
           >
             <span
-              className="block h-[1.5px] w-5 bg-[#2F2F2F] transition-all duration-300"
-              style={{ transform: menuOpen ? "rotate(45deg) translateY(6.5px)" : "none" }}
+              className="block h-[1.5px] w-5 transition-transform duration-300"
+              style={{
+                background: barColor,
+                transform: menuOpen ? "rotate(45deg) translateY(6.5px)" : "none",
+                transition: `background 0.5s ease, transform 0.3s ease`,
+              }}
             />
             <span
-              className="block h-[1.5px] w-5 bg-[#2F2F2F] transition-all duration-300"
-              style={{ opacity: menuOpen ? 0 : 1 }}
+              className="block h-[1.5px] w-5"
+              style={{
+                background: barColor,
+                opacity: menuOpen ? 0 : 1,
+                transition: `background 0.5s ease, opacity 0.3s ease`,
+              }}
             />
             <span
-              className="block h-[1.5px] w-5 bg-[#2F2F2F] transition-all duration-300"
-              style={{ transform: menuOpen ? "rotate(-45deg) translateY(-6.5px)" : "none" }}
+              className="block h-[1.5px] w-5 transition-transform duration-300"
+              style={{
+                background: barColor,
+                transform: menuOpen ? "rotate(-45deg) translateY(-6.5px)" : "none",
+                transition: `background 0.5s ease, transform 0.3s ease`,
+              }}
             />
           </button>
         </div>
 
-        {/* Desktop Nav */}
-        <div className="hidden lg:flex pointer-events-auto w-[1052px] glass-border-animated rounded-[32px] items-center justify-between px-11 py-4">
-          <Logo />
-          {/* Links sit directly in the nav pill — no inner container */}
+        {/* Desktop Nav pill */}
+        <div
+          className="hidden lg:flex pointer-events-auto w-[1052px] glass-border-animated rounded-[32px] items-center justify-between px-11 py-4"
+          style={pillBg}
+        >
+          <Logo isDark={isDark} />
           <div className="flex items-center">
             {links.map((link, i) => (
               <a
                 key={link}
                 href={`#${link.toLowerCase().replace(" ", "-")}`}
-                className={`px-4 py-3 rounded-2xl text-[14px] font-sans whitespace-nowrap transition-all duration-200 ${
-                  i === 0
-                    ? "glass-border-animated font-bold text-[#2F2F2F] underline"
-                    : "text-[#565656] font-normal hover:text-[#2F2F2F]"
+                className={`px-4 py-3 rounded-2xl text-[14px] font-sans whitespace-nowrap ${
+                  i === 0 ? "glass-border-animated font-bold underline" : "font-normal"
                 }`}
+                style={{
+                  color: isDark
+                    ? i === 0 ? "#EFEFEF" : "#D1D1D1"
+                    : i === 0 ? "#2F2F2F" : "#565656",
+                  transition: "color 0.5s ease",
+                }}
               >
                 {link.toUpperCase()}
               </a>
@@ -69,7 +116,7 @@ export default function Nav() {
         </div>
       </motion.header>
 
-      {/* Mobile Dropdown Menu */}
+      {/* Mobile dropdown */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
@@ -77,7 +124,7 @@ export default function Nav() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.4, ease }}
           >
             {links.map((link, i) => (
               <motion.a
@@ -86,7 +133,7 @@ export default function Nav() {
                 className="text-[32px] font-sans font-medium tracking-[-1.5px] text-[#2F2F2F] leading-none"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.07, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ delay: i * 0.07, duration: 0.4, ease }}
                 onClick={() => setMenuOpen(false)}
               >
                 {link}
@@ -99,8 +146,42 @@ export default function Nav() {
   );
 }
 
-function Logo() {
+// Cross-fades between black and white logo
+function Logo({ isDark }: { isDark: boolean }) {
   return (
-    <Image src="/MilkLogo-Black.png" alt="Milk" width={93} height={24} priority style={{ width: 93, height: "auto" }} />
+    <div className="relative shrink-0" style={{ width: 93, height: 24 }}>
+      <Image
+        src="/MilkLogo-Black.png"
+        alt="Milk"
+        width={93}
+        height={24}
+        priority
+        style={{
+          width: 93,
+          height: "auto",
+          position: "absolute",
+          top: 0,
+          left: 0,
+          opacity: isDark ? 0 : 1,
+          transition: "opacity 0.5s ease",
+        }}
+      />
+      <Image
+        src="/MilkLogo-White.png"
+        alt="Milk"
+        width={93}
+        height={24}
+        priority
+        style={{
+          width: 93,
+          height: "auto",
+          position: "absolute",
+          top: 0,
+          left: 0,
+          opacity: isDark ? 1 : 0,
+          transition: "opacity 0.5s ease",
+        }}
+      />
+    </div>
   );
 }

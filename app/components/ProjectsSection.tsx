@@ -57,7 +57,6 @@ function ProjectCard({ project }: { project: Project }) {
         <a
           href="#"
           className="absolute bottom-0 left-0 flex items-center gap-1.5 p-4 text-white"
-          onClick={(e) => e.stopPropagation()}
         >
           <span className="font-sans text-[14px] font-medium tracking-[-0.28px]">View Case</span>
           <ArrowUpRight />
@@ -105,8 +104,8 @@ export default function ProjectsSection() {
           </h2>
         </div>
 
-        {/* Header — desktop */}
-        <div className="hidden lg:flex items-end justify-between w-full">
+        {/* Header — desktop: max-width matches 3×338px cards + 2×24px gaps */}
+        <div className="hidden lg:flex items-end justify-between w-full max-w-[1062px] mx-auto">
           <div className="flex flex-col gap-2">
             <RevealLine className="font-mono text-[#565656] text-[20px] tracking-[-0.6px] leading-6" delay={0.1} inView={inView}>
               Keep stalking us
@@ -162,12 +161,12 @@ export default function ProjectsSection() {
           </div>
         </div>
 
-        {/* Desktop: 3 cards in a row — full width, items-stretch for equal heights */}
-        <div className="hidden lg:flex gap-6 w-full items-stretch">
+        {/* Desktop: 3 cards in a row */}
+        <div className="hidden lg:flex gap-6 w-full justify-center items-stretch">
           {projects.map((p, i) => (
             <motion.div
               key={p.id}
-              className="flex-1 flex flex-col"
+              className="flex-1 max-w-[338px] flex flex-col"
               initial={{ opacity: 0, y: 32 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.7, ease, delay: 0.2 + i * 0.12 }}

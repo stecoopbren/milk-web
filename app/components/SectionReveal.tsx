@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useScroll, useTransform, useSpring, MotionValue } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 
 interface SectionRevealProps {
   children: React.ReactNode;
@@ -38,7 +38,7 @@ export default function SectionReveal({
 
   // Exit: start the white wash earlier and pair with a subtle scale-down
   const exitOpacity = useTransform(smooth, [0.68, 1], [0, 1]);
-  const exitScale   = useTransform(smooth, [0.68, 1], [1, 0.96]) as MotionValue<number>;
+  const exitScale   = useTransform(smooth, [0.68, 1], [1, 0.96]);
 
   return (
     <section
