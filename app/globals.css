@@ -1,26 +1,155 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/* ─── Design Tokens from Figma ──────────────────────────────────────────── */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Fonts */
+  --font-sans: var(--font-dm-sans);
+  --font-mono: var(--font-dm-mono);
+
+  /* Brand colors */
+  --color-bg:           #FAFAFA;
+  --color-bg-dark:      #1F1F20;
+  --color-text-primary: #2F2F2F;
+  --color-text-secondary: #565656;
+  --color-text-tertiary:  #282828;
+  --color-text-darkest:   #0C0C12;
+  --color-text-dark-primary:   #EFEFEF;
+  --color-text-dark-secondary: #D1D1D1;
+  --color-text-muted:   #D0D1D7;
+  --color-accent:       #FF3377;
+  --color-white:        #FFFFFF;
+
+  /* Glass effect shadow */
+  --shadow-glass: 0px 11px 40px 0px rgba(118, 118, 118, 0.35);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ─── Base ───────────────────────────────────────────────────────────────── */
+html {
+  overflow-x: clip;
+  scroll-behavior: smooth;
+}
+
+/* Desktop scroll snap */
+@media (min-width: 1024px) {
+  html {
+    scroll-snap-type: y mandatory;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #FAFAFA;
+  color: #2F2F2F;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Typography helpers ─────────────────────────────────────────────────── */
+.font-mono {
+  text-transform: uppercase;
+}
+
+/* ─── Liquid Glass ───────────────────────────────────────────────────────── */
+.glass {
+  position: relative;
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.26) 0%,
+    rgba(255, 255, 255, 0.08) 100%
+  );
+  backdrop-filter: blur(40px) saturate(180%) brightness(106%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%) brightness(106%);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.80),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.18),
+    inset 1px 0 0 rgba(255, 255, 255, 0.18),
+    inset -1px 0 0 rgba(255, 255, 255, 0.18),
+    0 12px 48px rgba(0, 0, 0, 0.07),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* ─── Animated liquid-glass border ──────────────────────────────────────── */
+@property --border-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes border-spin {
+  to { --border-angle: 360deg; }
+}
+
+.glass-border-animated {
+  position: relative;
+  isolation: isolate;
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.24) 0%,
+    rgba(255, 255, 255, 0.07) 100%
+  );
+  backdrop-filter: blur(40px) saturate(180%) brightness(106%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%) brightness(106%);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.80),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.18),
+    0 12px 48px rgba(0, 0, 0, 0.07),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* Rotating light-streak border */
+.glass-border-animated::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--border-angle),
+    transparent     0deg,
+    transparent    30deg,
+    rgba(255,255,255,0.70) 50deg,
+    rgba(255,255,255,1.00) 65deg,
+    rgba(255,255,255,0.70) 80deg,
+    transparent   110deg,
+    transparent   200deg,
+    rgba(255,255,255,0.18) 240deg,
+    transparent   275deg,
+    rgba(255,255,255,0.55) 330deg,
+    transparent   360deg
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  padding: 1px;
+  animation: border-spin 4s linear infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Top specular streak — the "liquid" sheen */
+.glass-border-animated::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    175deg,
+    rgba(255, 255, 255, 0.38) 0%,
+    rgba(255, 255, 255, 0.12) 28%,
+    transparent 55%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ─── Scroll snap sections ───────────────────────────────────────────────── */
+@media (min-width: 1024px) {
+  .snap-section {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
 }
