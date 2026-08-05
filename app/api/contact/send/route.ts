@@ -1,9 +1,8 @@
 import { Resend } from "resend";
 import { NextRequest, NextResponse } from "next/server";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(request: NextRequest) {
+  const resend = new Resend(process.env.RESEND_API_KEY);
   const { reason, context, conversation, details } = await request.json();
 
   const contextLines = Object.entries((context ?? {}) as Record<string, string>)
