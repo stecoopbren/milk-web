@@ -2,6 +2,9 @@ import { Resend } from "resend";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
+  if (!process.env.RESEND_API_KEY) {
+    return NextResponse.json({ ok: false, error: "Email not configured" }, { status: 503 });
+  }
   const resend = new Resend(process.env.RESEND_API_KEY);
   const { reason, context, conversation, details } = await request.json();
 
