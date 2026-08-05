@@ -1,187 +1,305 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import ContactModal from "./ContactModal";
 
-const links = ["Home", "Portfolio", "About Us", "Contact"];
+const links = [
+  { label: "Why Milk?", href: "/#who-we-are" },
+  { label: "About", href: "/#who-we-are" },
+  { label: "Method", href: "/#method" },
+  { label: "Work", href: "/#portfolio" },
+];
+
+const socialLinks = [
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/in/steven-cooper-brenes/",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 448 512" fill="currentColor">
+        <path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/>
+      </svg>
+    ),
+  },
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com/milkdotdesign/",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 448 512" fill="currentColor">
+        <path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/>
+      </svg>
+    ),
+  },
+  {
+    label: "Medium",
+    href: "https://medium.com/@stevencooper_75268",
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 640 512" fill="currentColor">
+        <path d="M180.5 74.3C80.8 74.3 0 155.6 0 256S80.8 437.7 180.5 437.7 361 356.4 361 256 280.2 74.3 180.5 74.3zm288.3 10.6c-49.8 0-90.2 76.6-90.2 171.1s40.4 171.1 90.2 171.1 90.3-76.6 90.3-171.1-40.5-171.1-90.3-171.1zm139.5 17.8c-17.5 0-31.7 68.6-31.7 153.3s14.2 153.3 31.7 153.3S640 340.6 640 256c0-84.9-14.2-153.3-31.7-153.3z"/>
+      </svg>
+    ),
+  },
+];
+
 const ease = [0.22, 1, 0.36, 1] as const;
 
+function handleWorkClick(e: React.MouseEvent<HTMLAnchorElement>, href: string, onClose?: () => void) {
+  const match = href.match(/^\/#(.+)$/);
+  if (match && window.location.pathname === "/") {
+    e.preventDefault();
+    window.dispatchEvent(new CustomEvent("milk:snap-to", { detail: { id: match[1] } }));
+    onClose?.();
+  }
+}
+
 export default function Nav() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [visible, setVisible] = useState(false);
-  const [isDark, setIsDark] = useState(false);
+  const [menuOpen, setMenuOpen]     = useState(false);
+  const [visible, setVisible]       = useState(false);
+  const [modalOpen, setModalOpen]   = useState(false);
+  const [modalService, setModalService] = useState<string | undefined>(undefined);
+  const [socialOpen, setSocialOpen] = useState(false);
+  const pathname = usePathname();
 
-  // Delay entrance for hero stagger
   useEffect(() => {
-    const t = setTimeout(() => setVisible(true), 200);
-    return () => clearTimeout(t);
+    const show = () => setVisible(true);
+    window.addEventListener("milk:intro-exit", show, { once: true });
+    // Safety-net only — IntroLoader always dispatches milk:intro-exit.
+    // Long enough to never interfere with the intro sequence (~9s on first visit).
+    const t = setTimeout(show, 15000);
+    return () => {
+      window.removeEventListener("milk:intro-exit", show);
+      clearTimeout(t);
+    };
   }, []);
 
-  // Switch to dark mode when the footer scrolls into the nav zone
   useEffect(() => {
-    const footer = document.getElementById("contact");
-    if (!footer) return;
-
-    const NAV_BOTTOM = 130; // px from viewport top where nav pill ends
-
-    const check = () => setIsDark(footer.getBoundingClientRect().top <= NAV_BOTTOM);
-
-    window.addEventListener("scroll", check, { passive: true });
-    check();
-    return () => window.removeEventListener("scroll", check);
+    const handler = (e: Event) => {
+      setModalService((e as CustomEvent).detail?.service ?? undefined);
+      setModalOpen(true);
+    };
+    window.addEventListener("milk:open-contact", handler);
+    return () => window.removeEventListener("milk:open-contact", handler);
   }, []);
-
-  // Pill background — overrides the CSS class background via style prop
-  const pillBg = {
-    background: isDark
-      ? "linear-gradient(160deg, rgba(15,15,16,0.60) 0%, rgba(15,15,16,0.40) 100%)"
-      : "linear-gradient(160deg, rgba(255,255,255,0.24) 0%, rgba(255,255,255,0.07) 100%)",
-    transition: "background 0.5s ease",
-  };
-
-  const barColor = isDark ? "#EFEFEF" : "#2F2F2F";
 
   return (
     <>
-      <motion.header
-        className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-[45px] pointer-events-none"
-        initial={{ opacity: 0, y: -20 }}
-        animate={visible ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.6, ease }}
+      {/* Floating pill nav — pointer-events:none on wrapper so clicks pass through */}
+      <div
+        className="fixed z-50 px-8 lg:px-0"
+        style={{
+          inset: "0 0 auto 0",
+          display: "flex",
+          justifyContent: "center",
+          paddingTop: 24,
+          pointerEvents: "none",
+        }}
       >
-        {/* Mobile Nav pill */}
-        <div
-          className="lg:hidden pointer-events-auto w-[calc(100%-40px)] max-w-[330px] glass-border-animated rounded-2xl flex items-center justify-between px-6 py-4"
-          style={pillBg}
+        <motion.header
+          className="w-full lg:w-auto"
+          style={{ pointerEvents: "auto" }}
+          initial={{ opacity: 0, y: -32, scale: 0.92 }}
+          animate={visible ? { opacity: 1, y: 0, scale: 1 } : {}}
+          transition={{ type: "spring", stiffness: 260, damping: 22 }}
         >
-          <Logo isDark={isDark} />
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="flex flex-col gap-[5px] w-6 h-5 justify-center items-center"
-            aria-label="Toggle menu"
+          {/* Pill */}
+          <div
+            className="relative flex items-center gap-2.5 rounded-full w-full lg:w-auto justify-between lg:justify-start"
+            style={{
+              padding: "8px 8px 8px 24px",
+              background: "rgba(250,250,250,0.88)",
+              backdropFilter: "blur(40px) saturate(160%)",
+              WebkitBackdropFilter: "blur(40px) saturate(160%)",
+              border: "1px solid rgba(255,255,255,0.6)",
+              boxShadow: "0 2px 24px rgba(0,0,0,0.08), 0 1px 0 rgba(255,255,255,0.8) inset",
+            }}
           >
-            <span
-              className="block h-[1.5px] w-5 transition-transform duration-300"
-              style={{
-                background: barColor,
-                transform: menuOpen ? "rotate(45deg) translateY(6.5px)" : "none",
-                transition: `background 0.5s ease, transform 0.3s ease`,
-              }}
+            {/* Specular sheen */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 top-0 h-1/2 rounded-t-full"
+              style={{ background: "linear-gradient(to bottom, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 100%)" }}
             />
-            <span
-              className="block h-[1.5px] w-5"
-              style={{
-                background: barColor,
-                opacity: menuOpen ? 0 : 1,
-                transition: `background 0.5s ease, opacity 0.3s ease`,
-              }}
-            />
-            <span
-              className="block h-[1.5px] w-5 transition-transform duration-300"
-              style={{
-                background: barColor,
-                transform: menuOpen ? "rotate(-45deg) translateY(-6.5px)" : "none",
-                transition: `background 0.5s ease, transform 0.3s ease`,
-              }}
-            />
-          </button>
-        </div>
+            {/* Logo */}
+            <a href="/" className="shrink-0 mr-2">
+              <Image
+                src="/MilkLogo-Black.png"
+                alt="Milk"
+                width={60}
+                height={16}
+                priority
+                style={{ width: 60, height: "auto" }}
+              />
+            </a>
 
-        {/* Desktop Nav pill */}
-        <div
-          className="hidden lg:flex pointer-events-auto w-[1052px] glass-border-animated rounded-[32px] items-center justify-between px-11 py-4"
-          style={pillBg}
-        >
-          <Logo isDark={isDark} />
-          <div className="flex items-center">
-            {links.map((link, i) => (
-              <a
-                key={link}
-                href={`#${link.toLowerCase().replace(" ", "-")}`}
-                className={`px-4 py-3 rounded-2xl text-[14px] font-sans whitespace-nowrap ${
-                  i === 0 ? "glass-border-animated font-bold underline" : "font-normal"
-                }`}
-                style={{
-                  color: isDark
-                    ? i === 0 ? "#EFEFEF" : "#D1D1D1"
-                    : i === 0 ? "#2F2F2F" : "#565656",
-                  transition: "color 0.5s ease",
-                }}
-              >
-                {link.toUpperCase()}
-              </a>
-            ))}
+            {/* Desktop links */}
+            <nav className="hidden lg:flex items-center mx-4" style={{ gap: 28 }}>
+              {links.map((link) => {
+                const isActive = !link.href.includes("#") && pathname === link.href;
+                return (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    onClick={(e) => handleWorkClick(e, link.href)}
+                    className={`text-ui transition-opacity hover:opacity-50 ${
+                      isActive ? "text-[#111] underline underline-offset-2" : "text-[#555]"
+                    }`}
+                  >
+                    {link.label}
+                  </a>
+                );
+              })}
+              {/* Social dropdown */}
+              <div className="relative" onMouseEnter={() => setSocialOpen(true)} onMouseLeave={() => setSocialOpen(false)}>
+                <button className="inline-flex items-center gap-1 text-ui text-[#555] hover:opacity-50 transition-opacity">
+                  Social
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 3.5L5 6.5L8 3.5" />
+                  </svg>
+                </button>
+                <AnimatePresence>
+                  {socialOpen && (
+                    <motion.div
+                      className="absolute top-full right-0 mt-3 rounded-xl overflow-hidden"
+                      style={{
+                        background: "rgba(250,250,250,0.96)",
+                        backdropFilter: "blur(40px) saturate(160%)",
+                        WebkitBackdropFilter: "blur(40px) saturate(160%)",
+                        border: "1px solid rgba(255,255,255,0.6)",
+                        boxShadow: "0 8px 32px rgba(0,0,0,0.10)",
+                        minWidth: 160,
+                      }}
+                      initial={{ opacity: 0, y: -6, scale: 0.97 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -6, scale: 0.97 }}
+                      transition={{ duration: 0.18, ease }}
+                    >
+                      {socialLinks.map((s) => (
+                        <a
+                          key={s.label}
+                          href={s.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-3 px-4 py-3 text-ui text-[#555] hover:text-[#111] hover:bg-black/[0.04] transition-colors"
+                        >
+                          {s.icon}
+                          {s.label}
+                        </a>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </nav>
+
+            {/* CTA pill button — 3D */}
+            <motion.button
+              onClick={() => setModalOpen(true)}
+              className="hidden lg:inline-flex font-sans font-medium text-[15px] text-white tracking-[-0.45px] rounded-full"
+              style={{
+                background: "#1a1a1a",
+                padding: "12px 20px",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.18)",
+              }}
+              whileHover={{ opacity: 0.82 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ duration: 0.15 }}
+            >
+              Let&apos;s Talk
+            </motion.button>
+
+            {/* Mobile burger — 3D */}
+            <motion.button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="lg:hidden flex flex-col gap-[5px] w-10 h-10 justify-center items-center rounded-full"
+              style={{
+                background: "#1a1a1a",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.18)",
+              }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ duration: 0.15 }}
+              aria-label="Toggle menu"
+            >
+              <span className="block h-[1.5px] w-4 bg-white transition-transform duration-300"
+                style={{ transform: menuOpen ? "rotate(45deg) translateY(6.5px)" : "none" }} />
+              <span className="block h-[1.5px] w-4 bg-white transition-opacity duration-300"
+                style={{ opacity: menuOpen ? 0 : 1 }} />
+              <span className="block h-[1.5px] w-4 bg-white transition-transform duration-300"
+                style={{ transform: menuOpen ? "rotate(-45deg) translateY(-6.5px)" : "none" }} />
+            </motion.button>
           </div>
-        </div>
-      </motion.header>
+        </motion.header>
+      </div>
 
-      {/* Mobile dropdown */}
+      {/* Mobile menu */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
-            className="fixed inset-x-0 top-0 z-40 bg-[#FAFAFA]/95 backdrop-blur-xl pt-32 pb-12 px-8 flex flex-col gap-6 lg:hidden"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.4, ease }}
+            className="fixed inset-x-8 z-40 rounded-2xl lg:hidden overflow-hidden"
+            style={{
+              top: 88,
+              background: "rgba(250,250,250,0.92)",
+              backdropFilter: "blur(40px) saturate(160%)",
+              WebkitBackdropFilter: "blur(40px) saturate(160%)",
+              border: "1px solid rgba(255,255,255,0.6)",
+              boxShadow: "0 8px 40px rgba(0,0,0,0.10)",
+            }}
+            initial={{ opacity: 0, y: -8, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.97 }}
+            transition={{ duration: 0.25, ease }}
           >
-            {links.map((link, i) => (
-              <motion.a
-                key={link}
-                href={`#${link.toLowerCase().replace(" ", "-")}`}
-                className="text-[32px] font-sans font-medium tracking-[-1.5px] text-[#2F2F2F] leading-none"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.07, duration: 0.4, ease }}
-                onClick={() => setMenuOpen(false)}
+            {/* Specular sheen */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 top-0 h-16 rounded-t-2xl"
+              style={{ background: "linear-gradient(to bottom, rgba(255,255,255,0.40) 0%, rgba(255,255,255,0) 100%)" }}
+            />
+            <div className="flex flex-col p-6 gap-1">
+              {links.map((link, i) => (
+                <motion.a
+                  key={link.label}
+                  href={link.href}
+                  className="font-sans font-medium text-[28px] leading-[1.1] tracking-[-1.8px] text-[#111] py-2"
+                  initial={{ opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.05, duration: 0.3, ease }}
+                  onClick={(e) => { handleWorkClick(e, link.href, () => setMenuOpen(false)); setMenuOpen(false); }}
+                >
+                  {link.label}
+                </motion.a>
+              ))}
+              {socialLinks.map((s, i) => (
+                <motion.a
+                  key={s.label}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-sans font-medium text-[28px] leading-[1.1] tracking-[-1.8px] text-[#999] py-2 flex items-center gap-3"
+                  initial={{ opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: (links.length + i) * 0.05, duration: 0.3, ease }}
+                >
+                  <span style={{ fontSize: 22 }}>{s.icon}</span>
+                  {s.label}
+                </motion.a>
+              ))}
+              <motion.button
+                className="mt-4 inline-flex font-sans font-medium text-[15px] text-white tracking-[-0.45px] rounded-full w-fit"
+                style={{ background: "#111", padding: "12px 20px" }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: (links.length + socialLinks.length) * 0.05, duration: 0.3, ease }}
+                onClick={() => { setMenuOpen(false); setModalOpen(true); }}
               >
-                {link}
-              </motion.a>
-            ))}
+                Let&apos;s Talk
+              </motion.button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
+      <ContactModal open={modalOpen} onClose={() => { setModalOpen(false); setModalService(undefined); }} initialService={modalService} />
     </>
-  );
-}
-
-// Cross-fades between black and white logo
-function Logo({ isDark }: { isDark: boolean }) {
-  return (
-    <div className="relative shrink-0" style={{ width: 93, height: 24 }}>
-      <Image
-        src="/MilkLogo-Black.png"
-        alt="Milk"
-        width={93}
-        height={24}
-        priority
-        style={{
-          width: 93,
-          height: "auto",
-          position: "absolute",
-          top: 0,
-          left: 0,
-          opacity: isDark ? 0 : 1,
-          transition: "opacity 0.5s ease",
-        }}
-      />
-      <Image
-        src="/MilkLogo-White.png"
-        alt="Milk"
-        width={93}
-        height={24}
-        priority
-        style={{
-          width: 93,
-          height: "auto",
-          position: "absolute",
-          top: 0,
-          left: 0,
-          opacity: isDark ? 1 : 0,
-          transition: "opacity 0.5s ease",
-        }}
-      />
-    </div>
   );
 }

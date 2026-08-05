@@ -1,100 +1,274 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { motion, useInView } from "framer-motion";
-import { RevealLine, BlurReveal } from "./animations";
+import { motion, useScroll, useTransform } from "framer-motion";
+
+function TypewriterWord({ word, longest, animated }: { word: string; longest: string; animated: boolean }) {
+  const [display, setDisplay] = useState("");
+  const prevWord = useRef(word);
+  const initialTyped = useRef(false);
+
+  // Type the first word in when the hero reveals
+  useEffect(() => {
+    if (!animated || initialTyped.current) return;
+    initialTyped.current = true;
+    let typed = "";
+    const id = setInterval(() => {
+      typed = word.slice(0, typed.length + 1);
+      setDisplay(typed);
+      if (typed === word) clearInterval(id);
+    }, 90);
+    return () => clearInterval(id);
+  }, [animated]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Erase old word, type new word on subsequent cycles
+  useEffect(() => {
+    if (!initialTyped.current) return;
+    if (prevWord.current === word) return;
+
+    const oldWord = prevWord.current;
+    prevWord.current = word;
+    let current = oldWord;
+
+    const eraseId = setInterval(() => {
+      current = current.slice(0, -1);
+      setDisplay(current);
+      if (current.length === 0) {
+        clearInterval(eraseId);
+        let typed = "";
+        const typeId = setInterval(() => {
+          typed = word.slice(0, typed.length + 1);
+          setDisplay(typed);
+          if (typed === word) clearInterval(typeId);
+        }, 90);
+      }
+    }, 70);
+
+    return () => clearInterval(eraseId);
+  }, [word]);
+
+  return (
+    <span style={{ display: "inline-block", position: "relative" }}>
+      {/* Ghost spacer — always holds the width of the longest word so the line never reflows */}
+      <span style={{ visibility: "hidden", userSelect: "none", pointerEvents: "none" }}>{longest}</span>
+      {/* Visible typewriter text, centered within the spacer */}
+      <span style={{ position: "absolute", left: 0, right: 0, top: 0, textAlign: "center", whiteSpace: "nowrap" }}>{display}</span>
+    </span>
+  );
+}
 import SectionReveal from "./SectionReveal";
 
 const ease = [0.22, 1, 0.36, 1] as const;
-const cyclingWords = ["businesses.", "communities.", "products.", "experiences.", "teams."];
+// Resets on hard refresh (module re-evaluates), survives soft nav (module stays cached)
+let heroHasPlayed = false;
+
+const logos = [
+  { src: "/logo-google.svg",               alt: "Google",      height: 22 },
+  { src: "/logo-meta.svg",                 alt: "Meta",        height: 20 },
+  { src: "/logo-microsoft.svg",            alt: "Microsoft",   height: 20 },
+  { src: "/Cisco_logo_blue_2016.svg.png",  alt: "Cisco",       height: 24 },
+  { src: "/logo-stripe.svg",               alt: "Stripe",      height: 22 },
+  { src: "/accenture-transparent.webp",    alt: "Accenture",   height: 22 },
+];
 
 export default function HeroSection() {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const containerRef  = useRef<HTMLDivElement>(null);
+  const logoEls = useRef<HTMLSpanElement[]>([]);
 
-  const [textIndex, setTextIndex] = useState(0);
-  const [displayText, setDisplayText] = useState("");
-  const [isDeleting, setIsDeleting] = useState(false);
+  // Spotlight: logo closest to container center gets full opacity, rest faded
+  useEffect(() => {
+    logoEls.current = [];
+  }, []);
 
   useEffect(() => {
-    const fullText = cyclingWords[textIndex];
+    let raf: number;
 
-    const typeInterval = setInterval(() => {
-      if (isDeleting) {
-        setDisplayText((prev) => prev.substring(0, prev.length - 1));
-      } else {
-        setDisplayText((prev) => fullText.substring(0, prev.length + 1));
+    const tick = () => {
+      if (containerRef.current) {
+        const cRect = containerRef.current.getBoundingClientRect();
+        const centerX = cRect.left + cRect.width / 2;
+
+        let minDist = Infinity;
+        let best: HTMLSpanElement | null = null;
+
+        for (const el of logoEls.current) {
+          const r = el.getBoundingClientRect();
+          const dist = Math.abs(r.left + r.width / 2 - centerX);
+          if (dist < minDist) { minDist = dist; best = el; }
+        }
+
+        // Continuous scale — each logo grows/shrinks smoothly based on distance from center
+        for (const el of logoEls.current) {
+          const r = el.getBoundingClientRect();
+          const elCenterX = r.left + r.width / 2;
+          const dist = Math.abs(elCenterX - centerX);
+          const t = Math.min(dist / (cRect.width * 0.35), 1);
+          const scale = 1.18 - t * 0.18; // 1.18 at center → 1.0 at edge
+          const opacity = 1 - t * 0.8;   // 1.0 at center → 0.2 at edge
+          el.style.opacity = String(opacity);
+          el.style.transform = `scale(${scale})`;
+        }
       }
-    }, isDeleting ? 75 : 150);
-
-    let deleteTimeout: ReturnType<typeof setTimeout> | null = null;
-    if (!isDeleting && displayText === fullText) {
-      deleteTimeout = setTimeout(() => setIsDeleting(true), 2000);
-    } else if (isDeleting && displayText === "") {
-      setIsDeleting(false);
-      setTextIndex((prev) => (prev + 1) % cyclingWords.length);
-    }
-
-    return () => {
-      clearInterval(typeInterval);
-      if (deleteTimeout) clearTimeout(deleteTimeout);
+      raf = requestAnimationFrame(tick);
     };
-  }, [displayText, isDeleting, textIndex]);
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+  // Animate after intro loader exits. Stays true during soft nav so it doesn't replay.
+  const [animated, setAnimated] = useState(heroHasPlayed);
+  useEffect(() => {
+    if (heroHasPlayed) return;
+    const onIntroExit = () => {
+      // Small delay so the loader's white fade-out has started
+      const t = setTimeout(() => {
+        setAnimated(true);
+        heroHasPlayed = true;
+      }, 300);
+      return () => clearTimeout(t);
+    };
+    window.addEventListener("milk:intro-exit", onIntroExit, { once: true });
+    return () => window.removeEventListener("milk:intro-exit", onIntroExit);
+  }, []);
+
+  // ── Scroll-driven animations ──────────────────────────────────────────────
+  const { scrollY } = useScroll();
+  const contentOpacity = useTransform(scrollY, [0, 1200], [1, 0]);
+
+  const cycleWords = ["Business.", "Services.", "Products."];
+  const [wordIndex, setWordIndex] = useState(0);
+  useEffect(() => {
+    if (!animated) return;
+    const id = setInterval(() => setWordIndex(i => (i + 1) % cycleWords.length), 3500);
+    return () => clearInterval(id);
+  }, [animated]);
+
+
 
   return (
     <SectionReveal
       id="home"
-      className="px-8 lg:px-[180px]"
-      style={{ background: "linear-gradient(to bottom, rgba(224,224,224,0.2), rgba(0,0,0,0))" }}
+      noExitBlur
+      noClip
+      className="px-8 lg:px-[40px] pt-[92px]"
     >
-      <div ref={ref} className="flex flex-col items-center text-center gap-6 max-w-[602px]">
+      {/* ── Content ── */}
+      <motion.div
+        ref={ref}
+        className="flex flex-col items-center text-center gap-6 w-full"
+        style={{ position: "relative", zIndex: 1, opacity: contentOpacity }}
+      >
 
-        <RevealLine className="font-mono text-[16px] text-[#2F2F2F] tracking-[-0.48px] leading-6" delay={0.2} inView={inView}>
-          Hey, we are milk 👋🏼
-        </RevealLine>
-
-        <h1
-          className="font-sans font-medium text-[#2F2F2F] tracking-[-3.36px] leading-[0.85] w-full"
-          style={{ fontSize: "clamp(40px, 6vw, 72px)" }}
-        >
-          <RevealLine className="block" delay={0.35} inView={inView}>
-            We turn big ideas
-          </RevealLine>
-          <RevealLine className="block" delay={0.45} inView={inView}>
-            into thriving
-          </RevealLine>
-          <RevealLine className="block text-center" delay={0.55} inView={inView}>
-            <span className="inline-block min-w-[2ch]">
-              {displayText}
-              <span className="animate-pulse opacity-60">|</span>
+        {/* Headline */}
+        <div className="flex flex-col items-center w-full text-center gap-3">
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={animated ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
+          >
+            <span className="text-[#2E2E2E]" style={{ fontFamily: "Ambit", fontWeight: 700, fontSize: "clamp(29px, 3.5vw, 68px)", letterSpacing: "-0.05em", lineHeight: 1.2, display: "block" }}>
+              Turn your big ideas into
             </span>
-          </RevealLine>
-        </h1>
+          </motion.div>
 
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={animated ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.52 }}
+          >
+            <h1 className="text-display text-[#2E2E2E] text-center text-[64px] lg:text-[152px]" style={{ fontFamily: "Ambit" }}>
+              World-Class<br />
+              <TypewriterWord word={cycleWords[wordIndex]} longest="Services." animated={animated} />
+            </h1>
+          </motion.div>
+        </div>
+
+        {/* CTA Buttons */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={inView ? { opacity: 1 } : {}}
-          transition={{ duration: 0.5, ease, delay: 0.85 }}
+          className="flex items-center gap-3"
+          initial={{ opacity: 0, y: 16 }}
+          animate={animated ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 2.0, ease, delay: 0.78 }}
         >
-          <BlurReveal
-            text="Our proven approach has been crafted to reduce risks and maximize your success with confidence while reducing wasted efforts."
-            className="font-sans font-normal text-[#565656] text-[16px] tracking-[-0.32px] leading-[1.2]"
-            delay={0.85}
-          />
+          <motion.button
+            onClick={() => window.dispatchEvent(new CustomEvent("milk:open-contact"))}
+            className="inline-flex items-center justify-center gap-2 rounded-full font-sans font-medium text-[15px] text-white tracking-[-0.45px] w-[148px] transition-opacity hover:opacity-80"
+            style={{ background: "#111", padding: "12px 20px" }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ duration: 0.15 }}
+          >
+            Let&apos;s Talk
+          </motion.button>
+
+          <motion.button
+            onClick={() => window.dispatchEvent(new CustomEvent("milk:snap-to", { detail: { id: "portfolio" } }))}
+            className="border border-[#2E2E2E]/15 rounded-full py-[11px] font-sans font-medium text-[15px] text-[#2E2E2E] tracking-[-0.45px] inline-flex items-center justify-center gap-2 hover:border-[#2E2E2E]/40 transition-colors w-[148px]"
+            whileTap={{ scale: 0.97 }}
+            transition={{ duration: 0.15 }}
+          >
+            View Work
+          </motion.button>
         </motion.div>
 
-        <motion.a
-          href="#portfolio"
-          className="glass-border-animated rounded-lg px-11 py-4 text-[16px] font-sans font-medium text-black tracking-[-0.96px] whitespace-nowrap cursor-pointer"
-          initial={{ opacity: 0, y: 16 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7, ease, delay: 1.0 }}
-          whileTap={{ scale: 0.97 }}
-          whileHover={{ scale: 1.02 }}
+        {/* Logos marquee */}
+        <motion.div
+          className="w-full flex flex-col items-center gap-4 mt-4"
+          initial={{ opacity: 0 }}
+          animate={animated ? { opacity: 1 } : {}}
+          transition={{ duration: 2.2, ease, delay: 1.05 }}
         >
-          Check our Work
-        </motion.a>
-      </div>
+          <p style={{ fontFamily: "Ambit", fontWeight: 600, fontSize: "22px", letterSpacing: "-0.88px", lineHeight: 0.9 }} className="text-[#B0B0B0]">
+            Trusted by teams at
+          </p>
+
+          <div
+            ref={containerRef}
+            className="relative mx-auto overflow-hidden"
+            style={{ width: 360, paddingBlock: "20px" }}
+          >
+            {/* Edge fade */}
+            <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1, background: "linear-gradient(to right, #FFFFFF 0%, transparent 28%, transparent 72%, #FFFFFF 100%)" }} />
+            <div className="marquee-track flex" style={{ width: "max-content" }}>
+              {[0, 1].map((copy) => (
+                <div key={copy} className="flex items-center shrink-0" style={{ gap: "2.5rem", paddingRight: "2.5rem" }}>
+                  {logos.map((logo, i) => (
+                    <span
+                      key={i}
+                      ref={el => { if (el) logoEls.current.push(el); }}
+                      className="shrink-0 flex items-center"
+                      style={{ filter: "brightness(0)", opacity: 0.2, transition: "opacity 0.25s ease, transform 0.25s ease" }}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={logo.src}
+                        alt={logo.alt}
+                        style={{ width: "auto", height: logo.height }}
+                      />
+                    </span>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+
+
+      </motion.div>
+
+
+
+      {/* Bottom gradient — reinforces fade into next section */}
+      <div
+        className="absolute bottom-0 left-0 right-0 pointer-events-none"
+        style={{
+          height: "35%",
+          background: "linear-gradient(to bottom, transparent, #FFFFFF)",
+          zIndex: 1,
+        }}
+      />
+
     </SectionReveal>
   );
 }

@@ -3,13 +3,16 @@
 /* ─── Design Tokens from Figma ──────────────────────────────────────────── */
 @theme inline {
   /* Fonts */
-  --font-sans: var(--font-dm-sans);
-  --font-mono: var(--font-dm-mono);
+  --font-sans: "tt-commons-pro", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "tt-commons-pro", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Ambit", sans-serif;
+  --font-editorial: "Ambit", sans-serif;
+  --font-mix: "Season Mix", sans-serif;
 
   /* Brand colors */
-  --color-bg:           #FAFAFA;
-  --color-bg-dark:      #1F1F20;
-  --color-text-primary: #2F2F2F;
+  --color-bg:           #FFFFFF;
+  --color-bg-dark:      #111111;
+  --color-text-primary: #2E2E2E;
   --color-text-secondary: #565656;
   --color-text-tertiary:  #282828;
   --color-text-darkest:   #0C0C12;
@@ -21,29 +24,237 @@
 
 }
 
+@keyframes gradient-sweep {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.service-gradient-text {
+  background-size: 200% 100%;
+  animation: gradient-sweep 2.4s ease infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ─── Season Fonts ───────────────────────────────────────────────────────── */
+
+@font-face {
+  font-family: "Ambit";
+  font-style: normal;
+  font-weight: 400;
+  src: url("/Font/Ambit/Ambit-Regular.otf") format("opentype"),
+       url("/Font/Ambit/Ambit-Regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Ambit";
+  font-style: normal;
+  font-weight: 600 700;
+  src: url("/Font/Ambit/Ambit-SemiBold.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Season Mix";
+  font-style: normal;
+  font-weight: 400;
+  src: url("/fonts/SeasonMix-TRIAL-Regular.otf") format("opentype");
+}
+
+/* ─── Font Awesome 6 Pro ─────────────────────────────────────────────────── */
+@font-face {
+  font-family: "DrukCond Super";
+  font-style: normal;
+  font-weight: 900;
+  src: url("/fonts/DrukCond-Super-Trial.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "BN Hamburg Hand Bold";
+  font-style: normal;
+  font-weight: 700;
+  src: url("/fonts/BN-HamburgHand-Bold.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Font Awesome 6 Pro";
+  font-style: normal;
+  font-weight: 900;
+  src: url("/Font/Font Awesome 6 Pro-Solid-900.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Font Awesome 6 Brands";
+  font-style: normal;
+  font-weight: 400;
+  src: url("/Font/Font Awesome 6 Brands-Regular-400.otf") format("opentype");
+}
+
+/* ─── Cursor blink ───────────────────────────────────────────────────────── */
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.cursor-blink {
+  animation: blink 0.9s step-start infinite;
+}
+
+/* ─── Marquee ────────────────────────────────────────────────────────────── */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.marquee-track {
+  animation: marquee 30s linear infinite;
+  will-change: transform;
+}
+
+/* ─── Cinematic scale shift on snap transition ───────────────────────────── */
+.snap-section:not([data-free-scroll]) {
+  transition: transform 1.6s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+body.is-snapping .snap-section:not([data-free-scroll]) {
+  transform: scale(0.97);
+}
+
 /* ─── Base ───────────────────────────────────────────────────────────────── */
 html {
   overflow-x: clip;
-  scroll-behavior: smooth;
-}
-
-/* Desktop scroll snap */
-@media (min-width: 1024px) {
-  html {
-    scroll-snap-type: y mandatory;
-  }
 }
 
 body {
-  background-color: #FAFAFA;
-  color: #2F2F2F;
+  font-family: var(--font-sans);
+  font-weight: 400;
+  background-color: transparent;
+  color: #2E2E2E;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  cursor: url('/cursor-cow.svg') 4 2, auto;
+  overflow-x: clip;
 }
 
-/* ─── Typography helpers ─────────────────────────────────────────────────── */
-.font-mono {
-  text-transform: uppercase;
+/* ─── Typography scale ───────────────────────────────────────────────────── */
+@layer components {
+  /* ── Season Sans: the declarative voice ─────────────────────────────────── */
+
+  /* Display — hero, TickerSection, ScribbleSection: maximum impact */
+  .text-display {
+    font-family: "Ambit", sans-serif;
+    font-size: clamp(56px, 8.3vw, 120px);
+    font-weight: 700;
+    letter-spacing: -0.05em;
+    line-height: 0.88;
+    text-wrap: balance;
+  }
+
+  /* Heading — bio statement, service taglines, TeamSection */
+  .text-heading {
+    font-family: "Ambit", sans-serif;
+    font-size: clamp(56px, 8.3vw, 120px);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 0.7;
+    padding-top: 0.18em;
+    text-wrap: balance;
+  }
+
+  /* Title — mid-scale between subheading and heading (service names, section titles) */
+  .text-title {
+    font-family: "Ambit", sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+
+  /* Section title — case study section headings */
+  .text-section-title {
+    font-family: "Ambit", sans-serif;
+    font-size: 48px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+
+  /* Case hero title — responsive, smaller than text-heading */
+  .text-case-title {
+    font-family: "Ambit", sans-serif;
+    font-size: clamp(40px, 8.3vw, 100px);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+    text-wrap: balance;
+  }
+
+  /* Case section headings — same as case title on desktop, smaller on mobile */
+  .text-section-heading {
+    font-family: "Ambit", sans-serif;
+    font-size: clamp(40px, 8.3vw, 76px);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+    text-wrap: balance;
+  }
+
+  /* Subheading — service list, card titles */
+  .text-subheading {
+    font-family: "Ambit", sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.05em;
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+
+  /* ── Season Serif: the editorial voice ──────────────────────────────────── */
+
+  /* Serif eyebrow — section introductions ("I understand...", "Great idea but no clue") */
+  .text-serif-eyebrow {
+    font-family: "Ambit", sans-serif;
+    font-size: clamp(18px, 1.8vw, 24px);
+    font-weight: 400;
+    letter-spacing: -0.05em;
+    line-height: 0.9;
+  }
+
+  /* Serif intro — personal bio line ("I'm Steven...") */
+  .text-serif-intro {
+    font-family: "Ambit", sans-serif;
+    font-size: 32px;
+    font-weight: 400;
+    letter-spacing: -0.05em;
+    line-height: 0.9;
+  }
+
+  /* Body — description paragraphs */
+  .text-body {
+    font-family: "Ambit", sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.6;
+  }
+
+  /* ── TT Commons: the functional voice ───────────────────────────────────── */
+
+  /* UI — nav links, buttons, interactive text */
+  .text-ui {
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: -0.45px;
+  }
+
+  /* Micro — tags and metadata */
+  .text-micro {
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+  }
 }
 
 /* ─── Liquid Glass ───────────────────────────────────────────────────────── */
@@ -144,10 +355,138 @@ body {
   z-index: -1;
 }
 
+/* ─── Display text responsive override ──────────────────────────────────── */
+@media (min-width: 1024px) {
+  .text-display {
+    font-size: 172px;
+    letter-spacing: -10px;
+    line-height: 0.88;
+  }
+}
+
+/* ─── Mobile-only typography overrides (desktop untouched) ──────────────── */
+@media (max-width: 1023px) {
+  .text-case-title     { font-size: 48px; }
+  .text-section-heading { font-size: 32px; }
+  .text-serif-eyebrow  { font-size: 24px; }
+}
+
 /* ─── Scroll snap sections ───────────────────────────────────────────────── */
 @media (min-width: 1024px) {
   .snap-section {
     scroll-snap-align: start;
     scroll-snap-stop: always;
+  }
+}
+
+/* ─── Scroll-Driven CSS Animations ──────────────────────────────────────── */
+
+@keyframes scroll-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes parallax-shift {
+  from { transform: translateY(-200px); }
+  to   { transform: translateY(200px); }
+}
+
+@keyframes section-exit {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Progressive enhancement — only runs on browsers supporting scroll timelines */
+@supports (animation-timeline: view()) {
+
+  /* ── Reveal as element enters the viewport ── */
+  .view-reveal {
+    animation: scroll-reveal 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 30%;
+  }
+
+  /* ── Staggered group — shifted range start per child ── */
+  .view-stagger-1 {
+    animation: scroll-reveal 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-timeline: view();
+    animation-range: entry 2% entry 32%;
+  }
+  .view-stagger-2 {
+    animation: scroll-reveal 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-timeline: view();
+    animation-range: entry 5% entry 35%;
+  }
+  .view-stagger-3 {
+    animation: scroll-reveal 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-timeline: view();
+    animation-range: entry 8% entry 38%;
+  }
+
+  /* ── Parallax image — parent must be overflow:hidden ── */
+  .parallax-img {
+    width: 100%;
+    height: calc(100% + 400px);
+    margin-top: -200px;
+    object-fit: cover;
+    animation: parallax-shift 1s linear;
+    animation-timeline: view();
+  }
+
+  /* ── Section exit overlay — fades in as section scrolls out (desktop only) ── */
+  @media (min-width: 1024px) {
+    .view-exit {
+      animation: section-exit 1s linear both;
+      animation-timeline: view();
+      animation-range: exit 0% exit 100%;
+    }
+  }
+}
+
+/* ── Service item underline — slides in left→right on hover, out right→left on leave ── */
+.service-underline {
+  position: relative;
+  display: inline;
+  text-decoration: none;
+}
+.service-underline::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  bottom: 0;
+  left: 0;
+  pointer-events: none;
+  transform-origin: 100% 50%;
+  transform: scale3d(0, 1, 1);
+  transition: transform 0.3s;
+}
+.service-underline:hover::before,
+.service-underline.active::before {
+  transform-origin: 0% 50%;
+  transform: scale3d(1, 1, 1);
+}
+
+/* ── Reduced-motion: skip all scroll-driven animations ── */
+@media (prefers-reduced-motion: reduce) {
+  .view-reveal,
+  .view-stagger-1,
+  .view-stagger-2,
+  .view-stagger-3,
+  .parallax-img {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .view-exit {
+    animation: none !important;
+    opacity: 0 !important;
   }
 }

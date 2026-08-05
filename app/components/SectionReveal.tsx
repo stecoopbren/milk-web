@@ -1,7 +1,9 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { motion, useInView, useScroll, useTransform } from "framer-motion";
+
+const ease = [0.22, 1, 0.36, 1] as const;
 
 interface SectionRevealProps {
   children: React.ReactNode;
@@ -9,6 +11,8 @@ interface SectionRevealProps {
   className?: string;
   style?: React.CSSProperties;
   dark?: boolean;
+  noClip?: boolean;
+  noExitBlur?: boolean;
   background?: React.ReactNode;
 }
 
@@ -18,61 +22,51 @@ export default function SectionReveal({
   className = "",
   style,
   dark = false,
+  noClip = false,
+  noExitBlur = false,
   background,
 }: SectionRevealProps) {
   const ref = useRef<HTMLElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-5%" });
 
-  // Track scroll progress relative to this section
+  // Tracks the last viewport-height of the section — works for any section height
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: ["start end", "end start"],
+    offset: ["end end", "end start"],
   });
 
-  // Smooth spring — lower stiffness + higher damping for a more fluid feel
-  const smooth = useSpring(scrollYProgress, { stiffness: 38, damping: 22, restDelta: 0.001 });
-
-  // Enter: fade + rise over a longer scroll window so it eases in gently
-  const contentOpacity = useTransform(smooth, [0, 0.22], [0, 1]);
-  const contentY      = useTransform(smooth, [0, 0.25], [28, 0]);
-  const contentScale  = useTransform(smooth, [0, 0.22], [0.97, 1]);
-
-  // Exit: start the white wash earlier and pair with a subtle scale-down
-  const exitOpacity = useTransform(smooth, [0.68, 1], [0, 1]);
-  const exitScale   = useTransform(smooth, [0.68, 1], [1, 0.96]);
+  const exitFilter  = useTransform(scrollYProgress, [0, 0.65], ["blur(0px)",  "blur(16px)"]);
+  const exitOpacity = useTransform(scrollYProgress, [0, 0.55], [1, 0]);
 
   return (
     <section
       ref={ref}
       id={id}
-      className={`snap-section relative min-h-screen flex items-center justify-center overflow-hidden ${className}`}
+      data-dark={dark ? "true" : undefined}
+      className={`snap-section relative z-10 min-h-screen flex items-center justify-center ${noClip ? "" : "overflow-hidden"} ${dark ? "bg-[#1F1F20]" : ""} ${className}`}
       style={style}
     >
-      {/* Optional background layer — rendered below scroll-animated content */}
       {background && (
         <div className="absolute inset-0 z-0 pointer-events-none">
           {background}
         </div>
       )}
 
-      {/* Scroll-linked content reveal */}
+      {/* Exit blur wrapper — scroll-driven, fully reversible */}
       <motion.div
         className="w-full h-full flex items-center justify-center"
-        style={{ opacity: contentOpacity, y: contentY, scale: contentScale }}
+        style={noExitBlur ? undefined : { filter: exitFilter, opacity: exitOpacity }}
       >
-        {children}
-      </motion.div>
-
-      {/* Fade-to-white + scale-down as section exits — skip on dark footer */}
-      {!dark && (
+        {/* Entrance fade */}
         <motion.div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            opacity: exitOpacity,
-            scale: exitScale,
-            background: "linear-gradient(to top, #FAFAFA 0%, #FAFAFA 30%, transparent 100%)",
-          }}
-        />
-      )}
+          className="w-full h-full flex items-center justify-center"
+          initial={{ opacity: 0 }}
+          animate={inView ? { opacity: 1 } : {}}
+          transition={{ duration: 0.4, ease, delay: 0.05 }}
+        >
+          {children}
+        </motion.div>
+      </motion.div>
     </section>
   );
 }

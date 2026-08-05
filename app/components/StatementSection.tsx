@@ -2,8 +2,10 @@
 
 import { useRef } from "react";
 import { useInView } from "framer-motion";
-import { RevealLine, BlurReveal } from "./animations";
+import Lottie from "lottie-react";
+import { ScrollColorText } from "./animations";
 import SectionReveal from "./SectionReveal";
+import guideAnimation from "../../public/Formula/Guide.json";
 
 export default function StatementSection() {
   const ref = useRef<HTMLDivElement>(null);
@@ -11,30 +13,24 @@ export default function StatementSection() {
 
   return (
     <SectionReveal id="about-us" className="px-8 lg:px-[180px]">
-      <div ref={ref} className="flex flex-col gap-6 max-w-[610px] w-full">
+      <div ref={ref} className="flex flex-col gap-6 max-w-[610px] w-full items-center text-center">
 
-        <RevealLine
-          className="font-mono text-[16px] lg:text-[20px] text-[#2F2F2F] tracking-[-0.48px] lg:tracking-[-0.6px] leading-6"
-          delay={0.1}
-          inView={inView}
-        >
-          While you hesitate, others ship
-        </RevealLine>
+        <Lottie animationData={guideAnimation} loop className="w-48 h-48" />
 
-        <h2
-          className="font-sans font-medium text-[#0C0C12] tracking-[-3.2px] leading-[0.9]"
-          style={{ fontSize: "clamp(36px, 5.5vw, 56px)" }}
-        >
-          <RevealLine delay={0.2} inView={inView}>If you want real results,</RevealLine>
-          <RevealLine delay={0.3} inView={inView}>you have to dare to do</RevealLine>
-          <RevealLine delay={0.4} inView={inView}>things differently.</RevealLine>
+        <h3 className="font-sans font-normal text-[#888888] text-[18px] tracking-[-0.5px]">
+          <ScrollColorText text="Always chart before you sail." />
+        </h3>
+
+        <h2 className="text-heading w-full">
+          <ScrollColorText text="Assumptions blind." />
+          <ScrollColorText text="Hypotheses guide." />
         </h2>
 
-        <BlurReveal
-          text="In today's AI-driven world, adapting is key. We use design to solve real business challenges and create lasting impact, helping partners reveal their unique essence with memorable solutions."
-          className="font-sans font-normal text-[#282828] text-[16px] tracking-[-0.32px] leading-[1.2]"
-          delay={0.55}
+        <ScrollColorText
+          text="Leading great teams taught me that guessing is expensive. I bring proven methods that reduce uncertainty and make subjective decisions objective."
+          className="text-body"
         />
+
       </div>
     </SectionReveal>
   );

@@ -12,17 +12,22 @@ export function RevealLine({
   children,
   className = "",
   delay = 0,
-  inView,
+  inView: externalInView,
 }: {
   children: React.ReactNode;
   className?: string;
   delay?: number;
-  inView: boolean;
+  inView?: boolean;
 }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const selfInView = useInView(ref, { once: true, margin: "-60px" });
+  const inView = externalInView !== undefined ? externalInView : selfInView;
+
   return (
     <span
-      className="block overflow-hidden"
-      style={{ paddingBottom: "0.15em", marginBottom: "-0.15em" }}
+      ref={ref}
+      className="block"
+      style={{ clipPath: "inset(-0.45em -999px -0.25em -999px)" }}
     >
       <motion.span
         className="block"
@@ -32,6 +37,37 @@ export function RevealLine({
       >
         <span className={className}>{children}</span>
       </motion.span>
+    </span>
+  );
+}
+
+// ─── Word-by-word color reveal ────────────────────────────────────────────────
+// Words start grey (#C0C0C0) and stagger to black (#0C0C12) when the element
+// enters the viewport. Resets each time so it replays on every scroll visit.
+
+export function ScrollColorText({
+  text,
+  className = "",
+}: {
+  text: string;
+  className?: string;
+}) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: false, margin: "-10%" });
+  const words = text.split(" ");
+
+  return (
+    <span ref={ref} className={`block ${className}`}>
+      {words.map((word, i) => (
+        <motion.span
+          key={i}
+          className="inline-block mr-[0.22em] last:mr-0"
+          animate={{ color: inView ? "#0C0C12" : "#C0C0C0" }}
+          transition={{ duration: 0.5, delay: i * 0.04, ease }}
+        >
+          {word}
+        </motion.span>
+      ))}
     </span>
   );
 }
