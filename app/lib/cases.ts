@@ -1,8 +1,19 @@
+export type ChapterItem = {
+  part: string;
+  title: string;
+  description: string;
+  image: string;
+  video?: string;
+  slug?: string; // undefined = coming soon
+};
+
 export type CaseSection =
   | { type: 'split'; label: string; heading: string; body: string; bullets?: string[]; image?: string; image2?: string; video?: string }
   | { type: 'centered'; label: string; heading: string; body: string; bullets?: string[] }
   | { type: 'carousel'; images: string[] }
-  | { type: 'stats'; label: string; heading: string; body: string; bullets?: string[] };
+  | { type: 'stats'; label: string; heading: string; body: string; bullets?: string[] }
+  | { type: 'chapters'; label: string; heading: string; items: ChapterItem[] }
+  | { type: 'cinematic'; src: string; shots?: { x: number; y: number; scale: number; hold: number; label?: string }[]; cursors?: { name: string; color: string; path: [number, number][]; stepDuration: number; startDelay: number }[]; height?: number; bg?: string };
 
 export type CaseData = {
   slug: string;
@@ -24,11 +35,11 @@ const cases: CaseData[] = [
   {
     slug: 'regenerative-community',
     client: 'Chagüite',
-    category: 'Real estate project',
-    heroLabel: 'From Idea to Thriving Business',
-    title: 'Designing a\nRegenerative Community',
+    category: 'Brand Strategy & Growth',
+    heroLabel: 'Brand Strategy · Identity',
+    title: 'Built from the land.\nNot from the listing.',
     subtitle:
-      "Raw land in Costa Rica's South Caribbean. Rich ecology, protected reserves, and no vision, no strategy, no investment narrative. At risk of being sold like inventory instead of treated like the rare thing it was.",
+      "Fifty-plus hectares on Costa Rica's South Caribbean coast, bordered by protected reserves. The land had everything it needed to be extraordinary. The narrative had to catch up. Without the right story, the rarest parcel in the region would sell at an average price.",
     tags: ['Business', 'Branding', 'Architecture', 'Growth', 'Marketing'],
     heroImage: '/Chaguite/chaguite-hero.webp',
     heroImages: [
@@ -43,16 +54,16 @@ const cases: CaseData[] = [
     sections: [
       {
         type: 'split',
-        label: 'Challenge',
-        heading: 'The land was extraordinary. Nobody knew it yet.',
-        body: "Fifty-plus hectares on Costa Rica's South Caribbean coast, bordered by protected reserves, dense with the kind of ecology that takes generations to find. The founders knew what they had. The problem was that nobody else could see it yet.\n\nWithout a story, land like this gets priced like any other piece of raw earth. Sold to whoever shows up first, developed without intention, stripped of the thing that made it worth finding.\n\nThe risk wasn't financial. It was narrative. If the project launched without a clear vision and investment logic, it would be defined by whoever filled that vacuum. That's rarely a good outcome.",
+        label: 'The land',
+        heading: 'Rare ecology. A commodity price.',
+        body: "Fifty-plus hectares on Costa Rica's South Caribbean coast. Protected reserves on two sides. The kind of ecology that takes generations to build and one bad decision to lose. The founders knew what they had. The real question was whether that value would ever be legible to anyone else.\n\nWithout a story, land like this gets priced by comparison: against whatever sold nearby, whatever looks similar on paper. That math is neutral. It punishes anything unusual. The risk wasn't financial. It was that one of the rarest parcels in the region would be treated like the most ordinary.",
         image: '/Chaguite/hf_20260601_021639_f873ef37-00e8-4a88-99bc-7f0540368b7e (1).webp',
       },
       {
         type: 'split',
-        label: 'My Role',
-        heading: 'Stop selling land. Start selling a future.',
-        body: "The first conversation wasn't about logos or brochures. It was about what kind of people would choose to build a life here, what they would need to feel, and whether the project could honestly deliver that.\n\nFrom that came a single positioning decision: this wouldn't be a real estate development. It would be a regenerative community, low-density, ecologically sensitive, built for people who want to own something that means something.\n\nThat decision changed everything downstream. Lot sizes, architectural guidelines, the financial model, the investor narrative. Every part of the project was built from that positioning outward.\n\nThe work covered:",
+        label: 'The work',
+        heading: 'The brand started where the land did.',
+        body: "The first conversation wasn't about logos or brochures. It was about who would choose to build a life here, what they would need to feel, and whether the project could honestly deliver that.\n\nThat clarity produced one positioning decision that changed everything downstream. This wouldn't be a real estate development. It would be a regenerative community, low-density, ecologically sensitive, built for people who want to own something that means something. Lot sizes, architectural guidelines, the financial model, the investment narrative: every part of the project was built from that positioning outward.\n\nThe work covered:",
         bullets: [
           'Project vision and regenerative positioning',
           'Target market and buyer profile',
@@ -66,9 +77,9 @@ const cases: CaseData[] = [
       },
       {
         type: 'split',
-        label: 'Identity system',
+        label: 'The identity',
         heading: 'A mark built to last as long as the land.',
-        body: "The identity starts with a seed.\n\nNot as metaphor. As the literal center of what Chagüite is: something planted with intention, designed to grow, tended by people who understand that what you build now shapes what exists in fifty years.\n\nThe seed sits inside a crest. A reference to lineage and stewardship. The idea that land isn't owned. It's held, passed forward, cared for. The crest signals permanence and intention, framing the project as something to be sustained across generations rather than extracted and sold.\n\nThe result is a mark that earns its weight. Timeless without being archaic. Grounded without being heavy.",
+        body: "The identity starts with a seed. Not as metaphor, but as the literal center of what Chagüite is: something planted with intention, designed to grow, tended by people who understand that what you build now shapes what exists in fifty years.\n\nThe seed sits inside a crest. The reference is to lineage, to stewardship, to the kind of ownership that isn't really ownership at all. Timeless without being archaic. Grounded without being heavy. Because land isn't owned. It's held, passed forward, cared for.",
       },
       {
         type: 'carousel',
@@ -85,8 +96,8 @@ const cases: CaseData[] = [
       {
         type: 'stats',
         label: 'Impact',
-        heading: '60% increase in price per m² and $2 million secured in first round of investment.',
-        body: "Raw land gets priced by comparison. Whatever sold nearby, whatever looks similar. That math is neutral. It punishes anything unusual.\n\nThe positioning changed what buyers were comparing Chagüite to. Not other parcels. The decision to invest in something that mattered, or not to.\n\nThose are different decisions. They attract different people.\n\nIt created the foundation for:",
+        heading: 'A different story. A different price.',
+        body: "Raw land gets priced by comparison. Whatever sold nearby, whatever looks similar on paper. That math is neutral. It punishes anything unusual.\n\nThe positioning changed what buyers were comparing Chagüite to. Not other parcels. The decision to invest in something that mattered, or not to. Those are different decisions. They attract different people. And they unlock a fundamentally different price.",
         bullets: [
           'Investor alignment',
           'Market differentiation',
@@ -99,16 +110,16 @@ const cases: CaseData[] = [
   {
     slug: 'casa-siwa',
     client: 'Casa Siwä',
-    category: 'Brand identity & strategy',
+    category: 'Brand Identity & Digital Experience',
+    heroLabel: 'Brand Identity · Art Direction',
     title: 'Built from culture.\nNot from mood boards.',
     subtitle:
-      "Casa Siwä is a luxury retreat on the South Caribbean coast of Costa Rica, built on ancestral Bribri land. We designed the complete brand identity: visual system, verbal identity, and every physical touchpoint, rooted in 10,000 years of living Bribri culture.",
+      "A luxury retreat on Costa Rica's South Caribbean coast, built on ancestral Bribri land. The culture was the foundation, not the inspiration. The brand had to come from 10,000 years of living tradition, or it would ring false on every surface it touched.",
     tags: ['Brand identity', 'Strategy', 'Cultural narrative', 'Art direction', 'Hospitality'],
     heroImage: '/Siwa/siwa-stone-hero.webp',
     heroImages: [
       '/Siwa/siwa-stone-hero.webp',
       '/Siwa/hf_20260530_004913_e18d2766-720f-4b3d-aeea-19042417dcfc.webp',
-      '/Siwa/hf_20260530_005122_ae9a197c-8f5f-48be-8c2a-88569d98af81.webp',
       '/Siwa/hf_20260530_010108_6cc9af61-f105-4d35-a456-02c70122d4fa.webp',
       '/Siwa/hf_20260530_010422_6e1baf86-9dd4-4520-a506-bf51ac168b75.webp',
       '/Siwa/hf_20260530_010811_ab2a0e3b-dac8-4a94-aeec-97b849ecf02a.webp',
@@ -118,15 +129,15 @@ const cases: CaseData[] = [
       {
         type: 'split',
         label: 'The territory',
-        heading: 'This land already had a name. Our job was to honour it.',
-        body: "The Bribri people have lived on this coast for millennia. Their world is organized around Sibö, a creator deity present in every living thing: the forest, the river, the seed, the sun.\n\nSiwä is a word from that lineage. The land already had meaning before the first stone was laid.\n\nThe problem wasn't standing out in a crowded hospitality market. It was a harder challenge: how do you build a brand on top of something ancient without reducing it? Most brands that try turn culture into decoration. That's not respect. It's extraction.",
+        heading: 'The brief was already in the culture.',
+        body: "The Bribri people have lived on this coast for millennia. Their world is organized around Sibö, a creator deity present in every living thing: the forest, the river, the seed, the sun. Siwä is a word from that lineage. The land had meaning before the first stone was laid, before the first guest arrived, before anyone sat down to design a brand.\n\nThe question wasn't how to differentiate in a crowded hospitality market. It was whether a brand could be built from something ancient without diminishing it. That question demanded a different starting point: the culture itself, as the brief.",
         image: '/Siwa/siwa-challenge-wide.webp',
       },
       {
         type: 'split',
         label: 'The work',
-        heading: 'Every mark had to be earned, not invented.',
-        body: "We started with the Bribri visual and oral tradition, not mood boards. The Bribri use the sun as a primary symbol of Sibö's creative force: rising, radiating, imperfect. Not a geometric abstraction. A living mark made by hand, pressed into clay, carved into wood, worn on the body.\n\nThat became the foundation of the wordmark. An organic sun with irregular, uneven rays. A dark seed at its center: origin, potential, continuity. The typography followed the same principle: rounded, rooted in the handmade.\n\nThe palette came directly from the land. Volcanic black, deep jungle green, cacao brown, warm terracotta. Every choice has a reference. None of them were made in a mood board.",
+        heading: 'The oral tradition was the design system.',
+        body: "The starting point wasn't mood boards or competitive analysis. It was the Bribri visual and oral tradition. The sun is a primary symbol of Sibö's creative force: rising, radiating, imperfect. Not a geometric abstraction but a living mark, pressed into clay, carved into wood, worn on the body. That became the foundation of the wordmark.\n\nAn organic sun with irregular, uneven rays. A dark seed at its center: origin, potential, continuity. The typography followed the same principle: rounded, rooted in the handmade. The palette came directly from the land. Volcanic black, deep jungle green, cacao brown, warm terracotta. Every choice has a reference. None of them were made in a mood board.\n\nThe work covered:",
         bullets: [
           'Brand identity rooted in Bribri cultural symbolism',
           'Custom wordmark and visual system',
@@ -142,7 +153,7 @@ const cases: CaseData[] = [
         type: 'split',
         label: 'The identity',
         heading: 'A mark that doesn\'t reference culture. It comes from it.',
-        body: "The Casa Siwä mark is not inspired by indigenous aesthetics. It is an interpretation of a specific symbol, the Bribri solar figure, adapted with integrity and built into a complete brand language.\n\nThe sun's irregular rays are intentional. They resist the clean geometry of corporate identity. They carry the hand, the tool, the person who made them. The seed at the center is Sibö. The space around it is the forest.\n\nApplied across every touchpoint, from embossed soap to woven towel tags to leather key fobs, the mark doesn't interpret culture. It comes from it. That difference is visible. And guests feel it before they can name it.",
+        body: "The Casa Siwä mark comes from a specific symbol: the Bribri solar figure, adapted with integrity and built into a complete brand language. The sun's irregular rays are intentional. They carry something precise geometry cannot: the hand, the tool, the person who made them. The seed at the center is Sibö. The space around it is the forest.\n\nApplied across every touchpoint, from embossed soap to woven towel tags to leather key fobs, the mark holds its weight because it isn't decorative. It comes from culture. Guests feel it before they can name it.",
       },
       {
         type: 'carousel',
@@ -163,20 +174,20 @@ const cases: CaseData[] = [
       },
       {
         type: 'stats',
-        label: 'What we left behind',
-        heading: 'A brand with roots deep enough to last.',
-        body: "Most hospitality brands are built on atmosphere. Photography of empty pools. Language about transformation that could belong to anyone.\n\nThe work covered the full scope: mark, visual system, tone of voice, verbal identity, and every physical touchpoint. But the foundation isn't a design system. It's a story that was already there before we arrived.\n\nCasa Siwä has something most brands spend decades trying to manufacture: a real place, a real history, a real people whose worldview lives in the mark on every door. That foundation can't be copied. Because it isn't a style.",
+        label: 'What remains',
+        heading: 'A brand guests feel before they can name it.',
+        body: "Most hospitality brands spend years trying to manufacture a sense of place. Casa Siwä had it from the beginning, in the land, in the people, in 10,000 years of Bribri culture that shaped every decision made.\n\nWhat was built isn't a visual identity. It's a language rooted in a real place, a real history, a real people whose worldview lives in the mark on every door. That foundation holds because it isn't a style. It's a lineage.",
       },
     ],
   },
   {
     slug: 'gxm',
     client: 'GXM',
-    category: 'Product strategy & transformation',
-    heroLabel: 'Product Strategy & Transformation',
-    title: 'The method that\nunlocked everything.',
+    category: 'Product Strategy & UX Design',
+    heroLabel: 'Full Case Overview · 4 Parts',
+    title: 'The expertise was\nnever the problem.',
     subtitle:
-      'A world-class compliance firm managing corporate entities across 120+ countries. Deep institutional knowledge, no product infrastructure to carry it. Thirty days to MVP. Two months to close a major investment round. The gap between knowing and shipping isn\'t talent. It\'s process.',
+      'A compliance firm managing corporate entities across 120+ countries. Deep institutional knowledge. No infrastructure to translate it into a product. Two prior attempts. Thirty days to ship the third. The gap between knowing and shipping isn\'t talent. It\'s process.',
     tags: ['Product Strategy', 'User Research', 'Service Design', 'UX Leadership', 'Enterprise SaaS'],
     heroImage: '/GXM/IMG_9711.jpg',
     heroImages: [
@@ -185,13 +196,15 @@ const cases: CaseData[] = [
       '/GXM/Case 2/gxm-remote-workshop.png',
       '/GXM/Case 2/Screenshot 2026-08-03 at 10.25.22 AM.png',
       '/GXM/gxm-journey-map.png',
+      '/GXM/gxm-challenge.mp4',
       '/GXM/Case 2/Screenshot 2026-08-03 at 11.06.20 AM.png',
       '/GXM/Case 2/Assesment.png',
-      '/GXM/gxm-programs.png',
+      '/GXM/Case 2/gxm-programs.png',
       '/GXM/Case 2/assesment 2.png',
       '/GXM/gxm-scope-definition.png',
       '/GXM/Case 2/Screenshot 2024-07-25 at 4.14.41 PM.png',
       '/GXM/gxm-data-structure.png',
+      '/GXM/Case 2/gxm-gateway-walkthrough.mp4',
       '/GXM/Case 2/Screenshot 2026-08-03 at 5.43.18 PM.png',
       '/GXM/Case 2/Screenshot 2026-08-03 at 5.31.41 PM.png',
       '/GXM/Case 2/gxm-diligent-demo.png',
@@ -202,28 +215,14 @@ const cases: CaseData[] = [
       {
         type: 'split',
         label: 'The client',
-        heading: 'World-class at what they do.\nReady to build the product to prove it.',
-        body: "The VP of Technology reached out directly. We had worked together before, on a product engagement for a globally recognised brand that I'm not at liberty to name. He knew how I worked. That prior relationship was the reason I got the call.\n\nThe brief was clear: take a world-class compliance and governance firm operating across more than 120 countries and help them build the software platform their service model had needed for years. Their clients are multinationals. Their team is lawyers, accountants, HR experts, and governance specialists who've spent careers thinking in jurisdictions, not sprint cycles. The domain expertise in the room was exceptional. What they needed was someone who could translate it into a product.\n\nThe business had board backing, investor conviction, and a clear opportunity: a platform that centralised what the team was managing manually across dozens of tools and jurisdictions. Two previous initiatives had pushed toward that goal and generated real, valuable learning. Building enterprise software for a service model this complex is genuinely hard. The structure of the business, the relationships between entities, the compliance and governance workflows — none of it maps cleanly onto off-the-shelf thinking.\n\nThe third attempt came with a tight constraint: one month to ship an MVP, two months to produce the outcomes that would go in front of investors. That kind of timeline doesn't leave room for building the wrong thing. The work had to start somewhere different.",
-      },
-      {
-        type: 'split',
-        label: 'The room',
-        heading: 'Lawyers don\'t map customer journeys.\nUntil they do.',
-        body: "The first decision was not about features or frameworks. It was about who needed to be in the room.\n\nThe full cross-functional leadership team came together: compliance lawyers, senior accountants, HR specialists, operations leads, and product owners. People who had spent decades being very good at governance and very far from product thinking. The goal was not to turn them into product managers. It was to extract the understanding that lived in their heads and make it visible, structured, and shared.\n\nWe mapped the end-to-end customer journey from first contact through to ongoing service, with everyone who touched any part of it in the room at the same time.\n\nWhat happened was the kind of conversation that doesn't happen in a status update. A senior compliance specialist described a client handoff the same way the account team called it broken. What one group treated as standard process, another experienced as friction. That gap, between how the service was designed and how it was actually lived, was where the real product requirements were hiding.\n\nThe output went beyond a product plan. The alignment process also defined what the organisation needed to operate it: the programs that had to exist, the staffing required to run them, and the operational model that would connect the platform to the teams it served. Product scope and organisational design, produced in the same room by the same people.\n\nWhat made that possible was something worth naming. Most of the people involved had never been part of a product build before. Compliance specialists, accountants, HR leaders: professionals whose entire careers had been built in governance, not product development. And yet the process created a flow of collaboration that carried the whole team through it. Not despite their inexperience with building, but partly because of it. They brought no assumptions about how this was supposed to feel. They just worked the problem.",
-        bullets: [
-          'End-to-end journey map built collaboratively across the full leadership team',
-          'Three programs defined with owners, problem statements, and sequenced action plans',
-          'Operations model, program structure, and staffing plan defined as part of the alignment output',
-          'Platform scope grounded in operational reality, not product assumptions',
-          '$2M in board funding secured on the strength of the alignment output',
-        ],
-        image: '/GXM/IMG_9702.jpg',
+        heading: 'Deep expertise. No product to show for it.',
+        body: "A compliance and governance firm serving multinational clients across more than 120 countries. Their team is lawyers, accountants, and governance specialists who've spent careers thinking in jurisdictions, not sprint cycles. They had board backing and a clear platform opportunity. What they needed was someone who could translate the expertise already in the room into a product.\n\nThe constraint was specific: one month to ship an MVP, two months to produce outcomes worth showing investors. That timeline doesn't leave room for guessing. The work had to start from a different place.",
       },
       {
         type: 'carousel',
         images: [
           '/GXM/gxm-journey-map.png',
-          '/GXM/gxm-programs.png',
+          '/GXM/Case 2/gxm-programs.png',
           '/GXM/gxm-scope-definition.png',
           '/GXM/gxm-data-structure.png',
           '/GXM/IMG_9702-2.jpg',
@@ -231,11 +230,36 @@ const cases: CaseData[] = [
       },
       {
         type: 'split',
+        label: 'Kick Off',
+        heading: 'What the brief couldn\'t say. The room did.',
+        body: "The real product requirements weren't in any brief. They were in the gap between how the service was designed and how the people running it actually experienced it.\n\nBringing the full leadership team into one room, from compliance lawyers to operations leads, made that gap visible for the first time. What one group called standard process, another called broken. From that conversation came more than a product plan: scope, program structure, operational model, and the alignment that unlocked board funding.",
+        bullets: [
+          'Three programs defined with owners, problem statements, and sequenced action plans',
+          'Operations model, program structure, and staffing plan produced in the same session',
+          'Platform scope grounded in operational reality, not product assumptions',
+          'Shared language established between compliance, operations, and product for the first time',
+        ],
+        image: '/GXM/IMG_9702.jpg',
+      },
+      {
+        type: 'split',
         label: 'The method',
-        heading: 'Evidence over assumption.\nAt every step.',
-        body: "One month to ship an MVP. Under that constraint, the most dangerous thing you can do is start building before you know what to build.\n\nThe core belief was documented first: customer data was locked in Salesforce, invisible to the people who needed it. Clients had to ask the team for information about their own accounts. The team had to pull, format, and resend it. That loop compounded on both sides with every engagement. The hypothesis made it testable.\n\nBefore designing anything new, we audited what already existed: Gateway 1.0, the portal built to solve this problem. Systematically through every path a customer could take, every place the experience broke down. The findings were specific. The ticketing system buried new messages beneath old ones. Key account information was either missing or unfindable. The portal existed. Understanding precisely why it wasn't being used was the only honest starting point for building something that would be.\n\nTwelve interviews followed, across active users and those who had moved away. The pattern was clear: when the platform couldn't surface what was needed, people defaulted to email. Small friction, but enough to make a familiar tool feel faster. That habit was invisible to individuals. Internally, it created missed messages, rework, and margin erosion that scaled with every engagement.\n\nThen we stress-tested the build decision itself. Live demos with four leading platforms. Data schemas reviewed. Feature sets mapped against the actual operational model. Some came close. None fit. The compliance workflows, the entity relationships, the governance structures — nothing aligned cleanly enough to justify adapting the business to an external tool's constraints. The analysis didn't just confirm the decision to build. It gave the team evidence they could defend at board level.\n\nAll of that before a single screen was designed. Not because there was time to spare. Because there wasn't.",
+        heading: 'Every decision earned. Every claim defensible.',
+        body: "The first question wasn't what to build. It was why the portal already in place wasn't being used.\n\nWe audited it systematically: every customer path, every point of failure. Ticketing buried new messages beneath old ones. Key account information was missing or unfindable. Twelve interviews across active and lapsed users confirmed it: when the platform couldn't surface what people needed, they defaulted to email. Small friction, consistent cost.\n\nThen we stress-tested the build decision itself. Four leading platforms, live demos, full schema review. None fit the compliance workflows closely enough. That analysis didn't just confirm the decision to build. It gave the team evidence they could defend at board level. All of that before a single screen was designed. Not because there was time to spare. Because there wasn't.",
         image: '/GXM/Case 2/Screenshot 2026-08-03 at 10.25.22 AM.png',
         video: '/GXM/Case 2/gxm-gateway-walkthrough.mp4',
+      },
+      {
+        type: 'stats',
+        label: 'Impact',
+        heading: 'Shipped in thirty days.\nFunded in sixty.',
+        body: "Thirty days to ship. Sixty days to prove it. A major investment round closed on the strength of decisions that had been made, tested, and documented before a single screen was designed.\n\nThe third attempt succeeded because it started differently: not from features, but from the clarity underneath them. When the foundation is evidence, the structure holds. That sequence was the investment. The software was what it bought.",
+        bullets: [
+          'MVP shipped within one month',
+          'Business outcomes validated within two months',
+          'Major investment round closed on the product strategy',
+          '12 interviews and 4 competitive platform reviews completed before design began',
+        ],
       },
       {
         type: 'carousel',
@@ -257,19 +281,37 @@ const cases: CaseData[] = [
         ],
       },
       {
-        type: 'stats',
-        label: 'Impact',
-        heading: 'Why the third attempt was different.',
-        body: "One month to build. Two months to perform. The product shipped, the outcomes landed, and the investor pitch had the evidence to back it.\n\nThe first two initiatives had moved the business forward. They had surfaced the complexity that needed to be confronted and proved what wouldn't scale. The third attempt succeeded because it treated that complexity seriously instead of routing around it. Every decision in the build phase had a documented rationale. The team knew what to build, in what order, and exactly why it would land differently.\n\nA major investment round followed. Closed on the strength of a product strategy that had been built from evidence, not assumptions, by a team that had never built a product before and delivered something worth funding.\n\nFor me, this project was also a window into the world of startup funding in the US: how structured evidence becomes the instrument that unlocks capital, what investors evaluate when they commit, and why the work done before the first screen is designed often determines what's possible long after it ships. That perspective has stayed with me.\n\nThat sequence was the investment. The software was what it bought.",
-        bullets: [
-          'MVP shipped within one month',
-          'Business outcomes validated within two months for investor pitch',
-          'Major investment round closed on the strength of the validated product strategy',
-          'Operations model, program structure, and staffing plan defined in the alignment phase',
-          '12 user interviews across active and lapsed user groups',
-          'Full audit of Gateway 1.0 with root causes documented',
-          'Competitive analysis across 4 leading platforms with live demos',
-          'Service blueprints covering every major operational flow',
+        type: 'chapters',
+        label: 'The full story',
+        heading: 'Four phases.\nOne funded product.',
+        items: [
+          {
+            part: 'Part 01',
+            title: 'Building alignment before software',
+            description: 'A cross-functional leadership team, one shared journey map, and the alignment that unlocked board funding.',
+            image: '/GXM/gxm-workshop.png',
+            video: '/GXM/gxm-challenge.mp4',
+            slug: 'gxm-building-alignment-before-software',
+          },
+          {
+            part: 'Part 02',
+            title: 'From hypothesis to evidence',
+            description: '12 user interviews, a full audit of Gateway 1.0, and a competitive analysis that confirmed the build decision.',
+            image: '/GXM/Case 2/Screenshot 2026-08-03 at 10.25.22 AM.png',
+            slug: 'gxm-validate-before-you-build',
+          },
+          {
+            part: 'Part 03',
+            title: 'Design system & brand foundations',
+            description: 'Building the design language and component system on PrimeReact that the product team would own going forward.',
+            image: '/GXM/Case 2/Screenshot 2026-08-03 at 5.43.18 PM.png',
+          },
+          {
+            part: 'Part 04',
+            title: 'Launch, AI tooling & user testing',
+            description: 'From validated designs to shipped product: AI-assisted development, lean testing, and the outcomes that followed.',
+            image: '/GXM/IMG_9711.jpg',
+          },
         ],
       },
     ],
@@ -277,7 +319,7 @@ const cases: CaseData[] = [
   {
     slug: 'gxm-validate-before-you-build',
     client: 'From Hypothesis to Evidence',
-    category: 'Product strategy & transformation',
+    category: 'Product Strategy & UX Design',
     heroLabel: 'Part 2 of 4 · Product Strategy & Transformation',
     title: 'From hypothesis\nto evidence.',
     subtitle:
@@ -378,7 +420,7 @@ const cases: CaseData[] = [
   {
     slug: 'gxm-building-alignment-before-software',
     client: 'Building Alignment',
-    category: 'Product strategy & transformation',
+    category: 'Product Strategy & UX Design',
     heroLabel: 'Part 1 of 4 · Product Strategy & Transformation',
     title: 'Building alignment\nbefore software',
     subtitle:
@@ -392,7 +434,7 @@ const cases: CaseData[] = [
       '/GXM/IMG_9711.jpg',
       '/GXM/gxm-workshop.png',
       '/GXM/gxm-journey-map.png',
-      '/GXM/gxm-programs.png',
+      '/GXM/Case 2/gxm-programs.png',
       '/GXM/gxm-scope-definition.png',
       '/GXM/gxm-data-structure.png',
     ],
@@ -435,7 +477,7 @@ const cases: CaseData[] = [
         type: 'carousel',
         images: [
           '/GXM/gxm-journey-map.png',
-          '/GXM/gxm-programs.png',
+          '/GXM/Case 2/gxm-programs.png',
           '/GXM/gxm-scope-definition.png',
           '/GXM/gxm-data-structure.png',
         ],

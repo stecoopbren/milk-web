@@ -18,15 +18,15 @@ const services = [
 ];
 
 const serviceColors = [
-  "#ABDDF0", // Design Leadership
-  "#F08961", // Business Model Design
-  "#E63929", // Service Design
-  "#2BBFB0", // Process Design
-  "#F7D54C", // Research Strategy
-  "#F1A5D2", // Product Design
-  "#A78BFA", // Design Systems
-  "#54952E", // AI Enablement
-  "#3D89C7", // Branding
+  "#ABDDF0",
+  "#F08961",
+  "#E63929",
+  "#2BBFB0",
+  "#F7D54C",
+  "#F1A5D2",
+  "#A78BFA",
+  "#54952E",
+  "#3D89C7",
 ];
 
 const serviceTitles: Record<string, string> = {
@@ -34,7 +34,7 @@ const serviceTitles: Record<string, string> = {
   "Business Model Design": "Everyone loves the idea. I'm just not sure the numbers work.",
   "Service Design":        "The product works. The experience around it doesn't.",
   "Process Design":        "Smart people, slow output. That's where we are right now.",
-  "Market & User Research":     "We keep building the wrong things for the right reasons.",
+  "Market & User Research":"We keep building the wrong things for the right reasons.",
   "Product Design":        "I know what I want to build. I just can't make it real.",
   "Design Systems":        "Every launch looks like a different company made it.",
   "AI Enablement":         "Everyone's doing AI. I want to do it in a way that actually matters.",
@@ -44,53 +44,52 @@ const serviceTitles: Record<string, string> = {
 const serviceDescriptions: Record<string, { tagline: string; body: string }> = {
   "Design Ops": {
     tagline: "Making your design team fast, focused, and worth every dollar you put into it.",
-    body: "Because the team is only one part of the equation. The other part is everything built around them: how decisions get made, how work moves, how quality holds as things scale. When that infrastructure is missing or broken, talented people spend their time compensating for it instead of doing the work they were hired to do.\n\nThe fix isn't hiring more designers or running more workshops. It's building the operating system your team actually works inside. Clear ownership, rituals that move things forward, and a direct line between design and the decisions that actually matter.\n\nThat's what I help you build.",
+    body: "The problem isn't your designers. It's everything built around them: how decisions get made, how work moves, how quality holds as you scale. When that infrastructure is missing, talented people spend their time compensating instead of designing.\n\nThe fix is an operating system your team actually works inside. Clear ownership, rituals that move things forward, a direct line from design to the decisions that matter.",
   },
   "Business Model Design": {
     tagline: "Validating the business behind the product before it costs you everything.",
-    body: "That instinct is worth listening to. Most teams skip this conversation because it's uncomfortable, so they keep building and hope the model holds up. It usually doesn't.\n\nThe work here isn't complex. It's honest. We look at who's actually paying, when, how much, and what happens to the unit economics when things scale. We test the assumptions that are holding the whole thing up.\n\nSometimes the model is fine and you just need to see it clearly. Sometimes it needs a rethink before another dollar goes in.",
+    body: "Most teams skip this conversation because it's uncomfortable. So they keep building and hope the model holds. It usually doesn't.\n\nThe work is honest, not complex. We look at who's paying, when, how much, and what happens to unit economics at scale. Sometimes the model is fine and you just need to see it clearly. Sometimes it needs a rethink before another dollar goes in.",
   },
   "Product Design": {
     tagline: "Designing products that feel obvious because nothing about them was accidental.",
-    body: "The gap between a clear vision and a working product is usually not a design problem. It's a clarity problem. The vision exists in your head as a feeling. The product has to exist in the world as a series of decisions, and somewhere in that translation things get lost or compromised.\n\nThe work starts before any screen gets designed. We define what the product actually is, what it's for, what it's not, and what the person using it needs to feel at each step. We work closely with engineering so nothing gets lost between intention and implementation.\n\nBy the time we're done, the product should feel obvious to the people who use it. Not because it's simple, but because every decision behind it was deliberate.",
+    body: "The gap between a clear vision and a working product is almost never a design problem. It's a clarity problem. The vision lives in your head as a feeling. The product has to exist as a series of decisions, and somewhere in that translation things get lost.\n\nWe start before any screen gets designed: what the product is, what it's for, what it's not. By the time we're done, it should feel obvious to anyone who uses it.",
   },
   "Market & User Research": {
     tagline: "Getting to the right answer before your competitors ask the right question.",
-    body: "This happens when research comes too late. By the time you're testing, you've already committed. The interviews confirm what you hoped rather than challenge what you assumed.\n\nSharp research starts before you know what you're building. It asks uncomfortable questions early, when the cost of changing direction is still low. It defines what you actually need to know, not what you'd like to know, and finds the fastest way to find it.\n\nThe goal isn't more data. It's fewer wrong decisions.",
+    body: "This happens when research comes too late. By the time you're testing, you've already committed. The interviews confirm what you hoped instead of challenging what you assumed.\n\nSharp research starts before you know what you're building. It asks uncomfortable questions early, when changing direction is still cheap. The goal isn't more data. It's fewer wrong decisions.",
   },
   "Service Design": {
     tagline: "Designing the full experience, not just the screen.",
-    body: "This is more common than most teams admit. The interface ships, the core functionality works, but customers still struggle. They call support. They drop off at moments that shouldn't be hard. They get confused by things the team considers obvious.\n\nThat's because the experience isn't just the screen. It's every touchpoint, every handoff, every gap between what your system was designed to do and what actually happens when a real person uses it.\n\nWe map the full picture: what customers see and what happens behind the scenes to make it possible. Then we redesign the parts that are quietly costing you.",
+    body: "The interface ships, the functionality works, customers still struggle. That's because the experience isn't just the screen. It's every touchpoint, every handoff, every gap between what your system does and what a real person needs.\n\nWe map the full picture: what customers see and what happens behind the scenes. Then we fix the parts quietly costing you.",
   },
   "Process Design": {
     tagline: "Designing how your team works, not just what they build.",
-    body: "When the people are good but the output is slow, the problem is almost never the people. It's the invisible friction they're swimming through: unclear ownership, handoffs that lose context, meetings that answer questions that could have been a document, decisions that loop back to the same conversation three times.\n\nThe fix isn't adding process. It's removing the obstacles that keep talented people from doing their best work.\n\nWe start by understanding how work actually moves through your team. Then we redesign it: the rituals, the structure, the decision-making, so the system matches the people inside it.",
+    body: "When the people are good but the output is slow, the problem is almost never the people. It's the invisible friction: unclear ownership, handoffs that lose context, decisions that loop back to the same conversation three times.\n\nThe fix isn't adding process. It's removing what's slowing talented people down.",
   },
   "Branding": {
     tagline: "Creating an identity that earns trust before you say a word.",
-    body: "That's a brand problem. Not a visual one. A consistency one. The meeting goes well because you show up prepared and say the right things. But the impression doesn't stick because there's nothing underneath it strong enough to hold.\n\nA brand isn't what you say in a pitch. It's what people feel after you've left the room. The visual identity, the way you write, the experience of working with you, the things you stand for that nobody has to explain. All of it has to add up to the same thing, every time.\n\nWe start by defining what that thing is. Then we build the expression around it: identity, voice, touchpoints, so that the memory of you is consistent whether someone met you in a meeting, read your website, or just saw your name somewhere.",
+    body: "A brand isn't what you say in a pitch. It's what people feel after you've left the room. The visual identity, how you write, the experience of working with you: all of it has to add up to the same thing, every time.\n\nWe start by defining what that thing is. Then we build the expression around it: identity, voice, touchpoints that leave a consistent impression whether someone met you in a meeting or just saw your name somewhere.",
   },
   "AI Enablement": {
     tagline: "Helping your team work with AI before AI works around them.",
-    body: "Most AI initiatives fail for the same reason: they ask 'what can we add?' before they ask 'how do we actually work?' You end up with AI tools sitting on top of unchanged processes, delivering a fraction of what they could.\n\nThe companies getting this right aren't adding AI to their product first. They're rethinking how their teams make decisions, where they spend time, and what they're trying to get done. Then they find the places where AI creates real leverage.\n\nWe start there. With honesty about what your team actually does, what creates value, and where intelligent automation would genuinely free people to do better work, not just faster versions of the same work.",
+    body: "Most AI initiatives fail because they ask 'what can we add?' before they ask 'how do we actually work?' You get tools sitting on top of unchanged processes, delivering a fraction of what they could.\n\nThe companies getting it right rethink how their teams make decisions before they add anything. That's where we start.",
   },
   "Design Systems": {
     tagline: "Building the foundation that makes every future decision easier.",
-    body: "It does, because every team is solving the same problems from scratch. The button gets designed three ways. The spacing is different on every surface. Nobody's wrong. There's just no shared language, so everyone invents their own.\n\nA design system is that shared language. Not a component library that nobody uses, but a living set of decisions: principles, patterns, documented standards, that make consistency the path of least resistance instead of an extra effort.\n\nWe build it with the people who will use it, document it in a way that actually gets read, and govern it in a way that scales without becoming bureaucracy. Every decision made once. Every launch from the same foundation.",
+    body: "Every team ends up solving the same problems from scratch. The button gets designed three ways. The spacing is different on every surface. Nobody's wrong. There's just no shared language.\n\nA design system is that shared language. Not a component library nobody uses, but a living set of decisions that make consistency the path of least resistance, not an extra effort.",
   },
 };
 
-
 const serviceCtas: Record<string, string> = {
-  "Design Ops":            "Talent isn't the bottleneck. The system around it is. Let's fix that.",
-  "Business Model Design": "Let's find out if the numbers work before you bet everything on them.",
-  "Service Design":        "Your customers feel every part of it, not just the screen. Let's design all of it.",
-  "Process Design":        "The way you work is a design problem too. Let's redesign it.",
-  "Market & User Research":     "Let's find out what's actually true before you build anything else.",
-  "Product Design":        "That gap between vision and product is exactly where we work.",
-  "Design Systems":        "One system. Every decision made once. Let's build it.",
-  "AI Enablement":         "The companies that get AI right redesign how they think first. Let's start there.",
-  "Branding":              "A brand that earns trust before you say a word changes every conversation you'll ever have. Let's build yours.",
+  "Design Ops":            "Can you help me figure out why my team is good but everything still feels slow?",
+  "Business Model Design": "The idea feels solid. Can you help me make sure the business behind it actually works?",
+  "Service Design":        "The product works. So why do our customers still struggle with it?",
+  "Process Design":        "We have the right people. Can you help me understand why nothing moves fast enough?",
+  "Market & User Research":"How do we stop building the wrong things, even when the intentions are right?",
+  "Product Design":        "I have a clear vision. Can you help me turn it into something real?",
+  "Design Systems":        "Every launch looks like a different company made it. Can we fix that?",
+  "AI Enablement":         "Everyone's doing AI. Can you help us do it in a way that actually matters?",
+  "Branding":              "People like us when they meet us. Can you help us figure out why they forget us?",
 };
 
 const serviceQuotes: Record<string, string> = {
@@ -98,15 +97,16 @@ const serviceQuotes: Record<string, string> = {
   "Business Model Design": "That uncertainty isn't a weakness. It's the most honest thing you've said. Most founders skip that question entirely and find out the hard way.",
   "Service Design":        "The app is never the whole experience. It's just the part that's easiest to point at.",
   "Process Design":        "I've never walked into a team where the talent was the problem. It's always the system the talent is trying to work inside of.",
-  "Market & User Research":     "Good intentions and wrong assumptions cost exactly the same amount. Research is just the discipline of finding out earlier.",
+  "Market & User Research":"Good intentions and wrong assumptions cost exactly the same amount. Research is just the discipline of finding out earlier.",
   "Product Design":        "The vision is never the problem. It's the translation. Every step between your head and the product is a decision, and most of them get made by default.",
   "Design Systems":        "Inconsistency isn't a design problem. It's a coordination problem. The system is just the agreement everyone needed to have anyway.",
   "AI Enablement":         "The teams that will win with AI aren't the ones moving fastest. They're the ones who stopped to ask what they were actually trying to do.",
   "Branding":              "Being likeable in a room is not the same as being memorable after you've left it. That gap is exactly where brand lives.",
 };
 
+
 export default function ServicesSection() {
-  const [expanded, setExpanded] = useState<number | null>(null);
+  const [expanded, setExpanded] = useState<number | null>(0);
 
   return (
     <div
@@ -127,7 +127,7 @@ export default function ServicesSection() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, ease }}
             >
-            <p className="text-serif-eyebrow text-[#0C0C12] mb-5">What do I actually do?</p>
+            <p className="text-serif-eyebrow text-[#0C0C12] mb-5">How I help</p>
             <h2
               style={{
                 fontFamily: "Ambit",
@@ -138,7 +138,7 @@ export default function ServicesSection() {
                 color: "#0C0C12",
               }}
             >
-              Think it through.<br />Then build it right.
+              Pull one thread.<br />The rest follows.
             </h2>
             </motion.div>
           </div>
@@ -215,7 +215,6 @@ export default function ServicesSection() {
                               Start this conversation
                             </motion.button>
                           </div>
-
 
                         </div>
                       </motion.div>

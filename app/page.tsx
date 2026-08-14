@@ -1,5 +1,6 @@
 import Nav from "@/app/components/Nav";
 import HeroSection from "@/app/components/HeroSection";
+import PositioningSection from "@/app/components/PositioningSection";
 import BioSection from "@/app/components/BioSection";
 import ServicesSection from "@/app/components/ServicesSection";
 import TeamSection from "@/app/components/TeamSection";
@@ -13,6 +14,7 @@ export default function Home() {
     <main className="relative">
 <Nav />
       <HeroSection />
+      <PositioningSection />
       <TeamSection />
       <BioSection />
       <MethodSection />

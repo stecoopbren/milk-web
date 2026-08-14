@@ -18,9 +18,11 @@ function easeInOutCubic(t: number) {
 
 export default function IntroLoader() {
   const pathname = usePathname();
+  const isHome = pathname === "/";
   const [phase, setPhase] = useState<"logo" | "logo-exit" | "counting" | "logo-reveal" | "outro">("logo");
   const [count, setCount] = useState(0);
-  const [done, setDone]   = useState(false);
+  // Start as done immediately for non-home pages — prevents the bg-black flash
+  const [done, setDone]   = useState(() => !isHome);
   const numbersRef        = useRef<HTMLDivElement>(null);
 
   // ── CMD+Shift+R — reset intro so it plays again on hard refresh ────────────
@@ -53,17 +55,23 @@ export default function IntroLoader() {
     introHasShown = true;
 
     const t = setTimeout(() => setPhase("logo-exit"), LOGO_DURATION);
-    return () => clearTimeout(t);
+    return () => {
+      clearTimeout(t);
+      // Reset so React Strict Mode's second effect invocation starts fresh
+      // (without this, the second run sees introHasShown=true and fires milk:intro-exit immediately)
+      introHasShown = false;
+    };
   }, []);
 
   // ── Counting phase ─────────────────────────────────────────────────────────
   useEffect(() => {
     if (phase !== "counting") return;
 
-    const start = performance.now();
+    let start = -1;
     let raf: number;
 
     const tick = (now: number) => {
+      if (start < 0) start = now; // capture from first RAF tick to avoid negative delta
       const t     = Math.min((now - start) / COUNT_DURATION, 1);
       const eased = easeInOutCubic(t);
 
@@ -90,9 +98,13 @@ export default function IntroLoader() {
   useEffect(() => {
     if (phase !== "logo-reveal") return;
     const t = setTimeout(() => {
-      window.dispatchEvent(new CustomEvent("milk:intro-exit"));
+      // Start the fade-out, then fire intro-exit only once the overlay is gone
+      // so the nav logo doesn't appear while the loader logo is still visible.
       setPhase("outro");
-      setTimeout(() => setDone(true), 1100);
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent("milk:intro-exit"));
+        setTimeout(() => setDone(true), 120);
+      }, 1000);
     }, REVEAL_DURATION);
     return () => clearTimeout(t);
   }, [phase]);

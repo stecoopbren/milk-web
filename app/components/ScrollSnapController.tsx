@@ -12,7 +12,10 @@ function smoothScrollTo(targetY: number, onDone: () => void) {
   const distance = Math.abs(targetY - window.scrollY);
   if (distance < 4) { onDone(); return; }
 
+  let fired = false;
   const fireEnd = () => {
+    if (fired) return;
+    fired = true;
     document.body.classList.remove("is-snapping");
     window.dispatchEvent(new Event("milk:snap-end"));
     onDone();
@@ -21,11 +24,14 @@ function smoothScrollTo(targetY: number, onDone: () => void) {
   if (lenis) {
     window.dispatchEvent(new Event("milk:snap-start"));
     document.body.classList.add("is-snapping");
+    // Safety net: if onComplete never fires (e.g. native scroll interrupts Lenis
+    // and its animation stalls), unblock isSnapping after duration + buffer.
+    const safetyTimer = setTimeout(fireEnd, 2500);
     lenis.scrollTo(targetY, {
       duration: 1.1,
       easing: easeOutQuart,
       lock: true,
-      onComplete: fireEnd,
+      onComplete: () => { clearTimeout(safetyTimer); fireEnd(); },
     });
   } else {
     // Fallback if Lenis isn't ready yet
@@ -186,8 +192,30 @@ export default function ScrollSnapController() {
 
     const onWheel = (e: WheelEvent) => {
       if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
-      // Native-scroll zone: release control so the browser scrolls freely.
-      if (isInNativeScrollZone()) return;
+      const lenis = (window as any).__lenis;
+      // Native-scroll zone: stop Lenis so its inertia doesn't overshoot the
+      // section, then let the browser scroll natively.
+      if (isInNativeScrollZone()) {
+        // While a snap animation is in progress, block native scroll so it doesn't
+        // fight the Lenis scrollTo and prevent its onComplete from firing (the freeze).
+        if (isSnapping || cooldown) {
+          e.preventDefault();
+          return;
+        }
+        const direction = e.deltaY > 0 ? 1 : -1;
+        // Upward: snap to previous section when at the section top.
+        // Downward: let native scroll run freely; scrollend handles the exit snap
+        // so trackpad momentum doesn't trigger it too early.
+        if (direction < 0) {
+          const atTop = (Array.from(document.querySelectorAll('[data-native-scroll]')) as HTMLElement[])
+            .some(el => el.getBoundingClientRect().top >= -4);
+          if (atTop) snapToIndex(currentIndex + direction);
+        }
+        // Not at top boundary (or scrolling down): allow native scroll.
+        return;
+      }
+      // Resuming from native zone — restart Lenis before handling the event.
+      lenis?.start();
       e.preventDefault();
       if (isSnapping || cooldown) return;
 
@@ -241,19 +269,49 @@ export default function ScrollSnapController() {
     const onScrollEnd = () => {
       if (isSnapping || cooldown || isInFreeScrollZone()) return;
       if (isInNativeScrollZone()) {
-        // If momentum carried us slightly ABOVE a native-scroll section, snap back to it.
-        // (When fully inside, r.top < 0 so this find returns nothing and we just return.)
-        const overscrolledSection = (Array.from(document.querySelectorAll('[data-native-scroll]')) as HTMLElement[])
-          .find(el => {
-            const r = el.getBoundingClientRect();
-            return r.top > 0 && r.top <= 150 && el.offsetHeight > window.innerHeight;
-          });
+        const sections = getSections();
+        const nativeEls = Array.from(document.querySelectorAll('[data-native-scroll]')) as HTMLElement[];
+
+        // Forward exit: section bottom is at or past the viewport bottom — user has
+        // seen all content. Snap to the next section.
+        const bottomReached = nativeEls.some(el => {
+          const r = el.getBoundingClientRect();
+          return r.bottom <= window.innerHeight + 10 && el.offsetHeight > window.innerHeight + 20;
+        });
+        if (bottomReached) {
+          snapToIndex(currentIndex + 1);
+          return;
+        }
+
+        // Overscroll correction: momentum carried us to the top of a native-scroll
+        // section, skipping a non-native section above. Snap to the first skipped one.
+        const overscrolledSection = nativeEls.find(el => {
+          const r = el.getBoundingClientRect();
+          return r.top >= -30 && r.top <= 150 && el.offsetHeight > window.innerHeight;
+        });
         if (overscrolledSection) {
-          const idx = getSections().findIndex(el => el === overscrolledSection);
-          if (idx !== -1) snapToIndex(idx);
+          const idx = sections.findIndex(el => el === overscrolledSection);
+          if (idx !== -1) {
+            const target = idx > currentIndex + 1 ? currentIndex + 1 : idx;
+            if (target !== currentIndex) snapToIndex(target);
+          }
         }
         return;
       }
+      // If we've scrolled past the midpoint of the current data-native-scroll section,
+      // always advance forward — prevents snapping back to the section top on scrollend.
+      const sections = getSections();
+      const current = sections[currentIndex];
+      if (current?.dataset.nativeScroll) {
+        const sectionTop = getSectionTop(current);
+        if (window.scrollY > sectionTop + current.offsetHeight * 0.5) {
+          snapToIndex(currentIndex + 1);
+          return;
+        }
+      }
+
+      // (smoothWheel:false — Lenis was never stopped, no need to restart it here)
+
       const nearest = getNearestIndex();
       // Clamp to ±1 so momentum overshoot never skips a section.
       const target = Math.max(currentIndex - 1, Math.min(currentIndex + 1, nearest));

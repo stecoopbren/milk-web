@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import CinematicBoard, { type BoardShot, type CursorDef, DEFAULT_SHOTS, DEFAULT_CURSORS } from "./CinematicBoard";
 
 
-type OrbitItem = {
+export type OrbitItem = {
   title: string;
   role: string;
   year: string;
@@ -13,6 +14,10 @@ type OrbitItem = {
   staticImage?: string;
   href: string;
   tag: string;
+  /** If set, replaces the image on the active card with a CinematicBoard */
+  cinematicSrc?: string;
+  cinematicShots?: BoardShot[];
+  cinematicCursors?: CursorDef[];
 };
 
 // ── Project data (kept for PortfolioHero / other consumers) ──────────────────
@@ -31,7 +36,7 @@ export const projects: Project[] = [
   {
     id: 0,
     slug: "regenerative-community",
-    category: "Real estate project",
+    category: "Brand Strategy & Growth",
     title: "Turning raw land into a $2M investment story.",
     description: "Full community master plan delivered in 10 weeks.",
     img: "/Chaguite/chaguite-hero.webp",
@@ -39,7 +44,7 @@ export const projects: Project[] = [
   {
     id: 1,
     slug: "casa-siwa",
-    category: "Brand & digital experience",
+    category: "Brand Identity & Digital Experience",
     title: "Turning a luxury retreat into a narrative people want to belong to.",
     description: "Brand strategy, digital experience, and editorial art direction.",
     img: "/Siwa/siwa-hero-wide.webp",
@@ -47,90 +52,74 @@ export const projects: Project[] = [
   {
     id: 2,
     slug: "gxm",
-    category: "Product strategy & transformation",
-    title: "Two failed builds. One approach that worked.",
-    description: "$2M secured. Evidence-first. Product shipped on the third attempt.",
+    category: "Product Strategy & UX Design",
+    title: "The expertise was never the problem.",
+    description: "120+ countries. Two prior attempts. Thirty days to ship the third.",
     img: "/GXM/IMG_9702.jpg",
   },
   {
     id: 3,
     slug: "gxm-building-alignment-before-software",
-    category: "Product strategy & transformation",
+    category: "Product Strategy & UX Design",
     title: "Building alignment before software.",
-    description: "$2M secured. Product shipped after multiple failed attempts.",
+    description: "Product shipped after multiple failed attempts.",
     img: "/GXM/gxm-workshop.png",
     hidden: true,
   },
   {
     id: 4,
     slug: "gxm-validate-before-you-build",
-    category: "Product strategy & transformation",
+    category: "Product Strategy & UX Design",
     title: "From hypothesis to evidence.",
     description: "12 interviews, full audit, competitive analysis. Build decision backed by evidence.",
     img: "/GXM/Case 2/Screenshot 2026-08-03 at 10.25.22 AM.png",
     hidden: true,
   },
-  {
-    id: 4,
-    slug: "product-launch",
-    category: "Product design",
-    title: "Crafting a seamless digital product from zero to launch.",
-    description: "Zero to launch in 8 weeks.",
-    img: "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=800&auto=format&fit=crop&q=80",
-  },
-  {
-    id: 5,
-    slug: "brand-system",
-    category: "Brand system",
-    title: "A unified brand system for a global SaaS platform.",
-    description: "End-to-end identity delivered in six weeks.",
-    img: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&auto=format&fit=crop&q=80",
-  },
-  {
-    id: 5,
-    slug: "service-redesign",
-    category: "Service design",
-    title: "Reducing friction in a critical government service.",
-    description: "Research to redesign in twelve weeks.",
-    img: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&auto=format&fit=crop&q=80",
-  },
-  {
-    id: 6,
-    slug: "ai-interface",
-    category: "AI product",
-    title: "Designing the interface for an AI-powered analytics tool.",
-    description: "From zero to beta in ten weeks.",
-    img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80",
-  },
 ];
 
 // Orbit-ready items
-const orbitItems: OrbitItem[] = [
+export const orbitItems: OrbitItem[] = [
   {
     title: "Regenerative Community", role: "Growth & Brand Lead", year: "2026",
-    image: "/Chaguite/chaguite-hero.webp", staticImage: "/Chaguite/card-cover.webp",
+    image: "/Chaguite/hero.webp", staticImage: "/Chaguite/card-cover.webp",
+    images: [
+      "/Chaguite/hero.webp",
+      "/Chaguite/concept-2.webp",
+      "/Chaguite/billboard.webp",
+      "/Chaguite/concept-89.webp",
+      "/Chaguite/concept-1.webp",
+      "/Chaguite/hf_interior_regen.webp",
+      "/Chaguite/concept-5.webp",
+    ],
     href: "/cases/regenerative-community", tag: "Real Estate",
   },
   {
     title: "Casa Siwä", role: "Brand & Experience Lead", year: "2025",
-    image: "/Siwa/siwa-hero.webp", staticImage: "/Siwa/siwa-stone-hero.webp",
+    image: "/Siwa/siwa-stone-hero.webp", staticImage: "/Siwa/siwa-stone-hero.webp",
+    images: [
+      "/Siwa/siwa-stone-hero.webp",
+      "/Siwa/hf_20260530_004913_e18d2766-720f-4b3d-aeea-19042417dcfc.webp",
+      "/Siwa/hf_20260530_005122_ae9a197c-8f5f-48be-8c2a-88569d98af81.webp",
+      "/Siwa/hf_20260530_010108_6cc9af61-f105-4d35-a456-02c70122d4fa.webp",
+      "/Siwa/hf_20260530_010422_6e1baf86-9dd4-4520-a506-bf51ac168b75.webp",
+      "/Siwa/hf_20260530_010811_ab2a0e3b-dac8-4a94-aeec-97b849ecf02a.webp",
+      "/Siwa/hf_20260530_011818_1ccc9b48-4177-4e24-931e-79b8b3b2da5f.webp",
+    ],
     href: "/cases/casa-siwa", tag: "Hospitality",
   },
   {
     title: "Digital Transformation", role: "Product Strategy & Design Lead", year: "2024",
-    image: "/GXM/IMG_9702.jpg",
+    image: "/GXM/IMG_9711.jpg",
     images: [
-      "/GXM/IMG_9702.jpg",
-      "/GXM/Case 2/Screenshot 2026-08-03 at 10.25.22 AM.png",
-      "/GXM/IMG_9702-2.jpg",
-      "/GXM/Case 2/Screenshot 2026-08-03 at 11.06.20 AM.png",
       "/GXM/IMG_9711.jpg",
-      "/GXM/gxm-workshop.png",
-      "/GXM/Case 2/Assesment.png",
+      "/GXM/IMG_9702.jpg",
+      "/GXM/Case 2/gxm-remote-workshop.png",
+      "/GXM/Case 2/Screenshot 2026-08-03 at 10.25.22 AM.png",
       "/GXM/gxm-journey-map.png",
+      "/GXM/Case 2/Screenshot 2026-08-03 at 11.06.20 AM.png",
+      "/GXM/Case 2/Assesment.png",
+      "/GXM/Case 2/gxm-programs.png",
       "/GXM/Case 2/assesment 2.png",
-      "/GXM/gxm-programs.png",
-      "/GXM/Case 2/Screenshot 2024-03-28 at 9.34.18 AM.png",
       "/GXM/gxm-scope-definition.png",
       "/GXM/Case 2/Screenshot 2024-07-25 at 4.14.41 PM.png",
       "/GXM/gxm-data-structure.png",
@@ -138,16 +127,22 @@ const orbitItems: OrbitItem[] = [
       "/GXM/Case 2/Screenshot 2026-08-03 at 5.31.41 PM.png",
     ],
     href: "/cases/gxm", tag: "Enterprise SaaS",
-  },
-  {
-    title: "Gov. Service Redesign", role: "Service Designer", year: "2023",
-    image: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&auto=format&fit=crop&q=80",
-    href: "/cases/service-redesign", tag: "Service Design",
-  },
-  {
-    title: "AI Analytics Interface", role: "Product Designer", year: "2025",
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80",
-    href: "/cases/ai-interface", tag: "AI Product",
+    cinematicSrc: "/GXM/gxm-journey-map.png",
+    cinematicShots: [
+      { x: 0,   y: 0,   scale: 1.0,  hold: 2.5 },
+      { x: 24,  y: 8,   scale: 2.2,  hold: 5.0, label: "Programs & Ownership" },
+      { x: -12, y: -10, scale: 2.5,  hold: 5.0, label: "Customer Journey" },
+      { x: -22, y: 12,  scale: 2.1,  hold: 4.5, label: "Service Gaps" },
+      { x: 0,   y: 0,   scale: 1.1,  hold: 2.5 },
+    ],
+    cinematicCursors: [
+      { name: "Steven",  color: "#FF3377", path: [[25, 50], [42, 32], [58, 55], [38, 68]], stepDuration: 3.2, startDelay: 0.0 },
+      { name: "Lena",    color: "#FACC15", path: [[68, 22], [55, 40], [72, 58], [60, 35]], stepDuration: 3.8, startDelay: 0.8 },
+      { name: "Marcus",  color: "#3B82F6", path: [[15, 30], [30, 55], [20, 72], [35, 45]], stepDuration: 4.1, startDelay: 1.4 },
+      { name: "Elise",   color: "#22C55E", path: [[78, 45], [62, 28], [80, 18], [70, 60]], stepDuration: 3.5, startDelay: 2.0 },
+      { name: "Jordan",  color: "#A855F7", path: [[48, 70], [60, 50], [45, 35], [55, 65]], stepDuration: 4.4, startDelay: 1.0 },
+      { name: "Hugo",    color: "#F97316", path: [[82, 70], [72, 48], [88, 30], [75, 65]], stepDuration: 3.9, startDelay: 2.6 },
+    ],
   },
 ];
 
@@ -180,7 +175,7 @@ function ChevronRight() {
 // ── Desktop: orbit carousel ────────────────────────────────────────────────────
 function DesktopOrbit() {
   const total = orbitItems.length;
-  const [active, setActive] = useState(0);
+  const [active, setActive] = useState(2);
   const [slideIndex, setSlideIndex] = useState(0);
   const go = (dir: number) => setActive((prev) => ((prev + dir) % total + total) % total);
 
@@ -264,13 +259,25 @@ function DesktopOrbit() {
                   cursor: "pointer",
                 }}
               >
-                <img
-                  src={isActive
-                    ? (item.images ? item.images[slideIndex] : item.image)
-                    : (item.staticImage ?? item.image)}
-                  alt={item.title}
-                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                />
+                {isActive && item.cinematicSrc ? (
+                  <div style={{ position: "absolute", inset: 0 }}>
+                    <CinematicBoard
+                      src={item.cinematicSrc}
+                      shots={item.cinematicShots ?? DEFAULT_SHOTS}
+                      cursors={item.cinematicCursors ?? DEFAULT_CURSORS}
+                      height={800}
+                      bg="#0C0C12"
+                    />
+                  </div>
+                ) : (
+                  <img
+                    src={isActive
+                      ? (item.images ? item.images[slideIndex] : item.image)
+                      : (item.staticImage ?? item.image)}
+                    alt={item.title}
+                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                  />
+                )}
 
                 {/* Dark scrim on non-active cards */}
                 {!isActive && (

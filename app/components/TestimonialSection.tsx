@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { motion, useInView, useMotionValue, animate, useTransform, type MotionValue } from "framer-motion";
+import { motion, AnimatePresence, useInView, useMotionValue, animate, useTransform, type MotionValue } from "framer-motion";
 import SectionReveal from "./SectionReveal";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -16,7 +16,7 @@ const testimonials = [
   },
   {
     quote:
-      "Working with Steven changed how our entire team thinks about product decisions. His playbook sounds simple, but what it does to your team's alignment is remarkable. We stopped debating opinions and started testing hypotheses. The product we shipped was better, and we got there faster than we ever expected.",
+      "Working with Steven changed how our entire team thinks about product decisions. His method sounds simple, but what it does to your team's alignment is remarkable. We stopped debating opinions and started testing hypotheses. The product we shipped was better, and we got there faster than we ever expected.",
     name: "Ilya Shchyryi",
     title: "Lead Product Designer at Meta",
     avatar: "/headshots/ilya-shchyryi.webp",
@@ -80,19 +80,11 @@ export default function TestimonialSection() {
   const contentRef = useRef<HTMLDivElement>(null);
   const inView = useInView(contentRef, { once: true, margin: "-80px" });
 
-  // Animate words in over 2.5s when section enters view, then auto-advance
+  // Animate words in over 2.5s when section enters view
   useEffect(() => {
     if (!inView) return;
-    let cancelled = false;
     const controls = animate(progress, 1, { duration: 2.5, ease: "linear" });
-    controls.then(() => {
-      if (cancelled) return;
-      setTimeout(() => {
-        setIndex(i => (i + 1) % testimonials.length);
-        // keep progress at 1 so next testimonial appears fully lit
-      }, 500);
-    });
-    return () => { cancelled = true; controls.stop(); };
+    return () => { controls.stop(); };
   }, [inView]);
 
   const go = (dir: 1 | -1) => {
@@ -108,34 +100,28 @@ export default function TestimonialSection() {
   return (
     <SectionReveal id="testimonial" className="px-8 lg:px-[180px]">
       <div ref={contentRef} className="w-full pt-16 lg:pt-24">
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 items-start">
-
-          {/* Label */}
-          <motion.div
-            className="shrink-0 lg:w-[160px]"
-            initial={{ opacity: 0 }}
-            animate={inView ? { opacity: 1 } : {}}
-            transition={{ duration: 0.6, ease, delay: 0.1 }}
-          >
-            <p className="text-serif-eyebrow text-[#0C0C12]">
-              What people say
-            </p>
-          </motion.div>
-
-          {/* Quote block */}
-          <div className="flex flex-col gap-8 flex-1 min-w-0">
-            {/* Carousel rail — overflow hidden clips off-screen slides, height stays fixed */}
-            <div className="overflow-hidden">
-              <motion.div
-                className="flex items-start"
-                animate={{ x: `${-index * 100}%` }}
-                transition={{ duration: 0.55, ease }}
-              >
-                {testimonials.map((t, i) => (
-                  <div
+        <div className="flex flex-col gap-8 w-full max-w-5xl mx-auto items-center text-center">
+            {/* Label */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={inView ? { opacity: 1 } : {}}
+              transition={{ duration: 0.6, ease, delay: 0.1 }}
+            >
+              <p className="text-serif-eyebrow text-[#0C0C12]">
+                What people say
+              </p>
+            </motion.div>
+            {/* Carousel — fade + blur transition */}
+            <div className="relative">
+              <AnimatePresence mode="wait">
+                {testimonials.map((t, i) => i === index && (
+                  <motion.div
                     key={i}
-                    className="w-full flex-shrink-0 flex flex-col gap-10"
-                    aria-hidden={i !== index}
+                    initial={{ opacity: 0, filter: "blur(6px)" }}
+                    animate={{ opacity: 1, filter: "blur(0px)" }}
+                    exit={{ opacity: 0, filter: "blur(6px)" }}
+                    transition={{ duration: 0.4, ease }}
+                    className="flex flex-col gap-10"
                   >
                     <blockquote
                       className="leading-[1.15]"
@@ -147,52 +133,35 @@ export default function TestimonialSection() {
                       />
                     </blockquote>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-col items-center gap-3">
                       <img
                         src={t.avatar}
                         alt={t.name}
                         className="w-10 h-10 rounded-full object-cover shrink-0"
                       />
-                      <div className="flex flex-col gap-0.5">
-                        <p className="text-ui text-[#0C0C12]">
-                          {t.name}
-                        </p>
-                        <p className="text-ui text-[#B0B0B0]">
-                          {t.title}
-                        </p>
+                      <div className="flex flex-col gap-0.5 items-center">
+                        <p className="text-ui text-[#0C0C12]">{t.name}</p>
+                        <p className="text-ui text-[#B0B0B0]">{t.title}</p>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
-              </motion.div>
+              </AnimatePresence>
             </div>
 
-            {/* Controller — arrows left + dots right on mobile; both right-aligned on desktop */}
-            <div className="flex items-center justify-between lg:justify-end lg:gap-4 mt-2">
-              {/* Arrows — left on mobile, rightmost on desktop */}
-              <div className="flex items-center gap-2 order-1 lg:order-2">
-                <button
-                  onClick={() => go(-1)}
-                  aria-label="Previous testimonial"
-                  className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors cursor-pointer"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M15 18l-6-6 6-6" />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => go(1)}
-                  aria-label="Next testimonial"
-                  className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors cursor-pointer"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M9 18l6-6-6-6" />
-                  </svg>
-                </button>
-              </div>
+            {/* Controller */}
+            <div className="flex items-center justify-center gap-4 mt-2">
+              <button
+                onClick={() => go(-1)}
+                aria-label="Previous testimonial"
+                className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors cursor-pointer"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M15 18l-6-6 6-6" />
+                </svg>
+              </button>
 
-              {/* Dots — right on mobile, left of arrows on desktop */}
-              <div className="flex items-center gap-2 order-2 lg:order-1">
+              <div className="flex gap-2 items-center">
                 {testimonials.map((_, i) => (
                   <button
                     key={i}
@@ -204,11 +173,19 @@ export default function TestimonialSection() {
                   />
                 ))}
               </div>
+
+              <button
+                onClick={() => go(1)}
+                aria-label="Next testimonial"
+                className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors cursor-pointer"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
+              </button>
             </div>
           </div>
-
         </div>
-      </div>
     </SectionReveal>
   );
 }

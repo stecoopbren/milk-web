@@ -69,6 +69,7 @@ const logos = [
   { src: "/Cisco_logo_blue_2016.svg.png",  alt: "Cisco",       height: 24 },
   { src: "/logo-stripe.svg",               alt: "Stripe",      height: 22 },
   { src: "/accenture-transparent.webp",    alt: "Accenture",   height: 22 },
+  { src: "/NIQ_logo.png",                  alt: "NIQ",         height: 22 },
 ];
 
 export default function HeroSection() {

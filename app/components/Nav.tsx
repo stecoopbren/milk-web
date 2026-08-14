@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import ContactModal from "./ContactModal";
 
 const links = [
+  { label: "About", href: "/#about-us" },
   { label: "Why Milk?", href: "/#who-we-are" },
-  { label: "About", href: "/#who-we-are" },
   { label: "Method", href: "/#method" },
   { label: "Work", href: "/#portfolio" },
 ];
@@ -45,14 +45,6 @@ const socialLinks = [
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-function handleWorkClick(e: React.MouseEvent<HTMLAnchorElement>, href: string, onClose?: () => void) {
-  const match = href.match(/^\/#(.+)$/);
-  if (match && window.location.pathname === "/") {
-    e.preventDefault();
-    window.dispatchEvent(new CustomEvent("milk:snap-to", { detail: { id: match[1] } }));
-    onClose?.();
-  }
-}
 
 export default function Nav() {
   const [menuOpen, setMenuOpen]     = useState(false);
@@ -60,19 +52,105 @@ export default function Nav() {
   const [modalOpen, setModalOpen]   = useState(false);
   const [modalService, setModalService] = useState<string | undefined>(undefined);
   const [socialOpen, setSocialOpen] = useState(false);
+  const [fadeActive, setFadeActive] = useState(false);
+  const [pendingSection, setPendingSection] = useState<string | null>(null);
+  const [showCta, setShowCta] = useState(true);
+  const [activeSection, setActiveSection] = useState<string | null>(null);
   const pathname = usePathname();
+  const router = useRouter();
+
+  // Track which snap section owns the viewport center — RAF loop so it works with Lenis
+  useEffect(() => {
+    if (pathname !== "/") { setActiveSection(null); return; }
+
+    const sectionIds = links
+      .map(l => l.href.match(/\/#(.+)$/)?.[1])
+      .filter(Boolean) as string[];
+
+    let raf: number;
+    let last: string | null = null;
+
+    const tick = () => {
+      const mid = window.innerHeight / 2;
+      for (const id of sectionIds) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        const { top, bottom } = el.getBoundingClientRect();
+        if (top <= mid && bottom >= mid) {
+          if (id !== last) { last = id; setActiveSection(id); }
+          break;
+        }
+      }
+      raf = requestAnimationFrame(tick);
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [pathname]);
+
+  // Hide CTA when hero section is visible on homepage
+  useEffect(() => {
+    if (pathname !== "/") { setShowCta(true); return; }
+    const hero = document.getElementById("home");
+    if (!hero) { setShowCta(true); return; }
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowCta(!entry.isIntersecting),
+      { threshold: 0.3 }
+    );
+    observer.observe(hero);
+    return () => observer.disconnect();
+  }, [pathname]);
+
+  // After navigating to "/", snap to the pending section
+  useEffect(() => {
+    if (pathname !== "/" || !pendingSection) return;
+    const id = pendingSection;
+    setPendingSection(null);
+    const t = setTimeout(() => {
+      window.dispatchEvent(new CustomEvent("milk:snap-to", { detail: { id } }));
+    }, 350);
+    return () => clearTimeout(t);
+  }, [pathname, pendingSection]);
+
+  function handleNavClick(e: React.MouseEvent<HTMLAnchorElement>, href: string, onClose?: () => void) {
+    const match = href.match(/^\/#(.+)$/);
+    if (!match) return;
+    e.preventDefault();
+    onClose?.();
+    if (window.location.pathname === "/") {
+      // Already on homepage: snap directly
+      window.dispatchEvent(new CustomEvent("milk:snap-to", { detail: { id: match[1] } }));
+      return;
+    }
+    // On a case page: fade to white, skip intro loader, then navigate
+    const sectionId = match[1];
+    setFadeActive(true);
+    setTimeout(() => {
+      // Mark intro as shown so the nav visibility guard doesn't hide the nav on "/".
+      // (milkLoaded was the wrong key — IntroLoader checks "milk:intro-shown".)
+      sessionStorage.setItem("milk:intro-shown", "1");
+      setPendingSection(sectionId);
+      router.push("/");
+      setTimeout(() => setFadeActive(false), 100);
+    }, 2200);
+  }
 
   useEffect(() => {
+    // If navigating to "/" before the intro has played, hide the nav so it
+    // doesn't bleed through from a previous page visit.
+    if (pathname === "/" && !sessionStorage.getItem("milk:intro-shown")) {
+      setVisible(false);
+    }
+
     const show = () => setVisible(true);
     window.addEventListener("milk:intro-exit", show, { once: true });
-    // Safety-net only — IntroLoader always dispatches milk:intro-exit.
-    // Long enough to never interfere with the intro sequence (~9s on first visit).
+    // Safety-net: show nav after 15s in case the event never fires.
     const t = setTimeout(show, 15000);
     return () => {
       window.removeEventListener("milk:intro-exit", show);
       clearTimeout(t);
     };
-  }, []);
+  }, [pathname]);
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -104,16 +182,19 @@ export default function Nav() {
           transition={{ type: "spring", stiffness: 260, damping: 22 }}
         >
           {/* Pill */}
-          <div
+          <motion.div
+            layout
             className="relative flex items-center gap-2.5 rounded-full w-full lg:w-auto justify-between lg:justify-start"
             style={{
               padding: "8px 8px 8px 24px",
+              minHeight: 60,
               background: "rgba(250,250,250,0.88)",
               backdropFilter: "blur(40px) saturate(160%)",
               WebkitBackdropFilter: "blur(40px) saturate(160%)",
               border: "1px solid rgba(255,255,255,0.6)",
               boxShadow: "0 2px 24px rgba(0,0,0,0.08), 0 1px 0 rgba(255,255,255,0.8) inset",
             }}
+            transition={{ type: "spring", stiffness: 280, damping: 26 }}
           >
             {/* Specular sheen */}
             <div
@@ -136,17 +217,40 @@ export default function Nav() {
             {/* Desktop links */}
             <nav className="hidden lg:flex items-center mx-4" style={{ gap: 28 }}>
               {links.map((link) => {
-                const isActive = !link.href.includes("#") && pathname === link.href;
+                const sectionId = link.href.match(/\/#(.+)$/)?.[1] ?? null;
+                const isActive = sectionId
+                  ? (activeSection === sectionId) || (sectionId === "portfolio" && pathname.startsWith("/cases/"))
+                  : pathname === link.href;
                 return (
                   <a
                     key={link.label}
                     href={link.href}
-                    onClick={(e) => handleWorkClick(e, link.href)}
-                    className={`text-ui transition-opacity hover:opacity-50 ${
-                      isActive ? "text-[#111] underline underline-offset-2" : "text-[#555]"
-                    }`}
+                    onClick={(e) => handleNavClick(e, link.href)}
+                    className="text-ui transition-opacity hover:opacity-70"
+                    suppressHydrationWarning
+                    style={{
+                      color: isActive ? "#000000" : "#555",
+                      fontWeight: isActive ? 500 : 400,
+                      position: "relative",
+                      paddingBottom: 4,
+                    }}
                   >
                     {link.label}
+                    <span
+                      aria-hidden
+                      suppressHydrationWarning
+                      style={{
+                        position: "absolute",
+                        bottom: 0,
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        width: isActive ? "60%" : 0,
+                        height: 1.5,
+                        borderRadius: 999,
+                        background: "#000",
+                        transition: "width 0.25s ease",
+                      }}
+                    />
                   </a>
                 );
               })}
@@ -193,21 +297,29 @@ export default function Nav() {
               </div>
             </nav>
 
-            {/* CTA pill button — 3D */}
-            <motion.button
-              onClick={() => setModalOpen(true)}
-              className="hidden lg:inline-flex font-sans font-medium text-[15px] text-white tracking-[-0.45px] rounded-full"
-              style={{
-                background: "#1a1a1a",
-                padding: "12px 20px",
-                boxShadow: "0 2px 12px rgba(0,0,0,0.18)",
-              }}
-              whileHover={{ opacity: 0.82 }}
-              whileTap={{ scale: 0.97 }}
-              transition={{ duration: 0.15 }}
-            >
-              Let&apos;s Talk
-            </motion.button>
+            {/* CTA pill button — removed from DOM on hero so pill width shrinks */}
+            <AnimatePresence>
+              {showCta && (
+                <motion.button
+                  key="cta"
+                  onClick={() => setModalOpen(true)}
+                  className="hidden lg:inline-flex font-sans font-medium text-[15px] text-white tracking-[-0.45px] rounded-full shrink-0"
+                  style={{
+                    background: "#1a1a1a",
+                    padding: "12px 20px",
+                    boxShadow: "0 2px 12px rgba(0,0,0,0.18)",
+                  }}
+                  initial={{ opacity: 0, scale: 0.82, x: 10 }}
+                  animate={{ opacity: 1, scale: 1, x: 0 }}
+                  exit={{ opacity: 0, scale: 0.82, x: 10 }}
+                  whileHover={{ opacity: 0.82 }}
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ type: "spring", stiffness: 340, damping: 26 }}
+                >
+                  Let&apos;s Talk
+                </motion.button>
+              )}
+            </AnimatePresence>
 
             {/* Mobile burger — 3D */}
             <motion.button
@@ -228,7 +340,7 @@ export default function Nav() {
               <span className="block h-[1.5px] w-4 bg-white transition-transform duration-300"
                 style={{ transform: menuOpen ? "rotate(-45deg) translateY(-6.5px)" : "none" }} />
             </motion.button>
-          </div>
+          </motion.div>
         </motion.header>
       </div>
 
@@ -257,19 +369,26 @@ export default function Nav() {
               style={{ background: "linear-gradient(to bottom, rgba(255,255,255,0.40) 0%, rgba(255,255,255,0) 100%)" }}
             />
             <div className="flex flex-col p-6 gap-1">
-              {links.map((link, i) => (
-                <motion.a
-                  key={link.label}
-                  href={link.href}
-                  className="font-sans font-medium text-[28px] leading-[1.1] tracking-[-1.8px] text-[#111] py-2"
-                  initial={{ opacity: 0, x: -12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.05, duration: 0.3, ease }}
-                  onClick={(e) => { handleWorkClick(e, link.href, () => setMenuOpen(false)); setMenuOpen(false); }}
-                >
-                  {link.label}
-                </motion.a>
-              ))}
+              {links.map((link, i) => {
+                const sectionId = link.href.match(/\/#(.+)$/)?.[1] ?? null;
+                const isActive = sectionId
+                  ? (activeSection === sectionId) || (sectionId === "portfolio" && pathname.startsWith("/cases/"))
+                  : pathname === link.href;
+                return (
+                  <motion.a
+                    key={link.label}
+                    href={link.href}
+                    className="font-sans font-medium text-[28px] leading-[1.1] tracking-[-1.8px] py-2"
+                    style={{ color: isActive ? "#111" : "#999", fontWeight: isActive ? 600 : 500 }}
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.05, duration: 0.3, ease }}
+                    onClick={(e) => { handleNavClick(e, link.href, () => setMenuOpen(false)); setMenuOpen(false); }}
+                  >
+                    {link.label}
+                  </motion.a>
+                );
+              })}
               {socialLinks.map((s, i) => (
                 <motion.a
                   key={s.label}
@@ -285,21 +404,36 @@ export default function Nav() {
                   {s.label}
                 </motion.a>
               ))}
-              <motion.button
-                className="mt-4 inline-flex font-sans font-medium text-[15px] text-white tracking-[-0.45px] rounded-full w-fit"
-                style={{ background: "#111", padding: "12px 20px" }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: (links.length + socialLinks.length) * 0.05, duration: 0.3, ease }}
-                onClick={() => { setMenuOpen(false); setModalOpen(true); }}
-              >
-                Let&apos;s Talk
-              </motion.button>
+              {showCta && (
+                <motion.button
+                  className="mt-4 inline-flex font-sans font-medium text-[15px] text-white tracking-[-0.45px] rounded-full w-fit"
+                  style={{ background: "#111", padding: "12px 20px" }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: (links.length + socialLinks.length) * 0.05, duration: 0.3, ease }}
+                  onClick={() => { setMenuOpen(false); setModalOpen(true); }}
+                >
+                  Let&apos;s Talk
+                </motion.button>
+              )}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
       <ContactModal open={modalOpen} onClose={() => { setModalOpen(false); setModalService(undefined); }} initialService={modalService} />
+
+      {/* Fade-to-white overlay for case → homepage transitions */}
+      <AnimatePresence>
+        {fadeActive && (
+          <motion.div
+            className="fixed inset-0 z-[9999] bg-white pointer-events-auto"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 2.2, ease: [0.4, 0, 0.2, 1] }}
+          />
+        )}
+      </AnimatePresence>
     </>
   );
 }

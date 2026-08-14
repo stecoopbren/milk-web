@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
+import { motion, useScroll, useTransform, useInView, type MotionValue } from "framer-motion";
 import Lottie from "lottie-react";
 
 function Word({
@@ -35,6 +35,7 @@ export default function BioSection() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [animData, setAnimData] = useState<any>(null);
   const outerRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(outerRef, { once: true, margin: "-10%" });
 
   const { scrollYProgress } = useScroll({
     target: outerRef,
@@ -48,8 +49,9 @@ export default function BioSection() {
       .catch(() => {});
   }, []);
 
-  const line2 = ["the", "RIGHT", "PROBLEM", "before", "you", "build", "the", "WRONG", "THING."];
-  const total = line2.length;
+  const line2 = ["THE", "REAL", "PROBLEM"];
+  const line3 = ["to", "build", "THE", "RIGHT", "THING"];
+  const total = line2.length + line3.length;
 
   return (
     <div
@@ -59,7 +61,7 @@ export default function BioSection() {
       data-free-scroll="true"
       style={{ height: "250vh", scrollSnapAlign: "none" }}
     >
-      <div className="sticky top-0 h-screen flex items-start justify-center px-8 lg:px-[180px]" style={{ paddingTop: 148 }}>
+      <div className="sticky top-0 h-screen flex items-start justify-center px-8 lg:px-[180px]" style={{ paddingTop: 148, zIndex: 1 }}>
         <div className="relative w-full flex flex-col items-center gap-4">
           <p className="text-serif-eyebrow text-[#0C0C12]">
             Long story short
@@ -70,20 +72,43 @@ export default function BioSection() {
             </div>
             <div>
               {line2.map((word, i) => (
-                <Word key={i} word={word} index={i} total={total} progress={scrollYProgress} trailingSpace={i < line2.length - 1} defaultHighlighted={![1, 2, 7, 8].includes(i)} />
+                <Word key={i} word={word} index={i} total={total} progress={scrollYProgress} trailingSpace={i < line2.length - 1} defaultHighlighted={false} />
+              ))}
+            </div>
+            <div>
+              {line3.map((word, i) => (
+                <Word key={i + line2.length} word={word} index={i + line2.length} total={total} progress={scrollYProgress} trailingSpace={i < line3.length - 1} defaultHighlighted={[0, 1].includes(i)} />
               ))}
             </div>
           </div>
           {animData && (
             <>
-              {/* Mobile: sits below the text, no overlap */}
-              <div className="block lg:hidden" style={{ marginTop: -40, width: "clamp(560px, 95vw, 800px)" }}>
+              {/* Mobile: rises from below the text */}
+              <motion.div
+                className="block lg:hidden"
+                style={{ marginTop: -40, width: "clamp(560px, 95vw, 800px)" }}
+                initial="hidden"
+                animate={inView ? "visible" : "hidden"}
+                variants={{
+                  hidden: { y: 320, opacity: 0, transition: { duration: 1.0, ease: [0.22, 1, 0.36, 1] } },
+                  visible: { y: 0, opacity: 1, transition: { duration: 1.4, ease: [0.22, 1, 0.36, 1], delay: 0.5 } },
+                }}
+              >
                 <Lottie animationData={animData} loop />
-              </div>
-              {/* Desktop: overlaps down into next section */}
-              <div className="absolute top-full hidden lg:block" style={{ marginTop: -160, width: "clamp(480px, 65vw, 900px)" }}>
+              </motion.div>
+              {/* Desktop: rises from below the fold */}
+              <motion.div
+                className="absolute top-full hidden lg:block"
+                style={{ marginTop: -160, width: "clamp(480px, 65vw, 900px)" }}
+                initial="hidden"
+                animate={inView ? "visible" : "hidden"}
+                variants={{
+                  hidden: { y: 480, opacity: 0, transition: { duration: 1.0, ease: [0.22, 1, 0.36, 1] } },
+                  visible: { y: 0, opacity: 1, transition: { duration: 1.6, ease: [0.22, 1, 0.36, 1], delay: 0.5 } },
+                }}
+              >
                 <Lottie animationData={animData} loop />
-              </div>
+              </motion.div>
             </>
           )}
         </div>
