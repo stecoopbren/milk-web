@@ -84,8 +84,15 @@ export default function ScrollSnapController() {
       // When navigating UP into a free-scroll section, land at the end of it
       // so the user sees the exit frame (e.g. "Now I bring it to yours")
       // rather than the entry frame.
-      if (clamped < currentIndex && el.dataset.freeScroll) {
-        targetY = Math.max(targetY, getSectionTop(el) + el.offsetHeight - window.innerHeight);
+      // Also check physical scroll position as fallback — on mobile, Lenis onComplete
+      // can fire late, leaving currentIndex stale and making clamped < currentIndex false
+      // even though the user is physically past the section end.
+      if (el.dataset.freeScroll) {
+        const sectionEnd = getSectionTop(el) + el.offsetHeight - window.innerHeight;
+        const comingFromBelow = window.scrollY > sectionEnd + 10;
+        if (clamped < currentIndex || comingFromBelow) {
+          targetY = Math.max(targetY, sectionEnd);
+        }
       }
 
       currentIndex = clamped;

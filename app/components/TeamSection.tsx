@@ -4,14 +4,14 @@ import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useMotionValue, useMotionValueEvent } from "framer-motion";
 
 const TYPE_TARGET = "Why Milk?";
-const PAN_END = 0.70;        // panning finishes at 70% scroll — slower pan so text is readable
-const OVERLAY_START = 0.78;  // white starts fading — gap after pan so Frame 3 is readable
-const OVERLAY_END   = 0.84;  // fully white
-const REVEAL1_START    = 0.84; // "Distilled it." fades in
-const REVEAL1_PEAK     = 0.88; // "Distilled it." fully visible
-const REVEAL1_HOLD_END = 0.93; // "Distilled it." starts fading out
-const REVEAL1_EXIT     = 0.97; // "Distilled it." fully gone
-const REVEAL2_START  = 0.95; // "Now I bring it to yours." fades in
+const PAN_END = 0.65;
+const OVERLAY_START = 0.65;  // starts immediately when pan ends — no dead scroll gap
+const OVERLAY_END   = 0.72;  // fully white
+const REVEAL1_START    = 0.72; // "Distilled it." fades in
+const REVEAL1_PEAK     = 0.78; // "Distilled it." fully visible
+const REVEAL1_HOLD_END = 0.87; // "Distilled it." starts fading out
+const REVEAL1_EXIT     = 0.94; // "Distilled it." fully gone
+const REVEAL2_START  = 0.94; // "Now I bring it to yours." fades in — starts only after Reveal1 is gone
 const REVEAL2_END    = 1.00; // fully visible
 
 const videos = [
