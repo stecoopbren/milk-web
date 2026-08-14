@@ -4,19 +4,19 @@ import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useMotionValue, useMotionValueEvent } from "framer-motion";
 
 const TYPE_TARGET = "Why Milk?";
-const PAN_END = 0.58;        // panning finishes at 58% scroll
-const OVERLAY_START = 0.68;  // white starts fading — gap after pan so Frame 3 is readable
-const OVERLAY_END   = 0.75;  // fully white
-const REVEAL1_START    = 0.75; // "Distilled it." fades in
-const REVEAL1_PEAK     = 0.80; // "Distilled it." fully visible
-const REVEAL1_HOLD_END = 0.87; // "Distilled it." starts fading out
-const REVEAL1_EXIT     = 0.93; // "Distilled it." fully gone
-const REVEAL2_START  = 0.91; // "Now I bring it to yours." fades in
+const PAN_END = 0.70;        // panning finishes at 70% scroll — slower pan so text is readable
+const OVERLAY_START = 0.78;  // white starts fading — gap after pan so Frame 3 is readable
+const OVERLAY_END   = 0.84;  // fully white
+const REVEAL1_START    = 0.84; // "Distilled it." fades in
+const REVEAL1_PEAK     = 0.88; // "Distilled it." fully visible
+const REVEAL1_HOLD_END = 0.93; // "Distilled it." starts fading out
+const REVEAL1_EXIT     = 0.97; // "Distilled it." fully gone
+const REVEAL2_START  = 0.95; // "Now I bring it to yours." fades in
 const REVEAL2_END    = 1.00; // fully visible
 
 const videos = [
   "/v09044g40000d0e102nog65gpr487m80.MP4",
-  "/v09044g40000cpjmcavog65s1brudlgg.mp4",
+  "/v09044g40000cpjmcavog65s1brudlgg.MP4",
 ];
 
 function lerp(a: number, b: number, t: number) {
@@ -122,7 +122,7 @@ export default function TeamSection() {
       ref={outerRef}
       className="snap-section relative"
       data-free-scroll="true"
-      style={{ height: "800vh", scrollSnapAlign: "none" }}
+      style={{ height: "900vh", scrollSnapAlign: "none" }}
     >
       <div className="sticky top-0 h-screen overflow-hidden">
 

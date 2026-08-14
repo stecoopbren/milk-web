@@ -61,7 +61,7 @@ export default function BioSection() {
       data-free-scroll="true"
       style={{ height: "250vh", scrollSnapAlign: "none" }}
     >
-      <div className="sticky top-0 h-screen flex items-start justify-center px-8 lg:px-[180px]" style={{ paddingTop: 148, zIndex: 1 }}>
+      <div className="sticky top-0 h-screen flex items-start justify-center px-8 lg:px-[180px]" style={{ paddingTop: 148 }}>
         <div className="relative w-full flex flex-col items-center gap-4">
           <p className="text-serif-eyebrow text-[#0C0C12]">
             Long story short
