@@ -53,6 +53,7 @@ export default function Nav() {
   const [modalService, setModalService] = useState<string | undefined>(undefined);
   const [socialOpen, setSocialOpen] = useState(false);
   const [fadeActive, setFadeActive] = useState(false);
+  const [fadeDuration, setFadeDuration] = useState(2.2);
   const [pendingSection, setPendingSection] = useState<string | null>(null);
   const [showCta, setShowCta] = useState(true);
   const [activeSection, setActiveSection] = useState<string | null>(null);
@@ -112,6 +113,24 @@ export default function Nav() {
     return () => clearTimeout(t);
   }, [pathname, pendingSection]);
 
+  function handleLogoClick(e: React.MouseEvent<HTMLAnchorElement>) {
+    e.preventDefault();
+    if (window.location.pathname === "/") return;
+    // Pre-set flags so intro loader doesn't play and Let's Talk doesn't flash
+    sessionStorage.setItem("milk:intro-shown", "1");
+    setShowCta(false);
+    // Quick white fade, then navigate
+    setFadeDuration(0.55);
+    setFadeActive(true);
+    setTimeout(() => {
+      router.push("/");
+      setTimeout(() => {
+        setFadeDuration(1.1);
+        setFadeActive(false);
+      }, 150);
+    }, 550);
+  }
+
   function handleNavClick(e: React.MouseEvent<HTMLAnchorElement>, href: string, onClose?: () => void) {
     const match = href.match(/^\/#(.+)$/);
     if (!match) return;
@@ -124,10 +143,9 @@ export default function Nav() {
     }
     // On a case page: fade to white, skip intro loader, then navigate
     const sectionId = match[1];
+    setFadeDuration(2.2);
     setFadeActive(true);
     setTimeout(() => {
-      // Mark intro as shown so the nav visibility guard doesn't hide the nav on "/".
-      // (milkLoaded was the wrong key — IntroLoader checks "milk:intro-shown".)
       sessionStorage.setItem("milk:intro-shown", "1");
       setPendingSection(sectionId);
       router.push("/");
@@ -203,7 +221,7 @@ export default function Nav() {
               style={{ background: "linear-gradient(to bottom, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 100%)" }}
             />
             {/* Logo */}
-            <a href="/" className="shrink-0 mr-2">
+            <a href="/" onClick={handleLogoClick} className="shrink-0 mr-2">
               <Image
                 src="/MilkLogo-Black.png"
                 alt="Milk"
@@ -232,6 +250,7 @@ export default function Nav() {
                       color: isActive ? "#000000" : "#555",
                       fontWeight: isActive ? 500 : 400,
                       position: "relative",
+                      paddingTop: 4,
                       paddingBottom: 4,
                     }}
                   >
@@ -430,7 +449,7 @@ export default function Nav() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 2.2, ease: [0.4, 0, 0.2, 1] }}
+            transition={{ duration: fadeDuration, ease: [0.4, 0, 0.2, 1] }}
           />
         )}
       </AnimatePresence>
