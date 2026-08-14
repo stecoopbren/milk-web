@@ -335,7 +335,7 @@ export default function MethodSection() {
   ];
 
   return (
-    <SectionReveal id="method" className="px-8 lg:px-0" noClip>
+    <SectionReveal id="method" className="bg-[#FAFAFA] px-8 lg:px-0" noClip>
 
       {/* ── Mobile: header + stacked deck ─────────────── */}
       <div
@@ -353,8 +353,7 @@ export default function MethodSection() {
             Here&apos;s my Method®
           </RevealLine>
           <h2 className="text-heading text-[#2E2E2E]">
-            <RevealLine delay={0.25} inView={mobileInView}>Three Steps.</RevealLine>
-            <RevealLine delay={0.38} inView={mobileInView}>No more guesswork.</RevealLine>
+            <RevealLine delay={0.25} inView={mobileInView}>No more guesswork.</RevealLine>
           </h2>
           <button
             onClick={() => setMobileFlipped(mobileFlipped === mobileActive ? null : mobileActive)}
@@ -369,7 +368,7 @@ export default function MethodSection() {
               <path d="M1 20v-6h6"/>
               <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
             </svg>
-            {mobileFlipped === mobileActive ? "Face Down" : "Flip the Deck"}
+            {mobileFlipped === mobileActive ? "Face Down" : "Flip Card"}
           </button>
         </div>
 

@@ -194,7 +194,7 @@ export default function Nav() {
       >
         <motion.header
           className="w-full lg:w-auto"
-          style={{ pointerEvents: "auto" }}
+          style={{ pointerEvents: "auto", visibility: visible ? "visible" : "hidden" }}
           initial={{ opacity: 0, y: -32, scale: 0.92 }}
           animate={visible ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: -32, scale: 0.92 }}
           transition={{ type: "spring", stiffness: 260, damping: 22 }}

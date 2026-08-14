@@ -80,34 +80,6 @@ export const projects: Project[] = [
 // Orbit-ready items
 export const orbitItems: OrbitItem[] = [
   {
-    title: "Regenerative Community", role: "Growth & Brand Lead", year: "2026",
-    image: "/Chaguite/hero.webp", staticImage: "/Chaguite/card-cover.webp",
-    images: [
-      "/Chaguite/hero.webp",
-      "/Chaguite/concept-2.webp",
-      "/Chaguite/billboard.webp",
-      "/Chaguite/concept-89.webp",
-      "/Chaguite/concept-1.webp",
-      "/Chaguite/hf_interior_regen.webp",
-      "/Chaguite/concept-5.webp",
-    ],
-    href: "/cases/regenerative-community", tag: "Real Estate",
-  },
-  {
-    title: "Casa Siwä", role: "Brand & Experience Lead", year: "2025",
-    image: "/Siwa/siwa-stone-hero.webp", staticImage: "/Siwa/siwa-stone-hero.webp",
-    images: [
-      "/Siwa/siwa-stone-hero.webp",
-      "/Siwa/hf_20260530_004913_e18d2766-720f-4b3d-aeea-19042417dcfc.webp",
-      "/Siwa/hf_20260530_005122_ae9a197c-8f5f-48be-8c2a-88569d98af81.webp",
-      "/Siwa/hf_20260530_010108_6cc9af61-f105-4d35-a456-02c70122d4fa.webp",
-      "/Siwa/hf_20260530_010422_6e1baf86-9dd4-4520-a506-bf51ac168b75.webp",
-      "/Siwa/hf_20260530_010811_ab2a0e3b-dac8-4a94-aeec-97b849ecf02a.webp",
-      "/Siwa/hf_20260530_011818_1ccc9b48-4177-4e24-931e-79b8b3b2da5f.webp",
-    ],
-    href: "/cases/casa-siwa", tag: "Hospitality",
-  },
-  {
     title: "Digital Transformation", role: "Product Strategy & Design Lead", year: "2024",
     image: "/GXM/IMG_9711.jpg",
     images: [
@@ -144,6 +116,34 @@ export const orbitItems: OrbitItem[] = [
       { name: "Hugo",    color: "#F97316", path: [[82, 70], [72, 48], [88, 30], [75, 65]], stepDuration: 3.9, startDelay: 2.6 },
     ],
   },
+  {
+    title: "Regenerative Community", role: "Growth & Brand Lead", year: "2026",
+    image: "/Chaguite/hero.webp", staticImage: "/Chaguite/card-cover.webp",
+    images: [
+      "/Chaguite/hero.webp",
+      "/Chaguite/concept-2.webp",
+      "/Chaguite/billboard.webp",
+      "/Chaguite/concept-89.webp",
+      "/Chaguite/concept-1.webp",
+      "/Chaguite/hf_interior_regen.webp",
+      "/Chaguite/concept-5.webp",
+    ],
+    href: "/cases/regenerative-community", tag: "Real Estate",
+  },
+  {
+    title: "Casa Siwä", role: "Brand & Experience Lead", year: "2025",
+    image: "/Siwa/siwa-stone-hero.webp", staticImage: "/Siwa/siwa-stone-hero.webp",
+    images: [
+      "/Siwa/siwa-stone-hero.webp",
+      "/Siwa/hf_20260530_004913_e18d2766-720f-4b3d-aeea-19042417dcfc.webp",
+      "/Siwa/hf_20260530_005122_ae9a197c-8f5f-48be-8c2a-88569d98af81.webp",
+      "/Siwa/hf_20260530_010108_6cc9af61-f105-4d35-a456-02c70122d4fa.webp",
+      "/Siwa/hf_20260530_010422_6e1baf86-9dd4-4520-a506-bf51ac168b75.webp",
+      "/Siwa/hf_20260530_010811_ab2a0e3b-dac8-4a94-aeec-97b849ecf02a.webp",
+      "/Siwa/hf_20260530_011818_1ccc9b48-4177-4e24-931e-79b8b3b2da5f.webp",
+    ],
+    href: "/cases/casa-siwa", tag: "Hospitality",
+  },
 ];
 
 // ProjectCard kept for PortfolioHero
@@ -175,7 +175,7 @@ function ChevronRight() {
 // ── Desktop: orbit carousel ────────────────────────────────────────────────────
 function DesktopOrbit() {
   const total = orbitItems.length;
-  const [active, setActive] = useState(2);
+  const [active, setActive] = useState(0);
   const [slideIndex, setSlideIndex] = useState(0);
   const go = (dir: number) => setActive((prev) => ((prev + dir) % total + total) % total);
 
@@ -429,25 +429,58 @@ function MobileCard({ item }: { item: OrbitItem }) {
   );
 }
 
-// ── Mobile: vertical stack ────────────────────────────────────────────────────
-function MobileGallery() {
+// ── Mobile: carousel ─────────────────────────────────────────────────────────
+function MobileCarousel() {
+  const [active, setActive] = useState(0);
+  const total = orbitItems.length;
+  const go = (dir: number) => setActive((prev) => ((prev + dir) % total + total) % total);
+
   return (
     <div
       id="portfolio"
-      data-free-scroll="true"
       className="snap-section lg:hidden"
       style={{ paddingTop: 108, paddingBottom: 60 }}
     >
-      <div className="px-8 pb-8">
+      <div className="px-8 pb-6">
         <h1 className="text-display font-sans text-[#0C0C12] whitespace-nowrap">
           Featured Work
         </h1>
       </div>
 
-      <div className="flex flex-col gap-3 px-5">
-        {orbitItems.map((item, i) => (
-          <MobileCard key={i} item={item} />
-        ))}
+      <div className="px-5">
+        <MobileCard item={orbitItems[active]} />
+      </div>
+
+      {/* Controls */}
+      <div className="flex items-center justify-center gap-4 mt-5">
+        <button
+          onClick={() => go(-1)}
+          className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors"
+          aria-label="Previous project"
+        >
+          <ChevronLeft />
+        </button>
+
+        <div className="flex gap-2 items-center">
+          {orbitItems.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setActive(i)}
+              className={`rounded-full transition-all duration-300 ${
+                i === active ? "w-5 h-[6px] bg-[#0C0C12]" : "w-[6px] h-[6px] bg-[#C0C0C0]"
+              }`}
+              aria-label={`Go to project ${i + 1}`}
+            />
+          ))}
+        </div>
+
+        <button
+          onClick={() => go(1)}
+          className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors"
+          aria-label="Next project"
+        >
+          <ChevronRight />
+        </button>
       </div>
     </div>
   );
@@ -458,7 +491,7 @@ export default function ProjectsSection() {
   return (
     <>
       <DesktopOrbit />
-      <MobileGallery />
+      <MobileCarousel />
     </>
   );
 }

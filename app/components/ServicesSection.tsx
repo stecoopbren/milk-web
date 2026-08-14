@@ -113,14 +113,14 @@ export default function ServicesSection() {
       id="services"
       className="snap-section relative"
       data-native-scroll="true"
-      style={{ scrollSnapAlign: "none", paddingTop: 100, paddingBottom: 80 }}
+      style={{ scrollSnapAlign: "none", paddingTop: 100, paddingBottom: 80, minHeight: "calc(100svh + 1px)" }}
     >
       <div className="px-8 lg:px-[180px]">
 
         <div className="flex flex-col lg:flex-row lg:gap-32 lg:items-start">
 
           {/* Left: sticky heading */}
-          <div className="mb-12 lg:mb-0 lg:w-[38%] lg:shrink-0 lg:sticky lg:self-start text-left" style={{ top: "50vh", transform: "translateY(-50%)" }}>
+          <div className="mb-12 lg:mb-0 lg:w-[38%] lg:shrink-0 lg:sticky lg:self-start lg:top-[50vh] lg:-translate-y-1/2 text-left">
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
