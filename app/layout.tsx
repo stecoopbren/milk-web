@@ -11,7 +11,6 @@ import ScrollProgressBar from "./components/ScrollProgressBar";
 import LenisProvider from "./components/LenisProvider";
 import FilmGrain from "./components/FilmGrain";
 import IntroLoader from "./components/IntroLoader";
-import NowPlaying from "./components/NowPlaying";
 
 const dmMono = DM_Mono({
   variable: "--font-dm-mono",
@@ -46,7 +45,6 @@ export default function RootLayout({
           <ScrollSnapController />
           <ScrollCue />
           <BackToTop />
-          <NowPlaying />
           {children}
         </ClientWrapper>
       </body>
