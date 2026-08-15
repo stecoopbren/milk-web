@@ -24,6 +24,8 @@ export default function IntroLoader() {
   // Start as done immediately for non-home pages — prevents the bg-black flash
   const [done, setDone]   = useState(() => !isHome);
   const numbersRef        = useRef<HTMLDivElement>(null);
+  // Guards onAnimationComplete — only true while the outro fade is in progress
+  const outroFiredRef     = useRef(false);
 
   // ── CMD+Shift+R — reset intro so it plays again on hard refresh ────────────
   useEffect(() => {
@@ -98,15 +100,13 @@ export default function IntroLoader() {
   useEffect(() => {
     if (phase !== "logo-reveal") return;
     const t = setTimeout(() => {
-      // Start the fade-out, then fire intro-exit only once the overlay is gone
-      // so the nav logo doesn't appear while the loader logo is still visible.
+      // Mark outro as active BEFORE setting phase so onAnimationComplete
+      // can distinguish this animation from any spurious fires on mount.
+      outroFiredRef.current = true;
       setPhase("outro");
-      setTimeout(() => {
-        // Unmount the loader first so the intro logo is gone from the DOM,
-        // then reveal the nav — prevents both logos appearing simultaneously.
-        setDone(true);
-        setTimeout(() => window.dispatchEvent(new CustomEvent("milk:intro-exit")), 80);
-      }, 1000);
+      // NOTE: setDone + milk:intro-exit are now handled in onAnimationComplete
+      // on the container, which fires only when the opacity has actually reached
+      // 0 — regardless of device frame rate. No fixed-duration guess needed.
     }, REVEAL_DURATION);
     return () => clearTimeout(t);
   }, [phase]);
@@ -116,8 +116,23 @@ export default function IntroLoader() {
   return (
     <motion.div
       className="fixed inset-0 z-[9999] overflow-hidden flex items-center justify-center"
+      initial={{ opacity: 1 }}
       animate={{ opacity: phase === "outro" ? 0 : 1 }}
       transition={{ duration: 1.0, ease }}
+      onAnimationComplete={() => {
+        // Only act when the OUTRO fade has truly reached opacity 0.
+        // outroFiredRef guards against spurious fires on mount or other phases.
+        if (!outroFiredRef.current) return;
+        outroFiredRef.current = false;
+        setDone(true);
+        // Double RAF: browser paints the unmounted intro in frame 1,
+        // then nav appears in frame 2 — zero chance of both logos on screen.
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() =>
+            window.dispatchEvent(new CustomEvent("milk:intro-exit"))
+          )
+        );
+      }}
     >
       {/* Dark background — fades out during logo-reveal to expose LiquidBackground */}
       <motion.div
@@ -169,18 +184,24 @@ export default function IntroLoader() {
         )}
       </AnimatePresence>
 
-      {/* ── Black Logo Reveal ── */}
-      <img
+      {/* ── Black Logo Reveal ──
+          Always in DOM — opacity is 0 until logo-reveal, then fades in.
+          When outro starts, animate flips to { opacity: 0, duration: 0 }:
+          Framer Motion snaps it invisible in the same render frame,
+          guaranteed before onAnimationComplete ever fires and the nav appears. */}
+      <motion.img
         src="/MilkLogo-Black.png"
         alt="Milk"
-        style={{
-          width: "clamp(70px, 8vw, 130px)",
-          display: "block",
-          position: "absolute",
-          opacity: phase === "logo-reveal" ? 1 : 0,
-          transition: "opacity 0.8s cubic-bezier(0.22,1,0.36,1) 0.45s",
-        }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: phase === "logo-reveal" ? 1 : 0 }}
+        transition={
+          phase === "logo-reveal"
+            ? { duration: 0.8, delay: 0.45, ease }
+            : { duration: 0 }
+        }
+        style={{ width: "clamp(70px, 8vw, 130px)", display: "block", position: "absolute" }}
       />
+
     </motion.div>
   );
 }

@@ -50,16 +50,32 @@ export default function TeamSection() {
   });
 
   useEffect(() => {
-    // React sets autoPlay via JS after parse — mobile browsers may not honour it.
-    // Play each video as soon as it has enough data; handles both in-view and
-    // off-screen videos reliably.
-    const tryPlay = (v: HTMLVideoElement | null) => {
-      if (!v) return;
-      const attempt = () => v.play().catch(() => {});
-      if (v.readyState >= 2) { attempt(); } else { v.addEventListener('loadeddata', attempt, { once: true }); }
+    const v1 = video1Ref.current;
+    const v2 = video2Ref.current;
+
+    const playAll = () => {
+      v1?.play().catch(() => {});
+      v2?.play().catch(() => {});
     };
-    tryPlay(video1Ref.current);
-    tryPlay(video2Ref.current);
+
+    // Immediate attempt
+    playAll();
+
+    // Retry when the section scrolls into view (catches deferred mobile autoplay)
+    const obs = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) playAll();
+    }, { threshold: 0 });
+    if (outerRef.current) obs.observe(outerRef.current);
+
+    // Retry on first user touch/scroll (iOS sometimes needs a gesture context)
+    window.addEventListener("touchstart", playAll, { once: true });
+    window.addEventListener("scroll",     playAll, { once: true });
+
+    return () => {
+      obs.disconnect();
+      window.removeEventListener("touchstart", playAll);
+      window.removeEventListener("scroll",     playAll);
+    };
   }, []);
 
   useEffect(() => {
@@ -165,7 +181,7 @@ export default function TeamSection() {
 
           {/* Video 1 */}
           <div className="shrink-0 rounded-2xl overflow-hidden" style={{ height: "72vh", aspectRatio: "9/16" }}>
-            <video ref={video1Ref} src={videos[0]} autoPlay muted loop playsInline className="w-full h-full object-cover" />
+            <video ref={video1Ref} src={videos[0]} autoPlay muted loop playsInline preload="auto" className="w-full h-full object-cover" />
           </div>
 
           {/* Frame 2 */}
@@ -177,7 +193,7 @@ export default function TeamSection() {
 
           {/* Video 2 */}
           <div className="shrink-0 rounded-2xl overflow-hidden" style={{ height: "72vh", aspectRatio: "9/16" }}>
-            <video ref={video2Ref} src={videos[1]} autoPlay muted loop playsInline className="w-full h-full object-cover" />
+            <video ref={video2Ref} src={videos[1]} autoPlay muted loop playsInline preload="auto" className="w-full h-full object-cover" />
           </div>
 
           {/* Frame 3 */}

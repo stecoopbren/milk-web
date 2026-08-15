@@ -82,6 +82,7 @@ export const orbitItems: OrbitItem[] = [
   {
     title: "Digital Transformation", role: "Product Strategy & Design Lead", year: "2024",
     image: "/GXM/IMG_9711.jpg",
+    staticImage: "/GXM/IMG_9702.jpg",
     images: [
       "/GXM/IMG_9711.jpg",
       "/GXM/IMG_9702.jpg",
