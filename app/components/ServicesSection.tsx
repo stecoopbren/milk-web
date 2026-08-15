@@ -113,7 +113,7 @@ export default function ServicesSection() {
       id="services"
       className="snap-section relative"
       data-native-scroll="true"
-      style={{ scrollSnapAlign: "none", paddingTop: 100, paddingBottom: 80, minHeight: "calc(100svh + 1px)" }}
+      style={{ scrollSnapAlign: "none", paddingTop: 100, paddingBottom: 260, minHeight: "calc(100svh + 1px)" }}
     >
       <div className="px-8 lg:px-[180px]">
 
