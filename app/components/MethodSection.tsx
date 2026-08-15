@@ -358,6 +358,7 @@ export default function MethodSection() {
           <h2 className="text-heading text-[#2E2E2E]">
             <RevealLine delay={0.25} inView={mobileInView}>No more guesswork.</RevealLine>
           </h2>
+          <p className="text-body text-[#888] mt-1">Swipe to see the method.</p>
           <button
             onClick={() => setMobileFlipped(mobileFlipped === mobileActive ? null : mobileActive)}
             className="mt-2 border border-[#2E2E2E]/20 rounded-full px-5 py-2 font-sans font-medium text-[13px] text-[#2E2E2E] tracking-[-0.3px] transition-colors hover:border-[#2E2E2E]/50 inline-flex items-center gap-2"

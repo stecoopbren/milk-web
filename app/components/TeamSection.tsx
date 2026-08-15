@@ -51,9 +51,15 @@ export default function TeamSection() {
 
   useEffect(() => {
     // React sets autoPlay via JS after parse — mobile browsers may not honour it.
-    // Explicitly play both videos so they're running before the filmstrip pans.
-    video1Ref.current?.play().catch(() => {});
-    video2Ref.current?.play().catch(() => {});
+    // Play each video as soon as it has enough data; handles both in-view and
+    // off-screen videos reliably.
+    const tryPlay = (v: HTMLVideoElement | null) => {
+      if (!v) return;
+      const attempt = () => v.play().catch(() => {});
+      if (v.readyState >= 2) { attempt(); } else { v.addEventListener('loadeddata', attempt, { once: true }); }
+    };
+    tryPlay(video1Ref.current);
+    tryPlay(video2Ref.current);
   }, []);
 
   useEffect(() => {

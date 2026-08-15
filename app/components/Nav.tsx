@@ -192,11 +192,14 @@ export default function Nav() {
           pointerEvents: "none",
         }}
       >
+        <AnimatePresence>
+        {visible && (
         <motion.header
           className="w-full lg:w-auto"
-          style={{ pointerEvents: "auto", visibility: visible ? "visible" : "hidden" }}
+          style={{ pointerEvents: "auto" }}
           initial={{ opacity: 0, y: -32, scale: 0.92 }}
-          animate={visible ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: -32, scale: 0.92 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -32, scale: 0.92 }}
           transition={{ type: "spring", stiffness: 260, damping: 22 }}
         >
           {/* Pill */}
@@ -361,6 +364,8 @@ export default function Nav() {
             </motion.button>
           </motion.div>
         </motion.header>
+        )}
+        </AnimatePresence>
       </div>
 
       {/* Mobile menu */}

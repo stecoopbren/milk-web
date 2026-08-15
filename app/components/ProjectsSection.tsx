@@ -442,9 +442,9 @@ function MobileCarousel() {
       style={{ paddingTop: 108, paddingBottom: 60 }}
     >
       <div className="px-8 pb-6">
-        <h1 className="text-display font-sans text-[#0C0C12] whitespace-nowrap">
+        <h2 className="text-heading text-[#0C0C12]">
           Featured Work
-        </h1>
+        </h2>
       </div>
 
       <div className="px-5">
