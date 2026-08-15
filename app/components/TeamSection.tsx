@@ -124,7 +124,7 @@ export default function TeamSection() {
       data-free-scroll="true"
       style={{ height: "900vh", scrollSnapAlign: "none" }}
     >
-      <div className="sticky top-0 h-screen overflow-hidden">
+      <div className="sticky top-0 overflow-hidden" style={{ height: "100svh" }}>
 
         {/* Horizontal track */}
         <motion.div
