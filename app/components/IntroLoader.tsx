@@ -102,8 +102,10 @@ export default function IntroLoader() {
       // so the nav logo doesn't appear while the loader logo is still visible.
       setPhase("outro");
       setTimeout(() => {
-        window.dispatchEvent(new CustomEvent("milk:intro-exit"));
-        setTimeout(() => setDone(true), 120);
+        // Unmount the loader first so the intro logo is gone from the DOM,
+        // then reveal the nav — prevents both logos appearing simultaneously.
+        setDone(true);
+        setTimeout(() => window.dispatchEvent(new CustomEvent("milk:intro-exit")), 80);
       }, 1000);
     }, REVEAL_DURATION);
     return () => clearTimeout(t);

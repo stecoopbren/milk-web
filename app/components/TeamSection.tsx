@@ -28,6 +28,7 @@ export default function TeamSection() {
   const trackRef  = useRef<HTMLDivElement>(null);
   const frame1Ref = useRef<HTMLSpanElement>(null);
   const frame3Ref = useRef<HTMLDivElement>(null);
+  const video1Ref = useRef<HTMLVideoElement>(null);
   const video2Ref = useRef<HTMLVideoElement>(null);
 
   // Refs for values used inside the event handler — avoids stale closures
@@ -49,8 +50,9 @@ export default function TeamSection() {
   });
 
   useEffect(() => {
-    // Browsers won't autoplay off-screen videos. Force-play video 2 on mount
-    // so it's already running when the filmstrip pans it into view.
+    // React sets autoPlay via JS after parse — mobile browsers may not honour it.
+    // Explicitly play both videos so they're running before the filmstrip pans.
+    video1Ref.current?.play().catch(() => {});
     video2Ref.current?.play().catch(() => {});
   }, []);
 
@@ -157,7 +159,7 @@ export default function TeamSection() {
 
           {/* Video 1 */}
           <div className="shrink-0 rounded-2xl overflow-hidden" style={{ height: "72vh", aspectRatio: "9/16" }}>
-            <video src={videos[0]} autoPlay muted loop playsInline className="w-full h-full object-cover" />
+            <video ref={video1Ref} src={videos[0]} autoPlay muted loop playsInline className="w-full h-full object-cover" />
           </div>
 
           {/* Frame 2 */}
