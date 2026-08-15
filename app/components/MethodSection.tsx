@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { motion, useInView, useMotionValue, useTransform, animate } from "framer-motion";
+import { motion, AnimatePresence, useInView, useMotionValue, useTransform, animate } from "framer-motion";
 import Lottie from "lottie-react";
 import { RevealLine } from "./animations";
 import SectionReveal from "./SectionReveal";
@@ -214,7 +214,6 @@ function MobileStackCard({
         opacity: isTop ? dragOpacity : (isVisible ? 1 : 0),
         pointerEvents: isTop ? "auto" : "none",
         cursor: isTop ? "grab" : "default",
-        transformStyle: "preserve-3d",
       }}
       animate={!isTop ? {
         y: STACK_Y[stackPos] ?? 0,
@@ -230,41 +229,45 @@ function MobileStackCard({
       onClick={isTop ? () => { if (!didDrag.current) onFlip(); didDrag.current = false; } : undefined}
       onDragEnd={handleDragEnd}
     >
-      <div className="w-full h-full" style={{ perspective: "1000px" }}>
-        <motion.div
-          className="relative w-full h-full"
-          style={{ transformStyle: "preserve-3d" }}
-          animate={{ rotateY: flipped ? 180 : 0 }}
-          transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
-        >
-          {/* Front */}
-          <div
-            className="absolute inset-0 bg-white border border-black/[0.07] rounded-2xl flex flex-col p-6"
-            style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}
-          >
-            <div className="flex items-start justify-between w-full shrink-0">
-              <span className="text-ui text-[#0C0C12]">{step.label}</span>
-              <span className="text-ui text-[#B0B0B0]">{num}</span>
-            </div>
-            <Lottie animationData={anim} loop className="flex-1 min-h-0 w-full" />
-            <h3 className="text-subheading text-[#0C0C12] mt-4 shrink-0">
-              {step.title}
-            </h3>
-          </div>
-          {/* Back */}
-          <div
-            className="absolute inset-0 bg-white border border-black/[0.07] rounded-2xl flex flex-col p-6 gap-4"
-            style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
-          >
-            <div className="flex items-start justify-between w-full shrink-0">
-              <span className="text-ui text-[#0C0C12]">{step.label}</span>
-              <span className="text-ui text-[#B0B0B0]">{num}</span>
-            </div>
-            <p className="text-caption text-[#0C0C12]">
-              {step.body}
-            </p>
-          </div>
-        </motion.div>
+      <div className="w-full h-full relative">
+        <AnimatePresence initial={false} mode="wait">
+          {!flipped ? (
+            <motion.div
+              key="front"
+              className="absolute inset-0 bg-white border border-black/[0.07] rounded-2xl flex flex-col p-6"
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              exit={{ scaleX: 0 }}
+              transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
+            >
+              <div className="flex items-start justify-between w-full shrink-0">
+                <span className="text-ui text-[#0C0C12]">{step.label}</span>
+                <span className="text-ui text-[#B0B0B0]">{num}</span>
+              </div>
+              <Lottie animationData={anim} loop className="flex-1 min-h-0 w-full" />
+              <h3 className="text-subheading text-[#0C0C12] mt-4 shrink-0">
+                {step.title}
+              </h3>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="back"
+              className="absolute inset-0 bg-white border border-black/[0.07] rounded-2xl flex flex-col p-6 gap-4"
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              exit={{ scaleX: 0 }}
+              transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
+            >
+              <div className="flex items-start justify-between w-full shrink-0">
+                <span className="text-ui text-[#0C0C12]">{step.label}</span>
+                <span className="text-ui text-[#B0B0B0]">{num}</span>
+              </div>
+              <p className="text-caption text-[#0C0C12]">
+                {step.body}
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </motion.div>
   );
