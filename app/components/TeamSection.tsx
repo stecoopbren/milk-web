@@ -28,6 +28,7 @@ export default function TeamSection() {
   const trackRef  = useRef<HTMLDivElement>(null);
   const frame1Ref = useRef<HTMLSpanElement>(null);
   const frame3Ref = useRef<HTMLDivElement>(null);
+  const video2Ref = useRef<HTMLVideoElement>(null);
 
   // Refs for values used inside the event handler — avoids stale closures
   const translateMaxRef = useRef(0);
@@ -46,6 +47,12 @@ export default function TeamSection() {
     target: outerRef,
     offset: ["start start", "end end"],
   });
+
+  useEffect(() => {
+    // Browsers won't autoplay off-screen videos. Force-play video 2 on mount
+    // so it's already running when the filmstrip pans it into view.
+    video2Ref.current?.play().catch(() => {});
+  }, []);
 
   useEffect(() => {
     const measure = () => {
@@ -162,7 +169,7 @@ export default function TeamSection() {
 
           {/* Video 2 */}
           <div className="shrink-0 rounded-2xl overflow-hidden" style={{ height: "72vh", aspectRatio: "9/16" }}>
-            <video src={videos[1]} autoPlay muted loop playsInline className="w-full h-full object-cover" />
+            <video ref={video2Ref} src={videos[1]} autoPlay muted loop playsInline className="w-full h-full object-cover" />
           </div>
 
           {/* Frame 3 */}
