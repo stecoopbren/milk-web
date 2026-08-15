@@ -379,19 +379,10 @@ function DesktopOrbit() {
   );
 }
 
-// ── Mobile card with optional cycling images ──────────────────────────────────
+// ── Mobile card ───────────────────────────────────────────────────────────────
 function MobileCard({ item }: { item: OrbitItem }) {
-  const [slideIndex, setSlideIndex] = useState(0);
-
-  useEffect(() => {
-    if (!item.images || item.images.length <= 1) return;
-    const timer = setInterval(() => {
-      setSlideIndex((prev) => (prev + 1) % item.images!.length);
-    }, 500);
-    return () => clearInterval(timer);
-  }, [item.images]);
-
-  const src = item.images ? item.images[slideIndex] : item.image;
+  // Use the static cover image (same as desktop side cards), not the cycling reel
+  const src = item.staticImage ?? item.image;
 
   return (
     <a
@@ -432,8 +423,18 @@ function MobileCard({ item }: { item: OrbitItem }) {
 // ── Mobile: carousel ─────────────────────────────────────────────────────────
 function MobileCarousel() {
   const [active, setActive] = useState(0);
+  const [dir, setDir] = useState(1);
   const total = orbitItems.length;
-  const go = (dir: number) => setActive((prev) => ((prev + dir) % total + total) % total);
+
+  const go = (d: number) => {
+    setDir(d);
+    setActive((prev) => ((prev + d) % total + total) % total);
+  };
+
+  const goTo = (i: number) => {
+    setDir(i > active ? 1 : -1);
+    setActive(i);
+  };
 
   return (
     <div
@@ -447,8 +448,24 @@ function MobileCarousel() {
         </h2>
       </div>
 
-      <div className="px-5">
-        <MobileCard item={orbitItems[active]} />
+      <div className="px-5 overflow-hidden">
+        <AnimatePresence mode="wait" initial={false} custom={dir}>
+          <motion.div
+            key={active}
+            custom={dir}
+            variants={{
+              enter: (d: number) => ({ x: d > 0 ? "100%" : "-100%", opacity: 0 }),
+              center: { x: 0, opacity: 1 },
+              exit:  (d: number) => ({ x: d > 0 ? "-100%" : "100%", opacity: 0 }),
+            }}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <MobileCard item={orbitItems[active]} />
+          </motion.div>
+        </AnimatePresence>
       </div>
 
       {/* Controls */}
@@ -465,7 +482,7 @@ function MobileCarousel() {
           {orbitItems.map((_, i) => (
             <button
               key={i}
-              onClick={() => setActive(i)}
+              onClick={() => goTo(i)}
               className={`rounded-full transition-all duration-300 ${
                 i === active ? "w-5 h-[6px] bg-[#0C0C12]" : "w-[6px] h-[6px] bg-[#C0C0C0]"
               }`}
