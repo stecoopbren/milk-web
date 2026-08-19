@@ -44,26 +44,32 @@ export default function ScrollCue() {
           exit={{ opacity: 0, y: 8 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         >
-          {/* Mouse outline */}
-          <svg width="28" height="40" viewBox="0 0 28 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="1" y="1" width="26" height="38" rx="13" stroke="#2E2E2E" strokeOpacity="0.35" strokeWidth="1.5" />
-            {/* Scrolling dot */}
-            <motion.rect
-              x="12" y="8" width="4" height="7" rx="2"
-              fill="#2E2E2E"
-              fillOpacity="0.5"
-              animate={{ y: [8, 18, 8] }}
-              transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-            />
-          </svg>
+          {/* Desktop: mouse outline */}
+          <div className="hidden lg:flex flex-col items-center gap-2">
+            <svg width="28" height="40" viewBox="0 0 28 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="1" y="1" width="26" height="38" rx="13" stroke="#2E2E2E" strokeOpacity="0.35" strokeWidth="1.5" />
+              <motion.rect
+                x="12" y="8" width="4" height="7" rx="2"
+                fill="#2E2E2E"
+                fillOpacity="0.5"
+                animate={{ y: [8, 18, 8] }}
+                transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+              />
+            </svg>
+            <span className="text-micro font-sans" style={{ color: "rgba(47,47,47,0.4)" }}>scroll</span>
+          </div>
 
-          {/* Label */}
-          <span
-            className="text-micro font-sans"
-            style={{ color: "rgba(47,47,47,0.4)" }}
-          >
-            scroll
-          </span>
+          {/* Mobile: bouncing chevron */}
+          <div className="flex lg:hidden flex-col items-center gap-2">
+            <motion.svg
+              width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"
+              animate={{ y: [0, 5, 0] }}
+              transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <path d="M4 7l6 6 6-6" stroke="#2E2E2E" strokeOpacity="0.4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </motion.svg>
+            <span className="text-micro font-sans" style={{ color: "rgba(47,47,47,0.4)" }}>swipe</span>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

@@ -74,6 +74,8 @@ export default function ScrollSnapController() {
     const SNAP_COOLDOWN = 250;
 
     const snapToIndex = (index: number) => {
+      accumulatedDelta = 0;
+      clearTimeout(wheelTimeout);
       const sections = getSections();
       if (sections.length === 0) return;
       const clamped = Math.max(0, Math.min(sections.length - 1, index));
@@ -111,6 +113,7 @@ export default function ScrollSnapController() {
 
     // External nav can dispatch 'milk:snap-to' with { id: 'section-id' } or { index: number }
     const onSnapTo = (e: Event) => {
+      accumulatedDelta = 0;
       const detail = (e as CustomEvent).detail;
       const sections = getSections();
       if (typeof detail?.index === 'number') {
@@ -260,11 +263,20 @@ export default function ScrollSnapController() {
     };
 
     const onTouchEnd = (e: TouchEvent) => {
-      if (isSnapping) return;
+      if (isSnapping || cooldown) return;
       const delta = touchStartY - e.changedTouches[0].clientY;
       if (Math.abs(delta) < 40) return;
       const direction = delta > 0 ? 1 : -1;
-      if (isInNativeScrollZone()) return;
+      if (isInNativeScrollZone()) {
+        // Swipe up at the very top of a native-scroll section → escape to previous section.
+        // Mirrors the same logic in onWheel so mobile isn't trapped inside tall sections.
+        if (direction < 0) {
+          const atTop = (Array.from(document.querySelectorAll('[data-native-scroll]')) as HTMLElement[])
+            .some(el => el.getBoundingClientRect().top >= -4);
+          if (atTop) snapToIndex(currentIndex + direction);
+        }
+        return;
+      }
       if (isInFreeScrollZone()) {
         stepWithinFreeZone(direction);
         return;
@@ -286,15 +298,20 @@ export default function ScrollSnapController() {
           return r.bottom <= window.innerHeight + 10 && el.offsetHeight > window.innerHeight + 20;
         });
         if (bottomReached) {
-          snapToIndex(currentIndex + 1);
+          // Guard: if already at the last section, don't snap back to its own top.
+          if (currentIndex < sections.length - 1) {
+            snapToIndex(currentIndex + 1);
+          }
           return;
         }
 
         // Overscroll correction: momentum carried us to the top of a native-scroll
         // section, skipping a non-native section above. Snap to the first skipped one.
+        // Only fires when the section top is at/above the viewport (r.top >= 0) to
+        // prevent snapping back to the top when the user has already scrolled into it.
         const overscrolledSection = nativeEls.find(el => {
           const r = el.getBoundingClientRect();
-          return r.top >= -30 && r.top <= 150 && el.offsetHeight > window.innerHeight;
+          return r.top >= 0 && r.top <= 150 && el.offsetHeight > window.innerHeight;
         });
         if (overscrolledSection) {
           const idx = sections.findIndex(el => el === overscrolledSection);

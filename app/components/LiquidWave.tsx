@@ -330,8 +330,30 @@ export default function LiquidWave({
       }
     };
 
-    // Trigger gyro on first touch (required for iOS permission prompt)
-    window.addEventListener("touchstart", startGyro, { once: true });
+    // Register the touchstart listener that will trigger the permission prompt.
+    // On iOS we defer until after the intro animation exits — showing a permission
+    // dialog mid-animation is confusing and users tend to dismiss it.
+    const registerGyroListener = () => {
+      window.addEventListener("touchstart", startGyro, { once: true });
+    };
+
+    // Non-iOS: no permission dialog, add deviceorientation directly so gyro
+    // works without requiring the user to touch the screen first.
+    const DOEForCheck = DeviceOrientationEvent as any;
+    if (typeof DOEForCheck.requestPermission !== "function") {
+      // Android / desktop — listener already added inside startGyro's else branch,
+      // but startGyro won't fire without a touch. Call it immediately instead.
+      if (!gyroReady) {
+        gyroReady = true;
+        window.addEventListener("deviceorientation", onOrientation);
+      }
+    } else if (sessionStorage.getItem("milk:intro-shown")) {
+      // iOS, intro already played this session — request on next touch
+      registerGyroListener();
+    } else {
+      // iOS, first visit — wait for intro to finish before prompting
+      window.addEventListener("milk:intro-exit", registerGyroListener, { once: true } as EventListenerOptions);
+    }
 
     // ── Render loop ────────────────────────────────────────────────────────
     let raf: number;
@@ -387,6 +409,7 @@ export default function LiquidWave({
       window.removeEventListener("mouseleave", onLeave);
       window.removeEventListener("deviceorientation", onOrientation);
       window.removeEventListener("touchstart", startGyro);
+      window.removeEventListener("milk:intro-exit", registerGyroListener as EventListener);
       window.removeEventListener("resize", resize);
       gl.deleteBuffer(quadBuf);
       gl.deleteProgram(simProg);

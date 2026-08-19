@@ -49,7 +49,7 @@ export default function BioSection() {
       .catch(() => {});
   }, []);
 
-  const line2 = ["THE", "REAL", "PROBLEM"];
+  const line2 = ["FIND", "MARKET", "FIT"];
   const line3 = ["to", "build", "THE", "RIGHT", "THING"];
   const total = line2.length + line3.length;
 
@@ -68,7 +68,7 @@ export default function BioSection() {
           </p>
           <div className="text-case-title text-center w-full">
             <div style={{ color: "#0C0C12" }}>
-              I help you find
+              I help you
             </div>
             <div>
               {line2.map((word, i) => (
@@ -83,10 +83,10 @@ export default function BioSection() {
           </div>
           {animData && (
             <>
-              {/* Mobile: rises from below the text */}
+              {/* Mobile: absolutely positioned below text, rises into view */}
               <motion.div
-                className="block lg:hidden"
-                style={{ marginTop: -40, width: "clamp(560px, 95vw, 800px)" }}
+                className="absolute top-full lg:hidden"
+                style={{ marginTop: -80, width: "min(95vw, 560px)", left: "50%", transform: "translateX(-50%)" }}
                 initial="hidden"
                 animate={inView ? "visible" : "hidden"}
                 variants={{

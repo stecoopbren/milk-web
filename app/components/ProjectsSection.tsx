@@ -75,6 +75,15 @@ export const projects: Project[] = [
     img: "/GXM/Case 2/Screenshot 2026-08-03 at 10.25.22 AM.png",
     hidden: true,
   },
+  {
+    id: 5,
+    slug: "gxm-design-system-brand-foundations",
+    category: "Product Design · Design Systems",
+    title: "Velocity by design. Not by headcount.",
+    description: "Design tokens, PrimeReact, Token Studio sync. The system that made thirty-day delivery possible.",
+    img: "/GXM/Case 4/Screenshot 2026-08-17 at 3.22.01 PM.png",
+    hidden: true,
+  },
 ];
 
 // Orbit-ready items
@@ -391,7 +400,7 @@ function MobileCard({ item }: { item: OrbitItem }) {
       style={{
         display: "block",
         width: "100%",
-        aspectRatio: "4/3",
+        height: 380,
         borderRadius: 14,
         overflow: "hidden",
         position: "relative",
@@ -443,7 +452,7 @@ function MobileCarousel() {
       className="snap-section lg:hidden"
       style={{ paddingTop: 108, paddingBottom: 60 }}
     >
-      <div className="px-8 pb-6">
+      <div className="px-8 pb-6 text-center">
         <h2 className="text-heading text-[#0C0C12]">
           Featured Work
         </h2>

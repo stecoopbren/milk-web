@@ -165,7 +165,7 @@ export default function TeamSection() {
         >
           {/* Frame 1 — "You might be wondering" + typewriter "Why Milk?" as one line */}
           <div className="shrink-0 whitespace-nowrap">
-            <h2 className="text-heading leading-[0.95]" style={{ fontFamily: "Ambit" }}>
+            <h2 className="text-heading" style={{ fontFamily: "Ambit" }}>
               <span ref={frame1Ref}>You might be wondering... </span>
               <span>
                 {TYPE_TARGET.slice(0, typedChars)}
@@ -186,7 +186,7 @@ export default function TeamSection() {
 
           {/* Frame 2 */}
           <div className="shrink-0 whitespace-nowrap text-center">
-            <h2 className="text-heading leading-[0.95]" style={{ fontFamily: "Ambit" }}>
+            <h2 className="text-heading" style={{ fontFamily: "Ambit" }}>
               Been inside great teams.
             </h2>
           </div>
@@ -198,7 +198,7 @@ export default function TeamSection() {
 
           {/* Frame 3 */}
           <div ref={frame3Ref} className="shrink-0 whitespace-nowrap" style={{ paddingRight: "440px" }}>
-            <h2 className="text-heading leading-[0.95]" style={{ fontFamily: "Ambit" }}>
+            <h2 className="text-heading" style={{ fontFamily: "Ambit" }}>
               Seen what works and what doesn't.
             </h2>
           </div>

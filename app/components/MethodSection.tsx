@@ -1,14 +1,24 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { motion, AnimatePresence, useInView, useMotionValue, useTransform, animate } from "framer-motion";
+import { motion, AnimatePresence, useInView } from "framer-motion";
 import Lottie from "lottie-react";
 import { RevealLine } from "./animations";
 import SectionReveal from "./SectionReveal";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-const steps = [
+type Step = {
+  id: number;
+  label: string;
+  step: string;
+  title: string;
+  body: string;
+  animSrc: string;
+  isCta?: boolean;
+};
+
+const steps: Step[] = [
   {
     id: 0,
     label: "DEFINE",
@@ -35,6 +45,19 @@ const steps = [
   },
 ];
 
+const ctaCard: Step = {
+  id: 3,
+  label: "",
+  step: "",
+  title: "Want to learn more about the method?",
+  body: "",
+  animSrc: "/Formula/18.json",
+  isCta: true,
+};
+
+// Mobile shows all 4 cards; desktop shows the 3 steps only
+const mobileCards: Step[] = [...steps, ctaCard];
+
 function useLottieAnim(src: string) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [anim, setAnim] = useState<any>(null);
@@ -52,7 +75,7 @@ function MethodCard({
   flipDelay = 0,
   inView,
 }: {
-  step: typeof steps[0];
+  step: Step;
   index: number;
   isFlipped: boolean;
   onFlip: () => void;
@@ -139,149 +162,82 @@ function MethodCard({
   );
 }
 
-// ─── Mobile swipeable stack card ────────────────────────────────────────────
-const STACK_Y     = [0, 16, 30];
-const STACK_SCALE = [1, 0.95, 0.90];
-const STACK_ROT   = [0, -6, 5];
-const STACK_Z     = [30, 20, 10];
+// ─── Mobile single-card carousel ────────────────────────────────────────────
 
-function MobileStackCard({
-  step, num, stackPos, flipped, onFlip, onNext, onPrev, canNext, canPrev,
+function MobileCarouselCard({
+  step,
+  num,
+  flipped,
 }: {
-  step: typeof steps[0]; num: string; stackPos: number;
-  flipped: boolean; onFlip: () => void;
-  onNext: () => void; onPrev: () => void;
-  canNext: boolean; canPrev: boolean;
+  step: Step;
+  num: string;
+  flipped: boolean;
 }) {
   const anim = useLottieAnim(step.animSrc);
-  const x = useMotionValue(0);
-  const dragRotate  = useTransform(x, [-300, 300], [-18, 18]);
-  const dragOpacity = useTransform(x, [-200, -60, 0, 60, 200], [0.4, 1, 1, 1, 0.4]);
-  const prevPos = useRef(stackPos);
-  const didDrag = useRef(false);
-  // Keep refs to canNext/canPrev so handleDragEnd always reads the latest value,
-  // not a stale closure from the last render.
-  const canNextRef = useRef(canNext);
-  const canPrevRef = useRef(canPrev);
-  canNextRef.current = canNext;
-  canPrevRef.current = canPrev;
-  const navigating = useRef(false);
 
-  useEffect(() => {
-    const prev = prevPos.current;
-    prevPos.current = stackPos;
-    // Always reset x when a card becomes or stays the top card so it's
-    // never stuck off-screen from a previous swipe animation.
-    if (stackPos === 0) {
-      animate(x, 0, prev < 0
-        ? { type: "spring", stiffness: 280, damping: 28 }  // returning from left
-        : { duration: 0, ease: "linear" });                 // instant reset (nav button)
-    }
-    if (stackPos > 0 && prev === 0) {
-      animate(x, 0, { duration: 0.4, ease: [0.4, 0, 0.2, 1] });
-    }
-  }, [stackPos]);
-
-  const isTop     = stackPos === 0;
-  const isVisible = stackPos >= 0 && stackPos <= 2;
-
-  const handleDragEnd = (_: PointerEvent, info: { offset: { x: number; y: number }; velocity: { x: number } }) => {
-    if (navigating.current) { animate(x, 0, { type: "spring", stiffness: 400, damping: 30 }); return; }
-
-    const goLeft  = (info.offset.x < -80 || info.velocity.x < -500) && canNextRef.current;
-    const goRight = (info.offset.x > 80  || info.velocity.x >  500) && canPrevRef.current;
-
-    if (goLeft) {
-      navigating.current = true;
-      animate(x, -window.innerWidth * 1.4, { duration: 0.35, ease: [0.4, 0, 1, 1] });
-      setTimeout(() => { navigating.current = false; onNext(); }, 320);
-    } else if (goRight) {
-      navigating.current = true;
-      animate(x, window.innerWidth * 1.4, { duration: 0.35, ease: [0.4, 0, 1, 1] });
-      setTimeout(() => { navigating.current = false; onPrev(); }, 320);
-    } else {
-      animate(x, 0, { type: "spring", stiffness: 400, damping: 30 });
-    }
-  };
+  if (step.isCta) {
+    return (
+      <div className="w-full h-full bg-white border border-black/[0.07] rounded-2xl flex flex-col items-center justify-between p-6 text-center">
+        <Lottie animationData={anim} loop style={{ width: "100%", height: 180 }} />
+        <div className="flex flex-col items-center gap-4">
+          <h3 className="text-subheading text-[#0C0C12]">{step.title}</h3>
+          <button
+            onClick={(e) => { e.stopPropagation(); window.dispatchEvent(new CustomEvent("milk:open-contact")); }}
+            className="bg-[#0C0C12] text-white rounded-full px-6 py-2.5 font-sans font-medium text-[14px] tracking-[-0.3px]"
+          >
+            Let&apos;s talk
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <motion.div
-      className="absolute inset-0"
-      style={{
-        zIndex: isVisible ? STACK_Z[stackPos] ?? 1 : 0,
-        x: isTop ? x : 0,
-        rotate: isTop ? dragRotate : STACK_ROT[stackPos] ?? 0,
-        opacity: isTop ? dragOpacity : (isVisible ? 1 : 0),
-        pointerEvents: isTop ? "auto" : "none",
-        cursor: isTop ? "grab" : "default",
-      }}
-      animate={!isTop ? {
-        y: STACK_Y[stackPos] ?? 0,
-        scale: STACK_SCALE[stackPos] ?? 0.85,
-        rotate: STACK_ROT[stackPos] ?? 0,
-        opacity: isVisible ? 1 : 0,
-      } : { y: 0, scale: 1 }}
-      transition={{ duration: 0.4, ease }}
-      drag={isTop ? "x" : false}
-      dragElastic={0.18}
-      onDragStart={() => { didDrag.current = false; }}
-      onDrag={(_, info) => { if (Math.abs(info.offset.x) > 8) didDrag.current = true; }}
-      onClick={isTop ? () => { if (!didDrag.current) onFlip(); didDrag.current = false; } : undefined}
-      onDragEnd={handleDragEnd}
-    >
-      <div className="w-full h-full relative">
-        <AnimatePresence initial={false} mode="wait">
-          {!flipped ? (
-            <motion.div
-              key="front"
-              className="absolute inset-0 bg-white border border-black/[0.07] rounded-2xl flex flex-col p-6"
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              exit={{ scaleX: 0 }}
-              transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
-            >
-              <div className="flex items-start justify-between w-full shrink-0">
-                <span className="text-ui text-[#0C0C12]">{step.label}</span>
-                <span className="text-ui text-[#B0B0B0]">{num}</span>
-              </div>
-              <Lottie animationData={anim} loop className="flex-1 min-h-0 w-full" />
-              <h3 className="text-subheading text-[#0C0C12] mt-4 shrink-0">
-                {step.title}
-              </h3>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="back"
-              className="absolute inset-0 bg-white border border-black/[0.07] rounded-2xl flex flex-col p-6 gap-4"
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              exit={{ scaleX: 0 }}
-              transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
-            >
-              <div className="flex items-start justify-between w-full shrink-0">
-                <span className="text-ui text-[#0C0C12]">{step.label}</span>
-                <span className="text-ui text-[#B0B0B0]">{num}</span>
-              </div>
-              <p className="text-caption text-[#0C0C12]">
-                {step.body}
-              </p>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </motion.div>
+    <div className="w-full h-full relative">
+      <AnimatePresence initial={false} mode="wait">
+        {!flipped ? (
+          <motion.div
+            key="front"
+            className="absolute inset-0 bg-white border border-black/[0.07] rounded-2xl flex flex-col p-6"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            exit={{ scaleX: 0 }}
+            transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
+          >
+            <div className="flex items-start justify-between w-full shrink-0">
+              <span className="text-ui text-[#0C0C12]">{step.label}</span>
+              <span className="text-ui text-[#B0B0B0]">{num}</span>
+            </div>
+            <Lottie animationData={anim} loop className="flex-1 min-h-0 w-full" />
+            <h3 className="text-subheading text-[#0C0C12] mt-4 shrink-0">
+              {step.title}
+            </h3>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="back"
+            className="absolute inset-0 bg-white border border-black/[0.07] rounded-2xl flex flex-col p-6 gap-4"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            exit={{ scaleX: 0 }}
+            transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
+          >
+            <div className="flex items-start justify-between w-full shrink-0">
+              <span className="text-ui text-[#0C0C12]">{step.label}</span>
+              <span className="text-ui text-[#B0B0B0]">{num}</span>
+            </div>
+            <p className="text-caption text-[#0C0C12]">
+              {step.body}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
 const CARD_W = 260;
 const CARD_H = 344;
-const MAX_ROT_DEG = 12;
-const MAX_ROT_RAD = MAX_ROT_DEG * (Math.PI / 180);
-// Extra space a rotated card bleeds beyond its CSS bounding box
-const H_BLEED = Math.ceil(CARD_H * Math.sin(MAX_ROT_RAD) / 2); // ~40px
-const V_BLEED = Math.ceil(CARD_W * Math.sin(MAX_ROT_RAD) / 2); // ~27px
-const EDGE_H = 24 + H_BLEED; // horizontal safe margin ~64px
-const EDGE_V = 24 + V_BLEED; // vertical safe margin ~51px
 
 function useWindowSize() {
   const [size, setSize] = useState({ w: 0, h: 0 });
@@ -307,6 +263,7 @@ export default function MethodSection() {
   const allFlipped = cardFlips.every(Boolean);
   const flipAll = () => setCardFlips(steps.map(() => !allFlipped));
   const [mobileActive, setMobileActive] = useState(0);
+  const [mobileDir, setMobileDir] = useState(1);
   const [mobileFlipped, setMobileFlipped] = useState<number | null>(null);
   const { w, h } = useWindowSize();
 
@@ -322,8 +279,20 @@ export default function MethodSection() {
     return () => ro.disconnect();
   }, []);
 
-  const goMobileNext = () => { setMobileActive(a => (a + 1) % steps.length); setMobileFlipped(null); };
-  const goMobilePrev = () => { setMobileActive(a => (a - 1 + steps.length) % steps.length); setMobileFlipped(null); };
+  const goMobileNext = () => {
+    if (mobileActive < mobileCards.length - 1) {
+      setMobileDir(1);
+      setMobileActive(a => a + 1);
+      setMobileFlipped(null);
+    }
+  };
+  const goMobilePrev = () => {
+    if (mobileActive > 0) {
+      setMobileDir(-1);
+      setMobileActive(a => a - 1);
+      setMobileFlipped(null);
+    }
+  };
 
   // Cards sit exactly 24px below the bottom of the text+button block
   // textBlockRef is absolute top-0, so offsetHeight = distance from section top to block bottom
@@ -338,9 +307,9 @@ export default function MethodSection() {
   ];
 
   return (
-    <SectionReveal id="method" className="bg-[#FAFAFA] px-8 lg:px-0" noClip>
+    <SectionReveal id="method" className="px-8 lg:px-0" noClip>
 
-      {/* ── Mobile: header + stacked deck ─────────────── */}
+      {/* ── Mobile: header + one-card carousel ─────────────── */}
       <div
         ref={mobileRef}
         className="lg:hidden flex flex-col items-start justify-start w-full px-6"
@@ -361,7 +330,7 @@ export default function MethodSection() {
           <p className="text-body text-[#888] mt-1">Swipe to see the method.</p>
           <button
             onClick={() => setMobileFlipped(mobileFlipped === mobileActive ? null : mobileActive)}
-            className="mt-2 border border-[#2E2E2E]/20 rounded-full px-5 py-2 font-sans font-medium text-[13px] text-[#2E2E2E] tracking-[-0.3px] transition-colors hover:border-[#2E2E2E]/50 inline-flex items-center gap-2"
+            className={`mt-2 border border-[#2E2E2E]/20 rounded-full px-5 py-2 font-sans font-medium text-[13px] text-[#2E2E2E] tracking-[-0.3px] transition-colors hover:border-[#2E2E2E]/50 inline-flex items-center gap-2 ${mobileCards[mobileActive]?.isCta ? "invisible" : ""}`}
           >
             <svg
               width="13" height="13" viewBox="0 0 24 24" fill="none"
@@ -376,22 +345,41 @@ export default function MethodSection() {
           </button>
         </div>
 
-        {/* Card stack */}
-        <div className="relative w-full mt-6" style={{ height: "360px" }}>
-          {steps.map((step, i) => (
-            <MobileStackCard
-              key={step.id}
-              step={step}
-              num={String(i + 1).padStart(2, "0")}
-              stackPos={((i - mobileActive) % steps.length + steps.length) % steps.length}
-              flipped={mobileFlipped === i}
-              onFlip={() => setMobileFlipped(mobileFlipped === i ? null : i)}
-              onNext={goMobileNext}
-              onPrev={goMobilePrev}
-              canNext={true}
-              canPrev={true}
-            />
-          ))}
+        {/* One-card carousel */}
+        <div className="relative w-full mt-6 overflow-hidden" style={{ height: "360px" }}>
+          <AnimatePresence custom={mobileDir} mode="popLayout">
+            <motion.div
+              key={mobileActive}
+              custom={mobileDir}
+              variants={{
+                enter: (d: number) => ({ x: d > 0 ? "100%" : "-100%", opacity: 1 }),
+                center: { x: 0, opacity: 1 },
+                exit: (d: number) => ({ x: d > 0 ? "-100%" : "100%", opacity: 1 }),
+              }}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.32, ease }}
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.15}
+              onDragEnd={(_, info) => {
+                if ((info.offset.x < -80 || info.velocity.x < -500) && mobileActive < mobileCards.length - 1) {
+                  goMobileNext();
+                } else if ((info.offset.x > 80 || info.velocity.x > 500) && mobileActive > 0) {
+                  goMobilePrev();
+                }
+              }}
+              className="absolute inset-0"
+              style={{ cursor: "grab", touchAction: "pan-y" }}
+            >
+              <MobileCarouselCard
+                step={mobileCards[mobileActive]}
+                num={String(mobileActive + 1).padStart(2, "0")}
+                flipped={!mobileCards[mobileActive]?.isCta && mobileFlipped === mobileActive}
+              />
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         {/* Nav buttons (left) + progress dots (right) */}
@@ -399,7 +387,8 @@ export default function MethodSection() {
           <div className="flex items-center gap-2">
             <button
               onClick={goMobilePrev}
-              className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors"
+              disabled={mobileActive === 0}
+              className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 disabled:opacity-30 transition-colors"
               aria-label="Previous card"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
@@ -408,7 +397,8 @@ export default function MethodSection() {
             </button>
             <button
               onClick={goMobileNext}
-              className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors"
+              disabled={mobileActive === mobileCards.length - 1}
+              className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 disabled:opacity-30 transition-colors"
               aria-label="Next card"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
@@ -418,10 +408,14 @@ export default function MethodSection() {
           </div>
 
           <div className="flex gap-2 items-center">
-            {steps.map((_, i) => (
+            {mobileCards.map((_, i) => (
               <button
                 key={i}
-                onClick={() => { setMobileActive(i); setMobileFlipped(null); }}
+                onClick={() => {
+                  setMobileDir(i > mobileActive ? 1 : -1);
+                  setMobileActive(i);
+                  setMobileFlipped(null);
+                }}
                 className={`rounded-full transition-all duration-300 ${
                   i === mobileActive ? "w-5 h-[6px] bg-[#0C0C12]" : "w-[6px] h-[6px] bg-[#C0C0C0]"
                 }`}
@@ -516,4 +510,3 @@ export default function MethodSection() {
     </SectionReveal>
   );
 }
-

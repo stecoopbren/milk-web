@@ -5,6 +5,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 
 function TypewriterWord({ word, longest, animated }: { word: string; longest: string; animated: boolean }) {
   const [display, setDisplay] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
   const prevWord = useRef(word);
   const initialTyped = useRef(false);
 
@@ -12,11 +13,12 @@ function TypewriterWord({ word, longest, animated }: { word: string; longest: st
   useEffect(() => {
     if (!animated || initialTyped.current) return;
     initialTyped.current = true;
+    setIsTyping(true);
     let typed = "";
     const id = setInterval(() => {
       typed = word.slice(0, typed.length + 1);
       setDisplay(typed);
-      if (typed === word) clearInterval(id);
+      if (typed === word) { clearInterval(id); setIsTyping(false); }
     }, 90);
     return () => clearInterval(id);
   }, [animated]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -29,6 +31,7 @@ function TypewriterWord({ word, longest, animated }: { word: string; longest: st
     const oldWord = prevWord.current;
     prevWord.current = word;
     let current = oldWord;
+    setIsTyping(true);
 
     const eraseId = setInterval(() => {
       current = current.slice(0, -1);
@@ -39,7 +42,7 @@ function TypewriterWord({ word, longest, animated }: { word: string; longest: st
         const typeId = setInterval(() => {
           typed = word.slice(0, typed.length + 1);
           setDisplay(typed);
-          if (typed === word) clearInterval(typeId);
+          if (typed === word) { clearInterval(typeId); setIsTyping(false); }
         }, 90);
       }
     }, 70);
@@ -51,8 +54,17 @@ function TypewriterWord({ word, longest, animated }: { word: string; longest: st
     <span style={{ display: "inline-block", position: "relative" }}>
       {/* Ghost spacer — always holds the width of the longest word so the line never reflows */}
       <span style={{ visibility: "hidden", userSelect: "none", pointerEvents: "none" }}>{longest}</span>
-      {/* Visible typewriter text, centered within the spacer */}
-      <span style={{ position: "absolute", left: 0, right: 0, top: 0, textAlign: "center", whiteSpace: "nowrap" }}>{display}</span>
+      {/* Visible typewriter text + cursor, centered within the spacer */}
+      <span style={{ position: "absolute", left: 0, right: 0, top: 0, textAlign: "center", whiteSpace: "nowrap" }}>
+        {display}
+        {animated && (
+          <motion.span
+            animate={isTyping ? { opacity: 1 } : { opacity: [1, 0, 1] }}
+            transition={isTyping ? {} : { duration: 0.9, repeat: Infinity, ease: "linear", times: [0, 0.5, 1] }}
+            style={{ display: "inline-block", marginLeft: "0.04em", fontWeight: "inherit" }}
+          >|</motion.span>
+        )}
+      </span>
     </span>
   );
 }

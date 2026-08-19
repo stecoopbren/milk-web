@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -21,18 +21,24 @@ export function RevealLine({
 }) {
   const ref = useRef<HTMLSpanElement>(null);
   const selfInView = useInView(ref, { once: true, margin: "-60px" });
-  const inView = externalInView !== undefined ? externalInView : selfInView;
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    document.fonts.load("600 1em tt-commons-pro")
+      .then(() => setReady(true))
+      .catch(() => setReady(true));
+  }, []);
+  const inView = ready && (externalInView !== undefined ? externalInView : selfInView);
 
   return (
     <span
       ref={ref}
       className="block"
-      style={{ clipPath: "inset(-0.45em -999px -0.25em -999px)" }}
+      style={{ clipPath: "inset(-0.45em -999px -0.25em -999px)", visibility: ready ? "visible" : "hidden" }}
     >
       <motion.span
         className="block"
-        initial={{ y: "110%" }}
-        animate={inView ? { y: "0%" } : {}}
+        initial={{ y: "110%", opacity: 0 }}
+        animate={inView ? { y: "0%", opacity: 1 } : {}}
         transition={{ duration: 0.85, ease, delay }}
       >
         <span className={className}>{children}</span>

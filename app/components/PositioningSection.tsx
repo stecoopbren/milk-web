@@ -8,7 +8,7 @@ const ease = [0.16, 1, 0.3, 1] as const;
 
 // Each word sweeps from dim to full color across a 6-item window.
 // Images count as one index slot so the sweep paces through them naturally.
-const TOTAL_ITEMS = 26; // 4 words + 1 img + 8 words + 1 img + 12 words
+const TOTAL_ITEMS = 19; // 1 word + 1 img + 7 words + 1 img + 9 words
 
 function HWord({
   word,
@@ -80,12 +80,12 @@ function TiltImage({ src, objectPosition }: { src: string; objectPosition?: stri
   );
 }
 
-// Segment layout (all indices relative to TOTAL_ITEMS = 26):
-// 0:"I've"  1:"learned"  2:"that"  3:"design"
-// 4:[image1]
-// 5:"isn't"  6:"a"  7:"profession."  8:"It's"  9:"what"  10:"happens"  11:"the"  12:"moment"
-// 13:[image2]
-// 14:"you"  15:"look"  16:"at"  17:"what"  18:"exists"  19:"and"  20:"ask"  21:"what"  22:"else"  23:"it"  24:"could"  25:"be."
+// Segment layout (all indices relative to TOTAL_ITEMS = 19):
+// 0:"AI"
+// 1:[image1]
+// 2:"ships"  3:"it"  4:"overnight."  5:"The"  6:"edge"  7:"is"  8:"knowing"
+// 9:[image2]
+// 10:"what"  11:"your"  12:"market"  13:"needs"  14:"before"  15:"your"  16:"competitors"  17:"do."
 
 export default function PositioningSection() {
   const ref = useRef<HTMLDivElement>(null);
@@ -117,42 +117,34 @@ export default function PositioningSection() {
         >
           <div className="flex flex-col items-center gap-6 mx-auto">
             <p className="text-serif-eyebrow text-[#0C0C12] text-center whitespace-nowrap">
-              <span className="lg:hidden">After a decade across fields,</span>
-              <span className="hidden lg:inline">After a decade working across multiple fields,</span>
+              <span className="lg:hidden">When AI gives everyone the same head start,</span>
+              <span className="hidden lg:inline">When AI gives everyone the same head start,</span>
             </p>
 
             <div className="text-section-heading text-center w-fit">
               <span className="block">
-                <HWord word="I've"         index={0}  progress={progress} trailingSpace />
-                <HWord word="learned"      index={1}  progress={progress} trailingSpace />
-                <HWord word="that"         index={2}  progress={progress} trailingSpace />
-                <HWord word="design"       index={3}  progress={progress} trailingSpace={false} />
+                <HWord word="AI"          index={0}  progress={progress} trailingSpace={false} />
                 {" "}
                 <TiltImage src="/FullSizeRender_VSCO.JPG" objectPosition="center 60%" />
-                {/* index 4 = image1 slot */}
-                <HWord word="isn't"       index={5}  progress={progress} trailingSpace />
-                <HWord word="a"           index={6}  progress={progress} trailingSpace />
-                <HWord word="profession." index={7}  progress={progress} trailingSpace />
-                <HWord word="It's"        index={8}  progress={progress} trailingSpace />
-                <HWord word="what"        index={9}  progress={progress} trailingSpace />
-                <HWord word="happens"     index={10} progress={progress} trailingSpace />
-                <HWord word="the"         index={11} progress={progress} trailingSpace />
-                <HWord word="moment"      index={12} progress={progress} trailingSpace={false} />
+                {/* index 1 = image1 slot */}
+                <HWord word="ships"       index={2}  progress={progress} trailingSpace />
+                <HWord word="it"          index={3}  progress={progress} trailingSpace />
+                <HWord word="overnight."  index={4}  progress={progress} trailingSpace />
+                <HWord word="The"         index={5}  progress={progress} trailingSpace />
+                <HWord word="edge"        index={6}  progress={progress} trailingSpace />
+                <HWord word="is"          index={7}  progress={progress} trailingSpace />
+                <HWord word="knowing"     index={8}  progress={progress} trailingSpace={false} />
                 {" "}
                 <TiltImage src="/B37FFF98-05DF-4025-BDF8-7415F841280C.JPG" />
-                {/* index 13 = image2 slot */}
-                <HWord word="you"    index={14} progress={progress} trailingSpace />
-                <HWord word="look"   index={15} progress={progress} trailingSpace />
-                <HWord word="at"     index={16} progress={progress} trailingSpace />
-                <HWord word="what"   index={17} progress={progress} trailingSpace />
-                <HWord word="exists" index={18} progress={progress} trailingSpace />
-                <HWord word="and"    index={19} progress={progress} trailingSpace />
-                <HWord word="ask"    index={20} progress={progress} trailingSpace />
-                <HWord word="what"   index={21} progress={progress} trailingSpace />
-                <HWord word="else"   index={22} progress={progress} trailingSpace />
-                <HWord word="it"     index={23} progress={progress} trailingSpace />
-                <HWord word="could"  index={24} progress={progress} trailingSpace />
-                <HWord word="be."    index={25} progress={progress} trailingSpace={false} />
+                {/* index 9 = image2 slot */}
+                <HWord word="what"        index={10} progress={progress} trailingSpace />
+                <HWord word="your"        index={11} progress={progress} trailingSpace />
+                <HWord word="market"      index={12} progress={progress} trailingSpace />
+                <HWord word="needs"       index={13} progress={progress} trailingSpace />
+                <HWord word="before"      index={14} progress={progress} trailingSpace />
+                <HWord word="your"        index={15} progress={progress} trailingSpace />
+                <HWord word="competitors" index={16} progress={progress} trailingSpace />
+                <HWord word="do."         index={17} progress={progress} trailingSpace={false} />
               </span>
             </div>
 

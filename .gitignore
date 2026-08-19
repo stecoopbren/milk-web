@@ -40,3 +40,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 get-spotify-token.mjs
+
+# large local assets
+/source-videos

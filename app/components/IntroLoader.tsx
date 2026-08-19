@@ -6,28 +6,31 @@ import { motion, AnimatePresence } from "framer-motion";
 
 let introHasShown = false;
 
-const LOGO_DURATION   = 4200; // ms the logo is visible
-const COUNT_DURATION  = 2400; // ms for the counting animation
-const REVEAL_DURATION = 2500; // ms the black logo is shown over the background
+const words = [
+  "Hello",
+  "Bonjour",
+  "你好",
+  "Hallo",
+  "Ciao",
+  "Hola",
+  "Olá",
+  "こんにちは",
+  "مرحبا",
+  "Merhaba",
+];
+const durations = [660, 480, 350, 250, 180, 130, 100, 82, 72, 66];
 
 const ease = [0.22, 1, 0.36, 1] as const;
-
-function easeInOutCubic(t: number) {
-  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-}
 
 export default function IntroLoader() {
   const pathname = usePathname();
   const isHome = pathname === "/";
-  const [phase, setPhase] = useState<"logo" | "logo-exit" | "counting" | "logo-reveal" | "outro">("logo");
-  const [count, setCount] = useState(0);
-  // Start as done immediately for non-home pages — prevents the bg-black flash
-  const [done, setDone]   = useState(() => !isHome);
-  const numbersRef        = useRef<HTMLDivElement>(null);
-  // Guards onAnimationComplete — only true while the outro fade is in progress
-  const outroFiredRef     = useRef(false);
+  const [phase, setPhase] = useState<"logo-intro" | "words" | "vanish" | "logo-reveal" | "outro">("logo-intro");
+  const [wordIndex, setWordIndex] = useState(0);
+  const [done, setDone] = useState(() => !isHome);
+  const outroFiredRef = useRef(false);
 
-  // ── CMD+Shift+R — reset intro so it plays again on hard refresh ────────────
+  // ── CMD+Shift+R — reset intro ──────────────────────────────────────────────
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.metaKey && e.shiftKey && e.key.toLowerCase() === "r") {
@@ -39,94 +42,65 @@ export default function IntroLoader() {
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
-  // ── Logo phase ─────────────────────────────────────────────────────────────
+  // ── Guard: non-home or already seen ───────────────────────────────────────
   useEffect(() => {
-    // Only play on the homepage
     if (pathname !== "/") {
       setTimeout(() => window.dispatchEvent(new CustomEvent("milk:intro-exit")), 50);
       setDone(true);
       return;
     }
-    // Client-only: skip if already shown this browser session
     if (introHasShown || sessionStorage.getItem("milk:intro-shown")) {
-      // Defer so sibling components (HeroSection) can mount and register their listeners first
       setTimeout(() => window.dispatchEvent(new CustomEvent("milk:intro-exit")), 50);
       setDone(true);
       return;
     }
     introHasShown = true;
 
-    const t = setTimeout(() => setPhase("logo-exit"), LOGO_DURATION);
+    // After logo-intro, cycle words
+    const timeouts: ReturnType<typeof setTimeout>[] = [];
+    const t0 = setTimeout(() => {
+      setPhase("words");
+      const scheduleNext = (i: number) => {
+        if (i >= words.length) {
+          setPhase("vanish");
+          const t1 = setTimeout(() => {
+            setPhase("logo-reveal");
+            sessionStorage.setItem("milk:intro-shown", "1");
+            const t2 = setTimeout(() => {
+              outroFiredRef.current = true;
+              setPhase("outro");
+            }, 2800);
+            timeouts.push(t2);
+          }, 400);
+          timeouts.push(t1);
+          return;
+        }
+        setWordIndex(i);
+        const t = setTimeout(() => scheduleNext(i + 1), durations[i]);
+        timeouts.push(t);
+      };
+      scheduleNext(0);
+    }, 1600);
+
+    timeouts.push(t0);
     return () => {
-      clearTimeout(t);
-      // Reset so React Strict Mode's second effect invocation starts fresh
-      // (without this, the second run sees introHasShown=true and fires milk:intro-exit immediately)
+      timeouts.forEach(clearTimeout);
       introHasShown = false;
     };
   }, []);
-
-  // ── Counting phase ─────────────────────────────────────────────────────────
-  useEffect(() => {
-    if (phase !== "counting") return;
-
-    let start = -1;
-    let raf: number;
-
-    const tick = (now: number) => {
-      if (start < 0) start = now; // capture from first RAF tick to avoid negative delta
-      const t     = Math.min((now - start) / COUNT_DURATION, 1);
-      const eased = easeInOutCubic(t);
-
-      if (numbersRef.current) {
-        numbersRef.current.style.transform = `scale(${1 + eased * 16}) translateZ(0)`;
-      }
-
-      setCount(Math.floor(eased * 100));
-
-      if (t < 1) {
-        raf = requestAnimationFrame(tick);
-      } else {
-        setCount(100);
-        sessionStorage.setItem("milk:intro-shown", "1");
-        setPhase("logo-reveal");
-      }
-    };
-
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [phase]);
-
-  // ── Logo reveal phase ──────────────────────────────────────────────────────
-  useEffect(() => {
-    if (phase !== "logo-reveal") return;
-    const t = setTimeout(() => {
-      // Mark outro as active BEFORE setting phase so onAnimationComplete
-      // can distinguish this animation from any spurious fires on mount.
-      outroFiredRef.current = true;
-      setPhase("outro");
-      // NOTE: setDone + milk:intro-exit are now handled in onAnimationComplete
-      // on the container, which fires only when the opacity has actually reached
-      // 0 — regardless of device frame rate. No fixed-duration guess needed.
-    }, REVEAL_DURATION);
-    return () => clearTimeout(t);
-  }, [phase]);
 
   if (done) return null;
 
   return (
     <motion.div
-      className="fixed inset-0 z-[9999] overflow-hidden flex items-center justify-center"
+      className="fixed inset-0 z-[9999] overflow-hidden flex flex-col items-center"
       initial={{ opacity: 1 }}
       animate={{ opacity: phase === "outro" ? 0 : 1 }}
       transition={{ duration: 1.0, ease }}
       onAnimationComplete={() => {
-        // Only act when the OUTRO fade has truly reached opacity 0.
-        // outroFiredRef guards against spurious fires on mount or other phases.
         if (!outroFiredRef.current) return;
         outroFiredRef.current = false;
         setDone(true);
-        // Double RAF: browser paints the unmounted intro in frame 1,
-        // then nav appears in frame 2 — zero chance of both logos on screen.
         requestAnimationFrame(() =>
           requestAnimationFrame(() =>
             window.dispatchEvent(new CustomEvent("milk:intro-exit"))
@@ -134,73 +108,83 @@ export default function IntroLoader() {
         );
       }}
     >
-      {/* Dark background — fades out during logo-reveal to expose LiquidBackground */}
+      {/* Light background */}
       <motion.div
-        className="absolute inset-0 bg-black"
-        animate={{ opacity: (phase === "logo-reveal" || phase === "outro") ? 0 : 1 }}
-        transition={{ duration: 0.9, ease }}
+        className="absolute inset-0 bg-[#FAFAFA]"
+        animate={{ opacity: phase === "logo-reveal" || phase === "outro" ? 0 : 1 }}
+        transition={{ duration: 0.8, ease }}
       />
 
-      {/* ── White Logo ── */}
-      <AnimatePresence onExitComplete={() => setPhase("counting")}>
-        {phase === "logo" && (
-          <motion.div
-            className="absolute inset-0 flex items-center justify-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5, ease }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/MilkLogo-White.png"
-              alt="Milk"
-              style={{ width: "clamp(70px, 8vw, 130px)", display: "block" }}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ── Counter ── */}
+      {/* Dark overlay — logo-intro only */}
       <AnimatePresence>
-        {phase === "counting" && (
+        {phase === "logo-intro" && (
           <motion.div
-            ref={numbersRef}
-            className="select-none"
+            className="absolute inset-0 bg-[#0C0C12]"
+            style={{ zIndex: 10 }}
+            initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.5, ease }}
-            style={{
-              fontSize: 200,
-              fontFamily: "Ambit, sans-serif",
-              fontWeight: 700,
-              letterSpacing: "-0.06em",
-              lineHeight: 1,
-              color: "white",
-              willChange: "transform",
-            }}
-          >
-            {count}
-          </motion.div>
+            transition={{ duration: 0.7, ease }}
+          />
         )}
       </AnimatePresence>
 
-      {/* ── Black Logo Reveal ──
-          Always in DOM — opacity is 0 until logo-reveal, then fades in.
-          When outro starts, animate flips to { opacity: 0, duration: 0 }:
-          Framer Motion snaps it invisible in the same render frame,
-          guaranteed before onAnimationComplete ever fires and the nav appears. */}
-      <motion.img
-        src="/MilkLogo-Black.png"
-        alt="Milk"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: phase === "logo-reveal" ? 1 : 0 }}
-        transition={
-          phase === "logo-reveal"
-            ? { duration: 0.8, delay: 0.45, ease }
-            : { duration: 0 }
-        }
-        style={{ width: "clamp(70px, 8vw, 130px)", display: "block", position: "absolute" }}
-      />
+      {/* Center content */}
+      <div className="flex-1 flex items-center justify-center w-full relative" style={{ zIndex: 20 }}>
+
+        {/* White logo on dark */}
+        <AnimatePresence>
+          {phase === "logo-intro" && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.6, ease }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/MilkLogo-White.png" alt="Milk" style={{ width: "clamp(70px, 8vw, 130px)", display: "block" }} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Cycling words */}
+        <AnimatePresence mode="sync">
+          {phase === "words" && (
+            <motion.p
+              key={wordIndex}
+              className="absolute text-[#0C0C12]"
+              style={{ fontFamily: "Ambit", fontWeight: 700, fontSize: "clamp(40px, 7vw, 80px)", letterSpacing: "-2.5px", lineHeight: 1 }}
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.14, ease }}
+            >
+              {words[wordIndex]}
+            </motion.p>
+          )}
+        </AnimatePresence>
+
+        {/* Black logo reveal */}
+        <AnimatePresence>
+          {phase === "logo-reveal" && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.2, ease }}
+              style={{ perspective: 900 }}
+            >
+              <motion.div
+                animate={{ rotateX: [0, -2.5, 1, -1.5, 2, 0], rotateY: [0, 4, -2, 3, -1, 0] }}
+                transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+                style={{ transformStyle: "preserve-3d" }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/MilkLogo-Black.png" alt="Milk" style={{ width: "clamp(70px, 8vw, 130px)", display: "block" }} />
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+      </div>
 
     </motion.div>
   );

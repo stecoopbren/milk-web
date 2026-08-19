@@ -11,138 +11,6 @@ import CinematicBoard, { DEFAULT_SHOTS, DEFAULT_CURSORS } from "./CinematicBoard
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-// ─── Full-screen image section (90vh, CSS parallax) ───────────────────────────
-
-function LoopingVideo({ src }: { src: string }) {
-  return (
-    <video
-      src={src}
-      autoPlay
-      muted
-      loop
-      playsInline
-      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-    />
-  );
-}
-
-// ─── Cycling hero slideshow ───────────────────────────────────────────────────
-
-function HeroSlideshow({ images, alt }: { images: string[]; alt: string }) {
-  const [index, setIndex] = useState(0);
-
-  // Preload all images upfront
-  useEffect(() => {
-    images.forEach(src => { const img = new Image(); img.src = src; });
-  }, []);
-
-  useEffect(() => {
-    const id = setInterval(() => setIndex(i => (i + 1) % images.length), 4500);
-    return () => clearInterval(id);
-  }, [images.length]);
-
-  return (
-    <div className="snap-section scroll-mt-[80px] relative overflow-hidden bg-[#0C0C12]" style={{ height: "90vh" }} data-dark="true">
-      <AnimatePresence mode="sync">
-        <motion.div
-          key={index}
-          style={{ position: "absolute", inset: 0 }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 1.4, ease: [0.4, 0, 0.2, 1] }}
-        >
-          {/* Ken Burns: each image slowly zooms in during its display time */}
-          <motion.img
-            src={images[index]}
-            alt={alt}
-            initial={{ scale: 1.0 }}
-            animate={{ scale: 1.07 }}
-            transition={{ duration: 6, ease: "linear" }}
-            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-          />
-        </motion.div>
-      </AnimatePresence>
-    </div>
-  );
-}
-
-function FullScreenImage({ src, alt, video, mobileNaturalAspect, image2 }: { src: string; alt: string; video?: string; mobileNaturalAspect?: boolean; image2?: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-5%" });
-  const [hPad, setHPad] = useState(180);
-  const [showSecond, setShowSecond] = useState(false);
-
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"],
-  });
-  // Suggestion 5: refined parallax — tighter range, same rhythm as text transitions
-  const imageY = useTransform(scrollYProgress, [0, 1], ["4%", "-8%"]);
-
-  useEffect(() => {
-    const update = () => setHPad(window.innerWidth < 1024 ? 32 : 180);
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, []);
-
-  useEffect(() => {
-    if (!image2) return;
-    let intervalId: ReturnType<typeof setInterval>;
-    const timeoutId = setTimeout(() => {
-      setShowSecond(true);
-      intervalId = setInterval(() => setShowSecond(s => !s), 4000);
-    }, 3000);
-    return () => {
-      clearTimeout(timeoutId);
-      clearInterval(intervalId);
-    };
-  }, [image2]);
-
-  return (
-    <div ref={ref} className={`snap-section scroll-mt-[80px] bg-[#0C0C12] ${mobileNaturalAspect ? "aspect-video lg:h-[80vh] lg:aspect-auto" : "h-screen lg:h-[80vh]"}`} data-dark="true">
-      <motion.div
-        className="h-full w-full overflow-hidden relative"
-        initial={{ paddingLeft: hPad, paddingRight: hPad, borderRadius: 16 }}
-        animate={inView ? { paddingLeft: 0, paddingRight: 0, borderRadius: 0 } : {}}
-        transition={{ type: "spring", stiffness: 55, damping: 22 }}
-      >
-        {video ? (
-          <motion.div
-            style={{ width: "100%", height: "106%", y: imageY }}
-            initial={{ scale: 1.0 }}
-            animate={inView ? { scale: 1.06 } : {}}
-            transition={{ scale: { duration: 9, ease: "linear" } }}
-          >
-            <LoopingVideo src={video} />
-          </motion.div>
-        ) : (
-          <>
-            <motion.img
-              src={src}
-              alt={alt}
-              style={{ width: "100%", height: "130%", objectFit: "cover", display: "block", y: imageY }}
-              initial={{ scale: 1.0 }}
-              animate={inView ? { scale: 1.06 } : {}}
-              transition={{ scale: { duration: 9, ease: "linear" } }}
-            />
-            {image2 && (
-              <motion.img
-                src={image2}
-                alt={alt}
-                style={{ position: "absolute", inset: 0, width: "100%", height: "130%", objectFit: "cover", display: "block", y: imageY }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: showSecond ? 1 : 0 }}
-                transition={{ duration: 1.5, ease }}
-              />
-            )}
-          </>
-        )}
-      </motion.div>
-    </div>
-  );
-}
 
 // ─── Icons ───────────────────────────────────────────────────────────────────
 
@@ -255,7 +123,6 @@ function CaseHeroImageStrip({ images, inView }: { images: string[]; inView: bool
             height: CARD_H,
             perspective: "1100px",
             perspectiveOrigin: "50% 50%",
-            overflow: "hidden",
           }}
         >
           {loopImages.map((src, i) => {
@@ -335,7 +202,7 @@ function CaseHero({ caseData }: { caseData: CaseData }) {
   return (
     <div
       ref={ref}
-      className="relative snap-section overflow-hidden flex flex-col"
+      className="relative snap-section flex flex-col"
       style={{ height: "100vh" }}
     >
       {/* Back button — mobile only, absolute top center */}
@@ -355,8 +222,11 @@ function CaseHero({ caseData }: { caseData: CaseData }) {
         </button>
       </motion.div>
 
-      {/* ── Top zone: all text content ── */}
-      <div className="flex-1 flex flex-col items-center justify-center text-center px-8 lg:px-[180px] pt-[148px] lg:pt-[100px] pb-8 relative z-10">
+      {/* Top spacer: pushes content+strip group toward vertical center */}
+      <div className="flex-1" />
+
+      {/* ── Text content ── */}
+      <div className="flex flex-col items-center text-center px-8 lg:px-[180px] pt-[60px] lg:pt-0 relative z-10">
         <div className="flex flex-col items-center gap-4">
           <RevealLine className="text-serif-eyebrow text-[#0C0C12]" delay={0.1} inView={inView}>
             {caseData.heroLabel ?? `${caseData.client} | ${caseData.category}`}
@@ -374,7 +244,7 @@ function CaseHero({ caseData }: { caseData: CaseData }) {
             delay={0.45}
           />
           <motion.div
-            className="flex flex-wrap justify-center items-center gap-3"
+            className="flex flex-col sm:flex-row sm:flex-wrap justify-center items-stretch sm:items-center gap-3 w-full sm:w-auto"
             initial={{ opacity: 0, y: 12 }}
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, ease, delay: 0.65 }}
@@ -382,7 +252,7 @@ function CaseHero({ caseData }: { caseData: CaseData }) {
             {caseData.websiteUrl && (
               <a
                 href={caseData.websiteUrl}
-                className="border border-[#2E2E2E]/15 rounded-full px-6 py-2.5 font-sans text-[14px] font-medium text-[#2E2E2E] inline-flex items-center gap-2 hover:border-[#2E2E2E]/40 transition-colors tracking-[-0.28px]"
+                className="border border-[#2E2E2E]/15 rounded-full px-6 py-2.5 font-sans text-[14px] font-medium text-[#2E2E2E] inline-flex items-center justify-center gap-2 hover:border-[#2E2E2E]/40 transition-colors tracking-[-0.28px]"
               >
                 View Website <ArrowUpRight />
               </a>
@@ -391,7 +261,7 @@ function CaseHero({ caseData }: { caseData: CaseData }) {
               <>
                 <button
                   onClick={() => window.dispatchEvent(new CustomEvent("milk:snap-to", { detail: { id: "chapters" } }))}
-                  className="bg-[#0C0C12] rounded-full px-6 py-2.5 font-sans text-[14px] font-medium text-white inline-flex items-center gap-2 hover:bg-[#2E2E2E] transition-colors tracking-[-0.28px]"
+                  className="bg-[#0C0C12] rounded-full px-6 py-2.5 font-sans text-[14px] font-medium text-white inline-flex items-center justify-center gap-2 hover:bg-[#2E2E2E] transition-colors tracking-[-0.28px]"
                 >
                   Explore the phases
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
@@ -399,8 +269,8 @@ function CaseHero({ caseData }: { caseData: CaseData }) {
                   </svg>
                 </button>
                 <button
-                  onClick={() => window.dispatchEvent(new CustomEvent("milk:snap-to", { detail: { index: 2 } }))}
-                  className="border border-[#2E2E2E]/15 rounded-full px-6 py-2.5 font-sans text-[14px] font-medium text-[#2E2E2E] inline-flex items-center gap-2 hover:border-[#2E2E2E]/40 transition-colors tracking-[-0.28px]"
+                  onClick={() => window.dispatchEvent(new CustomEvent("milk:snap-to", { detail: { index: 1 } }))}
+                  className="border border-[#2E2E2E]/15 rounded-full px-6 py-2.5 font-sans text-[14px] font-medium text-[#2E2E2E] inline-flex items-center justify-center gap-2 hover:border-[#2E2E2E]/40 transition-colors tracking-[-0.28px]"
                 >
                   About the Client
                 </button>
@@ -410,9 +280,14 @@ function CaseHero({ caseData }: { caseData: CaseData }) {
         </div>
       </div>
 
-      {/* ── Bottom: full-bleed image strip anchored to bottom ── */}
+      {/* Bottom spacer: equal to top spacer, keeps content+strip group centered */}
+      <div className="flex-1" />
+
+      {/* ── Image strip: desktop only. Hidden on mobile to prevent overlap with
+          hero buttons. Absolutely positioned so it straddles the hero/sections
+          boundary. overflow: hidden clips horizontal card bleed. ── */}
       {heroImages.length > 0 && (
-        <div className="shrink-0 relative z-0">
+        <div className="hidden lg:block" style={{ position: "absolute", bottom: -130, left: 0, right: 0, zIndex: 5, overflow: "hidden" }}>
           <CaseHeroImageStrip images={heroImages} inView={inView} />
         </div>
       )}
@@ -579,7 +454,7 @@ function SplitSection({ section }: { section: Extract<CaseSection, { type: "spli
               {paragraphs.map((para, i) => (
                 <motion.p
                   key={i}
-                  className={`text-body text-[#565656]${i > 0 ? " hidden lg:block" : ""}`}
+                  className="text-body text-[#565656]"
                   initial={{ opacity: 0, y: 16 }}
                   animate={inView ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.7, ease, delay: 0.3 + i * 0.1 }}
@@ -602,7 +477,7 @@ function SplitSection({ section }: { section: Extract<CaseSection, { type: "spli
             lg:hidden → display:none on desktop, so the snap controller ignores it. */}
         <div
           ref={mobileRef}
-          className="snap-section min-h-screen lg:hidden px-8 pt-24 pb-12"
+          className="snap-section min-h-screen lg:hidden px-8 pt-24 pb-12 flex flex-col justify-center"
           data-native-scroll="true"
         >
           {innerContent}
@@ -625,7 +500,7 @@ function SplitSection({ section }: { section: Extract<CaseSection, { type: "spli
   }
 
   return (
-    <div ref={mobileRef} className="snap-section min-h-screen flex items-start lg:items-center px-8 lg:px-[180px] pt-24 pb-12 lg:py-16" data-native-scroll="true">
+    <div ref={mobileRef} className="snap-section min-h-screen flex items-start lg:items-center px-8 lg:px-[180px] pt-24 pb-12 lg:py-16 relative bg-[#FAFAFA]" data-native-scroll="true">
       {innerContent}
     </div>
   );
@@ -638,7 +513,7 @@ function CenteredSection({ section }: { section: Extract<CaseSection, { type: "c
   const inView = useInView(ref, { once: true, margin: "-8%" });
 
   return (
-    <div ref={ref} className="snap-section min-h-screen flex items-start lg:items-center justify-center px-8 lg:px-[180px] pt-24 pb-12 lg:py-16" data-native-scroll="true">
+    <div ref={ref} className="snap-section min-h-screen flex items-start lg:items-center justify-center px-8 lg:px-[180px] pt-24 pb-12 lg:py-16 relative bg-[#FAFAFA]" data-native-scroll="true">
       <div className="flex flex-col gap-8 lg:gap-10 max-w-[760px] w-full">
 
         {/* Label — above heading */}
@@ -707,20 +582,33 @@ function CarouselSection({ section }: { section: Extract<CaseSection, { type: "c
   const go = (next: number) => setActive(((next % total) + total) % total);
 
   return (
-    <div ref={ref} className="snap-section min-h-screen flex items-center px-8 lg:px-[180px] py-24 lg:py-28">
+    <div ref={ref} className="snap-section min-h-screen flex items-center px-8 lg:px-[180px] py-24 lg:py-28 relative bg-[#FAFAFA]">
       <motion.div
         className="w-full"
         initial={{ opacity: 0, y: 40 }}
         animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.9, ease, delay: 0.1 }}
       >
-        <div className="relative overflow-hidden rounded-2xl aspect-[4/3] lg:aspect-[16/9] bg-[#0C0C12]" data-dark="true">
+        <motion.div
+          className="relative overflow-hidden rounded-2xl aspect-[4/3] lg:aspect-[16/9] bg-[#0C0C12]"
+          data-dark="true"
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.12}
+          onDragEnd={(_e, info) => {
+            if (Math.abs(info.velocity.x) > 200 || Math.abs(info.offset.x) > 60) {
+              go(info.offset.x < 0 ? active + 1 : active - 1);
+            }
+          }}
+          style={{ touchAction: "pan-y", cursor: "grab" }}
+          whileTap={{ cursor: "grabbing" }}
+        >
           <AnimatePresence mode="wait">
             <motion.img
               key={active}
               src={section.images[active]}
               alt={`Slide ${active + 1}`}
-              className="absolute inset-0 w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-cover pointer-events-none"
               initial={{ scale: 1.0, opacity: 0 }}
               animate={{ scale: 1.06, opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -730,7 +618,7 @@ function CarouselSection({ section }: { section: Extract<CaseSection, { type: "c
               }}
             />
           </AnimatePresence>
-        </div>
+        </motion.div>
         <div className="flex items-center justify-between mt-4">
           <div className="flex gap-2 items-center">
             {section.images.map((_, i) => (
@@ -766,14 +654,149 @@ function CarouselSection({ section }: { section: Extract<CaseSection, { type: "c
   );
 }
 
-// ─── E. StatsSectionBlock ────────────────────────────────────────────────────
+// ─── E. ScrollGallerySection ─────────────────────────────────────────────────
+
+function ScrollGallerySection({ section }: { section: Extract<CaseSection, { type: "scroll-gallery" }> }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"],
+  });
+
+  // 3-image triangle composition
+  // Phase 1 (0–0.3): hero drifts slightly left, right image drifts up
+  // Phase 2 (0.35–0.65): all converge to center
+  // Phase 3 (0.7–0.9): hero expands to full screen
+
+  // Hero (img[0]): near center-top, slightly left — the main focus
+  const heroX = useTransform(scrollYProgress, [0, 0.3, 0.35, 0.65, 1], ["-4vw", "-4vw", "-4vw", "0vw", "0vw"]);
+  const heroY = useTransform(scrollYProgress, [0, 0.3, 0.35, 0.65, 1], ["-14vh", "-14vh", "-14vh", "0vh", "0vh"]);
+
+  // Left (img[1]): lower-left, stays
+  const leftX = useTransform(scrollYProgress, [0, 0.3, 0.35, 0.65, 1], ["-22vw", "-22vw", "-22vw", "0vw", "0vw"]);
+  const leftY = useTransform(scrollYProgress, [0, 0.3, 0.35, 0.65, 1], ["20vh", "20vh", "20vh", "0vh", "0vh"]);
+
+  // Right (img[2]): lower-right, drifts up during phase 1
+  const rightX = useTransform(scrollYProgress, [0, 0.3, 0.35, 0.65, 1], ["20vw", "20vw", "20vw", "0vw", "0vw"]);
+  const rightY = useTransform(scrollYProgress, [0, 0.3, 0.35, 0.65, 1], ["20vh", "-4vh", "-4vh", "0vh", "0vh"]);
+
+  const heroWidth  = useTransform(scrollYProgress, [0.65, 0.7, 0.9, 1], ["36vw", "36vw", "100vw", "100vw"]);
+  const heroHeight = useTransform(scrollYProgress, [0.65, 0.7, 0.9, 1], ["44vh", "44vh", "100vh", "100vh"]);
+  const underOpacity = useTransform(scrollYProgress, [0.75, 0.85], [1, 0]);
+
+  const baseClass = "absolute left-1/2 top-1/2 overflow-hidden -translate-x-1/2 -translate-y-1/2 shadow-2xl will-change-transform";
+  const imgStyle = (pos?: string): React.CSSProperties => ({ width: "100%", height: "100%", objectFit: "cover", objectPosition: pos ?? "center", display: "block" });
+
+  const [img0, img1, img2] = section.images;
+  const [pos0, pos1, pos2] = section.positions ?? [];
+
+  return (
+    <>
+      {/* Mobile: staggered cascade for 3 images */}
+      <div className="lg:hidden" style={{ position: "relative", height: "130vw", overflow: "hidden", margin: "4rem 0" }}>
+        {/* Image 1: top-left */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease, delay: 0 }}
+          style={{
+            position: "absolute", top: "5vw", left: "8vw",
+            width: "64vw", height: "44vw", overflow: "hidden",
+            zIndex: 3, borderRadius: 4,
+            boxShadow: "0 4px 24px rgba(0,0,0,0.14)",
+          }}>
+          <img src={img0} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: pos0 ?? "center", display: "block" }} />
+        </motion.div>
+        {/* Image 2: mid-left */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease, delay: 0.1 }}
+          style={{
+            position: "absolute", top: "46vw", left: "2vw",
+            width: "64vw", height: "44vw", overflow: "hidden",
+            zIndex: 2, borderRadius: 4,
+            boxShadow: "0 4px 24px rgba(0,0,0,0.14)",
+          }}>
+          <img src={img1} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: pos1 ?? "center", display: "block" }} />
+        </motion.div>
+        {/* Image 3: lower-right */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease, delay: 0.2 }}
+          style={{
+            position: "absolute", top: "58vw", left: "28vw",
+            width: "64vw", height: "44vw", overflow: "hidden",
+            zIndex: 3, borderRadius: 4,
+            boxShadow: "0 4px 24px rgba(0,0,0,0.18)",
+          }}>
+          <img src={img2} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: pos2 ?? "center", display: "block" }} />
+        </motion.div>
+      </div>
+
+      {/* Desktop: scroll choreography — triangle composition */}
+      <div
+        ref={containerRef}
+        className="hidden lg:block snap-section"
+        style={{ height: "300vh" }}
+        data-free-scroll="true"
+      >
+        <div className="sticky top-0 h-screen w-full overflow-hidden">
+          <div className="absolute inset-0 flex items-center justify-center">
+
+            {/* Left image → stays, then converges */}
+            <motion.div style={{ x: leftX, y: leftY, opacity: underOpacity, width: "36vw", maxHeight: "44vh" }} className={`${baseClass} z-10 rounded`}>
+              <img src={img1} alt="" style={imgStyle(pos1)} />
+            </motion.div>
+
+            {/* Right image → drifts up, then converges */}
+            <motion.div style={{ x: rightX, y: rightY, opacity: underOpacity, width: "36vw", maxHeight: "44vh" }} className={`${baseClass} z-20 rounded`}>
+              <img src={img2} alt="" style={imgStyle(pos2)} />
+            </motion.div>
+
+            {/* Hero → near center, then expands to full screen */}
+            <motion.div
+              style={{ x: heroX, y: heroY, width: heroWidth, height: heroHeight }}
+              className={`${baseClass} z-30 rounded`}
+            >
+              <img src={img0} alt="" style={imgStyle(pos0)} />
+            </motion.div>
+
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ─── F. ImageBlockSection ────────────────────────────────────────────────────
+
+function ImageBlockSection({ section }: { section: Extract<CaseSection, { type: "image-block" }> }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-8%" });
+  return (
+    <div ref={ref} className="snap-section min-h-screen flex items-center justify-center px-[10vw] relative bg-[#FAFAFA]">
+      <motion.img
+        src={section.src}
+        alt=""
+        style={{ width: "100%", display: "block", borderRadius: 4 }}
+        initial={{ opacity: 0, y: 24 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8, ease }}
+      />
+    </div>
+  );
+}
+
+// ─── G. StatsSectionBlock ────────────────────────────────────────────────────
 
 function StatsSectionBlock({ section }: { section: Extract<CaseSection, { type: "stats" }> }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-8%" });
 
   return (
-    <div ref={ref} className="snap-section min-h-screen flex items-start lg:items-center px-8 lg:px-[180px] pt-24 pb-12 lg:py-16" data-native-scroll="true">
+    <div ref={ref} className="snap-section min-h-screen flex items-start lg:items-center px-8 lg:px-[180px] pt-24 pb-12 lg:py-16 relative bg-[#FAFAFA]" data-native-scroll="true">
       <div className="flex flex-col gap-8 lg:gap-10 w-full">
 
         {/* Label */}
@@ -876,7 +899,7 @@ function RelatedProjects({
   };
 
   return (
-    <div ref={ref} className="snap-section min-h-screen flex items-start lg:items-center px-8 lg:px-[180px] pt-24 pb-16 lg:py-32" data-native-scroll="true">
+    <div ref={ref} className="snap-section min-h-screen flex items-start lg:items-center px-8 lg:px-[180px] pt-24 pb-16 lg:py-32 relative bg-[#FAFAFA]" data-native-scroll="true">
       <div className="w-full">
         {/* Header */}
         <div className="mb-10 text-center">
@@ -1316,43 +1339,29 @@ function TimelineItem({
 // ─── G. ChaptersSection ──────────────────────────────────────────────────────
 
 function ChaptersSection({ section }: { section: Extract<CaseSection, { type: "chapters" }> }) {
-  const mobileRef        = useRef<HTMLDivElement>(null);
-  const mobileSectionRef = useRef<HTMLDivElement>(null);
-  const headingRef       = useRef<HTMLDivElement>(null);
-  const itemsRef         = useRef<HTMLDivElement>(null);
-  const sectionRef       = useRef<HTMLDivElement>(null);
+  const mobileRef  = useRef<HTMLDivElement>(null);
+  const itemsRef   = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const handleActivate = useCallback((i: number) => setActiveIndex(i), []);
 
-  const mobileInView  = useInView(mobileRef,  { once: true, margin: "-8%"  });
-  const headingInView = useInView(headingRef,  { once: true, margin: "-10%" });
+  const mobileInView = useInView(mobileRef, { once: true, margin: "-8%" });
 
   // Bar fill: tracks the items container as it scrolls through the viewport
   const { scrollYProgress } = useScroll({ target: itemsRef, offset: ["start center", "end center"] });
   const lineHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
-  // Desktop heading fade: disappears as user scrolls into the timeline
-  const { scrollYProgress: sectionScroll } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
-  const headingOpacity = useTransform(sectionScroll, [0.15, 0.3], [1, 0]);
-
-  // Mobile heading fade: fades out once user scrolls past the first card
-  const { scrollYProgress: mobileScroll } = useScroll({ target: mobileSectionRef, offset: ["start start", "end end"] });
-  const mobileHeadingOpacity = useTransform(mobileScroll, [0.1, 0.22], [1, 0]);
-
   return (
     <>
-      {/* ── Mobile: stacked cards ──────────────────────────────── */}
+      {/* ── Mobile: timeline cards ──────────────────────────────── */}
       <div
-        ref={mobileSectionRef}
+        id="chapters"
         className="snap-section min-h-screen lg:hidden px-8 pt-24 pb-12"
         data-native-scroll="true"
       >
         <div ref={mobileRef} className="flex flex-col gap-8">
-          {/* Sticky heading: fades as cards scroll in */}
-          <motion.div
-            style={{ position: "sticky", top: 84, zIndex: 10, pointerEvents: "none", opacity: mobileHeadingOpacity }}
-            className="flex flex-col gap-3"
-          >
+          {/* Static heading */}
+          <div className="flex flex-col gap-3">
             <motion.p
               className="text-serif-eyebrow text-[#0C0C12]"
               initial={{ opacity: 0 }} animate={mobileInView ? { opacity: 1 } : {}}
@@ -1365,77 +1374,83 @@ function ChaptersSection({ section }: { section: Extract<CaseSection, { type: "c
                 <RevealLine key={i} className="block" delay={0.15 + i * 0.1} inView={mobileInView}>{line}</RevealLine>
               ))}
             </h2>
-          </motion.div>
-          <div className="flex flex-col gap-5">
+          </div>
+
+          {/* Timeline */}
+          <div className="relative flex flex-col">
+            {/* Continuous spine line behind all dots */}
+            <div className="absolute w-px bg-[#E0E0E0]" style={{ left: 4, top: 8, bottom: 8 }} />
+
             {section.items.map((item, i) => {
               const avail = !!item.slug;
-              const Wrapper = avail ? motion.a : motion.div;
-              const props = avail ? { href: `/cases/${item.slug}` } : {};
               return (
-                <Wrapper
-                  key={i} {...(props as any)}
-                  className="relative overflow-hidden rounded-2xl"
-                  style={{ aspectRatio: "16/9", opacity: avail ? 1 : 0.5 }}
+                <motion.div
+                  key={i}
+                  className="flex gap-4 pb-8 last:pb-0"
                   initial={{ opacity: 0, y: 16 }}
-                  animate={mobileInView ? { opacity: avail ? 1 : 0.5, y: 0 } : {}}
-                  transition={{ duration: 0.7, ease, delay: 0.1 + i * 0.08 }}
+                  animate={mobileInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.7, ease, delay: 0.15 + i * 0.08 }}
                 >
-                  {item.video ? (
-                    <video src={item.video} autoPlay muted loop playsInline style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                  ) : (
-                    <img src={item.image} alt={item.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                  )}
-                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.72) 100%)" }} />
-                  {!avail && <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.32)" }} />}
-                  <div style={{ position: "absolute", top: 16, left: 16, right: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <p style={{ fontSize: 9, fontFamily: "var(--font-mono)", color: "rgba(255,255,255,0.5)", letterSpacing: "0.06em", textTransform: "uppercase" }}>{item.part}</p>
-                    {!avail && <span style={{ fontSize: 9, fontFamily: "var(--font-mono)", color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.25)", borderRadius: 100, padding: "3px 9px" }}>Coming soon</span>}
+                  {/* Dot */}
+                  <div style={{ width: 10, flexShrink: 0, paddingTop: 5, position: "relative", zIndex: 1 }}>
+                    <div style={{
+                      width: 9, height: 9, borderRadius: "50%",
+                      background: avail ? "#0C0C12" : "#C4C4C4",
+                      border: "2px solid #FAFAFA",
+                    }} />
                   </div>
-                  <div style={{ position: "absolute", bottom: 16, left: 16, right: 16 }}>
-                    <p style={{ color: "#fff", fontSize: 15, fontWeight: 600, letterSpacing: "-0.4px", lineHeight: 1.2, fontFamily: "var(--font-sans)" }}>{item.title}</p>
-                    <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, fontFamily: "var(--font-sans)", marginTop: 4, lineHeight: 1.4 }}>{item.description}</p>
+
+                  {/* Card content */}
+                  <div className="flex-1" style={{ opacity: avail ? 1 : 0.5 }}>
+                    <p className="text-micro text-[#565656] mb-2">{item.part}</p>
+                    {avail ? (
+                      <a href={`/cases/${item.slug}`} className="block">
+                        <div className="relative overflow-hidden rounded-xl mb-3" style={{ aspectRatio: "16/9" }}>
+                          {item.video ? (
+                            <video src={item.video} autoPlay muted loop playsInline className="w-full h-full object-cover" />
+                          ) : (
+                            <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                          )}
+                        </div>
+                        <p className="text-subheading text-[#0C0C12] mt-1">{item.title}</p>
+                        <p className="text-body text-[#565656] mt-1">{item.description}</p>
+                      </a>
+                    ) : (
+                      <div>
+                        <div className="relative overflow-hidden rounded-xl mb-3" style={{ aspectRatio: "16/9" }}>
+                          {item.video ? (
+                            <video src={item.video} autoPlay muted loop playsInline className="w-full h-full object-cover" />
+                          ) : (
+                            <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                          )}
+                        </div>
+                        <p className="text-subheading text-[#0C0C12] mt-1">{item.title}</p>
+                        <p className="text-body text-[#565656] mt-1">{item.description}</p>
+                        <span className="inline-block mt-2 text-micro text-[#565656] border border-[#C4C4C4] rounded-full px-2.5 py-0.5">Coming soon</span>
+                      </div>
+                    )}
                   </div>
-                </Wrapper>
+                </motion.div>
               );
             })}
           </div>
         </div>
       </div>
 
-      {/* ── Desktop: heading centered + timeline peeking at bottom ── */}
+      {/* ── Desktop: heading + timeline ── */}
       <div
         ref={sectionRef}
         id="chapters"
         className="snap-section hidden lg:block lg:px-[180px]"
-        style={{ scrollSnapAlign: "none", paddingBottom: 120 }}
+        style={{ scrollSnapAlign: "none", paddingTop: 160, paddingBottom: 120 }}
+        data-free-scroll="true"
         data-native-scroll="true"
       >
-        {/* Spacer: vertically centers heading on first view */}
-        <div style={{ height: "calc(50vh - 80px)" }} />
-
-        {/* Sticky heading — locks 52px below nav, fades as timeline scrolls in */}
-        <motion.div
-          ref={headingRef}
-          style={{ position: "sticky", top: 136, zIndex: 10, pointerEvents: "none", textAlign: "center", opacity: headingOpacity }}
-          className="flex flex-col gap-3 items-center"
-        >
-          <motion.p
-            className="text-serif-eyebrow text-[#0C0C12]"
-            initial={{ opacity: 0 }}
-            animate={headingInView ? { opacity: 1 } : {}}
-            transition={{ duration: 0.6, ease }}
-          >
-            {section.label}
-          </motion.p>
-          <h2 className="text-section-heading text-[#2E2E2E]">
-            {section.heading.split("\n").map((line, i) => (
-              <RevealLine key={i} className="block" delay={0.1 + i * 0.12} inView={headingInView}>{line}</RevealLine>
-            ))}
-          </h2>
-        </motion.div>
-
-        {/* Gap: pushes first timeline item to peek at viewport bottom */}
-        <div style={{ height: 200 }} />
+        {/* Static heading */}
+        <div className="flex flex-col gap-3 mb-24">
+          <p className="text-serif-eyebrow text-[#0C0C12]">{section.label}</p>
+          <h2 className="text-section-heading text-[#2E2E2E] whitespace-pre-line">{section.heading}</h2>
+        </div>
 
         {/* Timeline */}
         <div ref={itemsRef} className="relative">
@@ -1452,6 +1467,38 @@ function ChaptersSection({ section }: { section: Extract<CaseSection, { type: "c
   );
 }
 
+// ─── ContainedMedia ──────────────────────────────────────────────────────────
+
+function ContainedMedia({ video, image }: { video?: string; image?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-8%" });
+  if (!video && !image) return null;
+  return (
+    <div ref={ref} className="snap-section min-h-screen flex items-center justify-center px-[10vw] relative bg-[#FAFAFA]">
+      <motion.div
+        style={{ width: "100%" }}
+        initial={{ opacity: 0, y: 24 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8, ease }}
+      >
+        {video ? (
+          <video
+            src={video}
+            autoPlay muted loop playsInline
+            style={{ width: "100%", display: "block", borderRadius: 4 }}
+          />
+        ) : (
+          <img
+            src={image}
+            alt=""
+            style={{ width: "100%", display: "block", borderRadius: 4 }}
+          />
+        )}
+      </motion.div>
+    </div>
+  );
+}
+
 // ─── Section dispatcher ───────────────────────────────────────────────────────
 
 function CaseSectionBlock({ section }: { section: CaseSection }) {
@@ -1460,17 +1507,17 @@ function CaseSectionBlock({ section }: { section: CaseSection }) {
       return (
         <>
           <SplitSection section={section} />
-          {section.video
-            ? <FullScreenImage src={section.image ?? ""} alt={section.heading} video={section.video} mobileNaturalAspect />
-            : section.image
-              ? <FullScreenImage src={section.image} alt={section.heading} image2={section.image2} />
-              : null}
+          <ContainedMedia video={section.video} image={section.image} />
         </>
       );
     case "centered":
       return <CenteredSection section={section} />;
     case "carousel":
       return section.images.length > 0 ? <CarouselSection section={section} /> : null;
+    case "scroll-gallery":
+      return <ScrollGallerySection section={section} />;
+    case "image-block":
+      return <ImageBlockSection section={section} />;
     case "stats":
       return <StatsSectionBlock section={section} />;
     case "chapters":
@@ -1495,14 +1542,15 @@ function CaseSectionBlock({ section }: { section: CaseSection }) {
 const GXM_OVERVIEW_SLUG = "gxm";
 const GXM_PART1_SLUG = "gxm-building-alignment-before-software";
 const GXM_PART2_SLUG = "gxm-validate-before-you-build";
-const GXM_ALL_SLUGS = [GXM_OVERVIEW_SLUG, GXM_PART1_SLUG, GXM_PART2_SLUG];
+const GXM_PART3_SLUG = "gxm-design-system-brand-foundations";
+const GXM_ALL_SLUGS = [GXM_OVERVIEW_SLUG, GXM_PART1_SLUG, GXM_PART2_SLUG, GXM_PART3_SLUG];
 
 export default function CaseTemplate({ caseData }: { caseData: CaseData }) {
   const [entered, setEntered] = useState(false);
   useEffect(() => { setEntered(true); }, []);
 
   const isGXMOverview = caseData.slug === GXM_OVERVIEW_SLUG;
-  const isGXMPart = caseData.slug === GXM_PART1_SLUG || caseData.slug === GXM_PART2_SLUG;
+  const isGXMPart = caseData.slug === GXM_PART1_SLUG || caseData.slug === GXM_PART2_SLUG || caseData.slug === GXM_PART3_SLUG;
 
   let relatedEyebrow = "Keep Stalking";
   let relatedHeading = "Recommended projects";
@@ -1530,8 +1578,9 @@ export default function CaseTemplate({ caseData }: { caseData: CaseData }) {
       />
       <CaseHero caseData={caseData} />
 
-      {/* Opaque wrapper so the global liquid wave doesn't bleed into content sections */}
-      <div style={{ background: "#FAFAFA" }}>
+      {/* Opaque wrapper so the global liquid wave doesn't bleed into content sections.
+          paddingTop: 130 compensates for the image strip bridging 130px below the hero. */}
+      <div style={{ background: "#FAFAFA", paddingTop: (caseData.heroImages?.length ?? 0) > 0 || caseData.heroImage ? 130 : 0 }}>
         {caseData.sections.map((section, i) => (
           <CaseSectionBlock key={i} section={section} />
         ))}

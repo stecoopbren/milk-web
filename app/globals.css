@@ -155,7 +155,7 @@ body {
     font-size: clamp(56px, 8.3vw, 120px);
     font-weight: 700;
     letter-spacing: -0.04em;
-    line-height: 0.7;
+    line-height: 0.8;
     padding-top: 0.18em;
     text-wrap: balance;
   }

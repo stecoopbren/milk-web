@@ -9,7 +9,9 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (pathname !== "/" || sessionStorage.getItem("milkLoaded")) return;
+    // Only show Loader after IntroLoader has been seen at least once —
+    // prevents both running simultaneously on first visit (dual black logo bug).
+    if (pathname !== "/" || sessionStorage.getItem("milkLoaded") || !sessionStorage.getItem("milk:intro-shown")) return;
     setLoading(true);
   }, [pathname]);
 
