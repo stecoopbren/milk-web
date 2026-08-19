@@ -180,7 +180,7 @@ export default function HeroSection() {
           </h1>
         </motion.div>
 
-        {/* Descriptor + CTAs */}
+        {/* CTAs */}
         <motion.div
           className="flex flex-col items-center gap-6"
           initial={{ opacity: 0, y: 16 }}
