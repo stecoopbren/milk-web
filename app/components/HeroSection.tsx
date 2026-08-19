@@ -182,7 +182,7 @@ export default function HeroSection() {
           animate={animated ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.38 }}
         >
-          <h1 className="text-center text-[64px] lg:text-[152px]" style={{ fontFamily: "Ambit", fontWeight: 700, letterSpacing: "-0.05em", lineHeight: 0.9 }}>
+          <h1 className="text-center text-[64px] lg:text-[140px]" style={{ fontFamily: "Ambit", fontWeight: 700, letterSpacing: "-0.05em", lineHeight: 0.9 }}>
             <span className="block text-[#2E2E2E]">Don&apos;t move faster.</span>
             <motion.span className="block" style={{ color: line2Color }}>Move smarter.</motion.span>
           </h1>
