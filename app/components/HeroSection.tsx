@@ -148,6 +148,7 @@ export default function HeroSection() {
   // ── Scroll-driven animations ──────────────────────────────────────────────
   const { scrollY } = useScroll();
   const contentOpacity = useTransform(scrollY, [0, 1200], [1, 0]);
+  const line2Color = useTransform(scrollY, [0, 500], ["rgba(46,46,46,0.2)", "rgba(46,46,46,1)"]);
 
 
 
@@ -162,70 +163,73 @@ export default function HeroSection() {
       {/* ── Content ── */}
       <motion.div
         ref={ref}
-        className="flex flex-col items-center text-center gap-6 w-full"
+        className="flex flex-col items-center text-center w-full gap-8 lg:gap-10"
         style={{ position: "relative", zIndex: 1, opacity: contentOpacity }}
       >
 
-        {/* Headline */}
-        <div className="flex flex-col items-center w-full text-center gap-3">
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={animated ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
-          >
-            <span className="text-title text-[#2E2E2E] block">
-              Startups that win
-            </span>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={animated ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.52 }}
-          >
-            <h1 className="text-display text-[#2E2E2E] text-center text-[64px] lg:text-[152px]" style={{ fontFamily: "Ambit" }}>
-              Don&apos;t move faster.<br />Move smarter.
-            </h1>
-          </motion.div>
-        </div>
-
-        {/* Descriptor */}
-        <motion.p
-          className="text-[#2E2E2E] text-center font-sans"
-          style={{ fontSize: "clamp(15px, 1.2vw, 20px)", letterSpacing: "-0.03em", lineHeight: 1.4, maxWidth: "480px" }}
-          initial={{ opacity: 0, y: 14 }}
-          animate={animated ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.65 }}
-        >
-          Milk helps B2B startups find market clarity and ship products that stick.
-        </motion.p>
-
-        {/* CTA Buttons */}
+        {/* Pill badge */}
         <motion.div
-          className="flex items-center gap-3"
+          initial={{ opacity: 0, y: 10 }}
+          animate={animated ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+        >
+          <span className="inline-flex items-center gap-2 border border-[#2E2E2E]/20 rounded-full px-4 py-1.5">
+            <span className="font-sans font-semibold text-[12px] text-[#2E2E2E] tracking-[0.06em] uppercase">B2B</span>
+            <span className="w-px h-3 bg-[#2E2E2E]/20" />
+            <span className="font-sans text-[13px] text-[#2E2E2E]/60 tracking-[-0.02em]">Startups that win</span>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#2E2E2E]/40"><path d="M2.5 6h7M6.5 3l3 3-3 3"/></svg>
+          </span>
+        </motion.div>
+
+        {/* Headline — line 1 full, line 2 scroll-driven reveal */}
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={animated ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.38 }}
+        >
+          <h1 className="text-center text-[64px] lg:text-[152px]" style={{ fontFamily: "Ambit", fontWeight: 700, letterSpacing: "-0.05em", lineHeight: 0.9 }}>
+            <span className="block text-[#2E2E2E]">Don&apos;t move faster.</span>
+            <motion.span className="block" style={{ color: line2Color }}>Move smarter.</motion.span>
+          </h1>
+        </motion.div>
+
+        {/* Descriptor + CTAs */}
+        <motion.div
+          className="flex flex-col items-center gap-6"
           initial={{ opacity: 0, y: 16 }}
           animate={animated ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 2.0, ease, delay: 0.78 }}
+          transition={{ duration: 2.0, ease, delay: 0.6 }}
         >
-          <motion.button
-            onClick={() => window.dispatchEvent(new CustomEvent("milk:open-contact"))}
-            className="inline-flex items-center justify-center gap-2 rounded-full font-sans font-medium text-[15px] text-white tracking-[-0.45px] w-[148px] transition-opacity hover:opacity-80"
-            style={{ background: "#111", padding: "12px 20px" }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.97 }}
-            transition={{ duration: 0.15 }}
+          <p
+            className="font-sans text-[#2E2E2E]/60 text-center"
+            style={{ fontSize: "clamp(15px, 1.2vw, 18px)", letterSpacing: "-0.02em", lineHeight: 1.5, maxWidth: "520px" }}
           >
-            Let&apos;s Talk
-          </motion.button>
+            Helping B2B startups gain clarity and ship products that stick.
+          </p>
 
-          <motion.button
-            onClick={() => window.dispatchEvent(new CustomEvent("milk:snap-to", { detail: { id: "portfolio" } }))}
-            className="border border-[#2E2E2E]/15 rounded-full py-[11px] font-sans font-medium text-[15px] text-[#2E2E2E] tracking-[-0.45px] inline-flex items-center justify-center gap-2 hover:border-[#2E2E2E]/40 transition-colors w-[148px]"
-            whileTap={{ scale: 0.97 }}
-            transition={{ duration: 0.15 }}
-          >
-            View Work
-          </motion.button>
+          <div className="flex items-center gap-4">
+            <motion.button
+              onClick={() => window.dispatchEvent(new CustomEvent("milk:open-contact"))}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl font-sans font-semibold text-[15px] text-white tracking-[-0.3px] transition-opacity hover:opacity-80"
+              style={{ background: "#111", padding: "14px 28px" }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ duration: 0.15 }}
+            >
+              Let&apos;s Talk
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M2 7h10M7.5 3l4.5 4-4.5 4"/></svg>
+            </motion.button>
+
+            <motion.button
+              onClick={() => window.dispatchEvent(new CustomEvent("milk:snap-to", { detail: { id: "portfolio" } }))}
+              className="border border-[#2E2E2E]/20 rounded-2xl font-sans font-semibold text-[15px] text-[#2E2E2E] tracking-[-0.3px] inline-flex items-center justify-center gap-2 hover:border-[#2E2E2E]/40 transition-colors"
+              style={{ padding: "14px 28px" }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ duration: 0.15 }}
+            >
+              View Work
+            </motion.button>
+          </div>
         </motion.div>
 
         {/* Logos marquee */}
