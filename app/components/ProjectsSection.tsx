@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
 import CinematicBoard, { type BoardShot, type CursorDef, DEFAULT_SHOTS, DEFAULT_CURSORS } from "./CinematicBoard";
 
 
@@ -433,17 +433,30 @@ function MobileCard({ item }: { item: OrbitItem }) {
 // ── Mobile: carousel ─────────────────────────────────────────────────────────
 function MobileCarousel() {
   const [active, setActive] = useState(0);
-  const [dir, setDir] = useState(1);
   const total = orbitItems.length;
+  const x = useMotionValue(0);
+  const rotate = useTransform(x, [-220, 220], [-14, 14]);
+  const cardOpacity = useTransform(x, [-220, 0, 220], [0.5, 1, 0.5]);
 
   const go = (d: number) => {
-    setDir(d);
-    setActive((prev) => ((prev + d) % total + total) % total);
+    const target = d > 0 ? -420 : 420;
+    animate(x, target, { duration: 0.32, ease: [0.22, 1, 0.36, 1] }).then(() => {
+      setActive((prev) => ((prev + d) % total + total) % total);
+      x.set(0);
+    });
   };
 
-  const goTo = (i: number) => {
-    setDir(i > active ? 1 : -1);
-    setActive(i);
+  const goTo = (i: number) => go(i > active ? 1 : -1);
+
+  const handleDragEnd = (_: never, info: { offset: { x: number }; velocity: { x: number } }) => {
+    const { offset, velocity } = info;
+    if (offset.x < -60 || velocity.x < -400) {
+      go(1);
+    } else if (offset.x > 60 || velocity.x > 400) {
+      go(-1);
+    } else {
+      animate(x, 0, { type: "spring", stiffness: 400, damping: 30 });
+    }
   };
 
   return (
@@ -459,23 +472,20 @@ function MobileCarousel() {
       </div>
 
       <div className="px-5 overflow-hidden">
-        <AnimatePresence mode="wait" initial={false} custom={dir}>
-          <motion.div
-            key={active}
-            custom={dir}
-            variants={{
-              enter: (d: number) => ({ x: d > 0 ? "100%" : "-100%", opacity: 0 }),
-              center: { x: 0, opacity: 1 },
-              exit:  (d: number) => ({ x: d > 0 ? "-100%" : "100%", opacity: 0 }),
-            }}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <MobileCard item={orbitItems[active]} />
-          </motion.div>
-        </AnimatePresence>
+        <motion.div
+          key={active}
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.18}
+          onDragEnd={handleDragEnd}
+          style={{ x, rotate, opacity: cardOpacity, cursor: "grab", touchAction: "pan-y" }}
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+          whileDrag={{ cursor: "grabbing" }}
+        >
+          <MobileCard item={orbitItems[active]} />
+        </motion.div>
       </div>
 
       {/* Controls */}
