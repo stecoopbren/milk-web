@@ -174,9 +174,9 @@ export default function HeroSection() {
           transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
         >
           <h1 className="text-center" style={{ fontFamily: "Ambit", fontWeight: 700, letterSpacing: "-0.05em", lineHeight: 0.9 }}>
-            <span className="text-[#2E2E2E] mb-8 lg:mb-10 block" style={{ fontFamily: "Ambit", fontWeight: 700, fontSize: "clamp(29px, 3.5vw, 68px)", letterSpacing: "-0.05em", lineHeight: 1.2 }}>Startups that win</span>
-            <span className="block text-display text-[#2E2E2E] text-[64px] lg:text-[152px]" style={{ fontFamily: "Ambit" }}>Don&apos;t move faster.</span>
-            <motion.span className="block text-display text-[64px] lg:text-[152px]" style={{ fontFamily: "Ambit", color: line2Color }}>Move smarter.</motion.span>
+            <span className="text-[#2E2E2E] mb-8 lg:mb-10 block" style={{ fontFamily: "Ambit", fontWeight: 700, fontSize: "clamp(29px, 3.5vw, 68px)", letterSpacing: "-0.05em", lineHeight: 1.2 }}>Wrong builds kill startups.</span>
+            <span className="block text-display text-[#2E2E2E] text-[64px] lg:text-[152px]" style={{ fontFamily: "Ambit" }}>No room for guessing.</span>
+            <motion.span className="block text-display text-[64px] lg:text-[152px]" style={{ fontFamily: "Ambit", color: line2Color }}>Build with method.</motion.span>
           </h1>
         </motion.div>
 
