@@ -190,7 +190,7 @@ export default function HeroSection() {
             className="font-sans text-[#2E2E2E]/60 text-center"
             style={{ fontSize: "clamp(15px, 1.2vw, 18px)", letterSpacing: "-0.02em", lineHeight: 1.5, maxWidth: "520px" }}
           >
-            Helping B2B startups gain clarity and ship products that stick.
+            Let me help you gain clarity and ship products that stick.
           </p>
 
           <div className="flex items-center gap-3">
