@@ -101,7 +101,7 @@ export default function PositioningSection() {
   });
 
   // Offset progress so the first ~4 words are already highlighted on arrival
-  const progress = useTransform(scrollYProgress, [0, 1], [0.25, 1.25]);
+  const progress = useTransform(scrollYProgress, [0, 1], [0.65, 1.65]);
 
 
   return (
@@ -120,7 +120,11 @@ export default function PositioningSection() {
           className="flex-1 flex items-center justify-center"
         >
           <div className="flex flex-col items-center gap-6 mx-auto">
-<div className="text-section-heading text-center w-fit">
+<p className="text-serif-eyebrow text-[#0C0C12] text-center">
+              AI changed the game. Don&apos;t fall behind.
+            </p>
+
+            <div className="text-section-heading text-center w-fit">
               <span className="block">
                 <HWord word="Building"     index={0}  progress={progress} trailingSpace={false} />
                 {" "}
