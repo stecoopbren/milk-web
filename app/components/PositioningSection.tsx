@@ -116,9 +116,8 @@ export default function PositioningSection() {
           className="flex-1 flex items-center justify-center"
         >
           <div className="flex flex-col items-center gap-6 mx-auto">
-            <p className="text-serif-eyebrow text-[#0C0C12] text-center whitespace-nowrap">
-              <span className="lg:hidden">When AI gives everyone the same head start,</span>
-              <span className="hidden lg:inline">When AI gives everyone the same head start,</span>
+            <p className="text-serif-eyebrow text-[#0C0C12] text-center">
+              After a decade building and leading teams around the world, I&apos;ve learned:
             </p>
 
             <div className="text-section-heading text-center w-fit">
