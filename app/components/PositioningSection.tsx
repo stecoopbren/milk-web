@@ -117,7 +117,7 @@ export default function PositioningSection() {
         >
           <div className="flex flex-col items-center gap-6 mx-auto">
 <p className="text-serif-eyebrow text-[#0C0C12] text-center max-w-xl">
-              AI made it easy to build. Building isn't the edge.
+              AI made building easy.
             </p>
 
             <div className="text-section-heading text-center w-fit">
