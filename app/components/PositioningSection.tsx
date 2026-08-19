@@ -118,7 +118,7 @@ export default function PositioningSection() {
           className="flex-1 flex items-center justify-center"
         >
           <div className="flex flex-col items-center gap-6 mx-auto">
-            <p className="text-serif-eyebrow text-[#0C0C12] text-center">
+            <p className="text-[32px] lg:text-[64px] text-[#0C0C12] text-center" style={{ fontFamily: "Ambit", fontWeight: 700, letterSpacing: "-0.04em", lineHeight: 0.95 }}>
               Speed was never what separated the winners.
             </p>
 

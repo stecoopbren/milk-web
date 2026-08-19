@@ -174,7 +174,7 @@ export default function HeroSection() {
           transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
         >
           <h1 className="text-center" style={{ fontFamily: "Ambit", fontWeight: 700, letterSpacing: "-0.05em", lineHeight: 0.9 }}>
-            <span className="block text-[40px] lg:text-[68px] text-[#2E2E2E] mb-8 lg:mb-10" style={{ fontFamily: "Ambit", fontWeight: 700, letterSpacing: "-0.04em", lineHeight: 0.95 }}>Startups that win</span>
+            <span className="block text-[40px] lg:text-[64px] text-[#2E2E2E] mb-8 lg:mb-10" style={{ fontFamily: "Ambit", fontWeight: 700, letterSpacing: "-0.04em", lineHeight: 0.95 }}>Startups that win</span>
             <span className="block text-[56px] lg:text-[116px] text-[#2E2E2E]" style={{ fontWeight: 700, letterSpacing: "-0.05em", lineHeight: 0.9 }}>Don&apos;t move FASTER.</span>
             <motion.span className="block text-[56px] lg:text-[116px]" style={{ fontWeight: 700, letterSpacing: "-0.05em", lineHeight: 0.9, color: line2Color }}>Move SMARTER.</motion.span>
           </h1>
