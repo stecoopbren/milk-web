@@ -149,11 +149,11 @@ export default function HeroSection() {
   const { scrollY } = useScroll();
   const contentOpacity = useTransform(scrollY, [0, 1200], [1, 0]);
 
-  const cycleWords = ["Business.", "Services.", "Products."];
+  const cycleWords = ["They move smarter.", "They know their market.", "They build with clarity."];
   const [wordIndex, setWordIndex] = useState(0);
   useEffect(() => {
     if (!animated) return;
-    const id = setInterval(() => setWordIndex(i => (i + 1) % cycleWords.length), 3500);
+    const id = setInterval(() => setWordIndex(i => (i + 1) % cycleWords.length), 4000);
     return () => clearInterval(id);
   }, [animated]);
 
@@ -181,7 +181,7 @@ export default function HeroSection() {
             transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
           >
             <span className="text-[#2E2E2E]" style={{ fontFamily: "Ambit", fontWeight: 700, fontSize: "clamp(29px, 3.5vw, 68px)", letterSpacing: "-0.05em", lineHeight: 1.2, display: "block" }}>
-              Turn your big ideas into
+              B2B startups that win
             </span>
           </motion.div>
 
@@ -191,9 +191,18 @@ export default function HeroSection() {
             transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.52 }}
           >
             <h1 className="text-display text-[#2E2E2E] text-center text-[64px] lg:text-[152px]" style={{ fontFamily: "Ambit" }}>
-              World-Class<br />
-              <TypewriterWord word={cycleWords[wordIndex]} longest="Services." animated={animated} />
+              don&apos;t move faster.
             </h1>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={animated ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.72 }}
+          >
+            <div className="text-[#2E2E2E]" style={{ fontFamily: "Ambit", fontWeight: 700, fontSize: "clamp(22px, 3vw, 56px)", letterSpacing: "-0.04em", lineHeight: 1.1 }}>
+              <TypewriterWord word={cycleWords[wordIndex]} longest="They know their market." animated={animated} />
+            </div>
           </motion.div>
         </div>
 
