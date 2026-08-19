@@ -8,7 +8,7 @@ const ease = [0.16, 1, 0.3, 1] as const;
 
 // Each word sweeps from dim to full color across a 6-item window.
 // Images count as one index slot so the sweep paces through them naturally.
-const TOTAL_ITEMS = 13; // 1 word + 1 img + 5 words + 1 br + 4 words + 1 img + 1 word
+const TOTAL_ITEMS = 14; // 4 words + 1 img + 4 words + 1 img + 4 words
 
 function HWord({
   word,
@@ -80,14 +80,12 @@ function TiltImage({ src, objectPosition }: { src: string; objectPosition?: stri
   );
 }
 
-// Segment layout (all indices relative to TOTAL_ITEMS = 13):
-// 0:"Building"
-// 1:[image1]
-// 2:"is"  3:"the"  4:"easy"  5:"part"  6:"now."
-// [br]
-// 7:"Knowing"  8:"what"  9:"to"  10:"build"
-// 11:[image2]
-// 12:"isn't."
+// Segment layout (all indices relative to TOTAL_ITEMS = 14):
+// 0:"Knowing"  1:"what"  2:"to"  3:"build"
+// 4:[image1]
+// 5:"and"  6:"getting"  7:"it"  8:"right"
+// 9:[image2]
+// 10:"is"  11:"your"  12:"real"  13:"edge."
 
 export default function PositioningSection() {
   const ref = useRef<HTMLDivElement>(null);
@@ -119,29 +117,29 @@ export default function PositioningSection() {
         >
           <div className="flex flex-col items-center gap-6 mx-auto">
 <p className="text-serif-eyebrow text-[#0C0C12] text-center max-w-xl">
-              In an age where AI gives everyone the same head start, design is your new edge.
+              AI made it easy to build. Building isn't the edge.
             </p>
 
             <div className="text-section-heading text-center w-fit">
               <span className="block">
-                <HWord word="Building"     index={0}  progress={progress} trailingSpace={false} />
+                <HWord word="Knowing"      index={0}  progress={progress} trailingSpace />
+                <HWord word="what"         index={1}  progress={progress} trailingSpace />
+                <HWord word="to"           index={2}  progress={progress} trailingSpace />
+                <HWord word="build"        index={3}  progress={progress} trailingSpace={false} />
                 {" "}
                 <TiltImage src="/FullSizeRender_VSCO.JPG" objectPosition="center 60%" />
-                {/* index 1 = image1 slot */}
-                <HWord word="is"           index={2}  progress={progress} trailingSpace />
-                <HWord word="the"          index={3}  progress={progress} trailingSpace />
-                <HWord word="easy"         index={4}  progress={progress} trailingSpace />
-                <HWord word="part"         index={5}  progress={progress} trailingSpace />
-                <HWord word="now."         index={6}  progress={progress} trailingSpace={false} />
-                <br />
-                <HWord word="Knowing"      index={7}  progress={progress} trailingSpace />
-                <HWord word="what"         index={8}  progress={progress} trailingSpace />
-                <HWord word="to"           index={9}  progress={progress} trailingSpace />
-                <HWord word="build"        index={10} progress={progress} trailingSpace={false} />
+                {/* index 4 = image1 slot */}
+                <HWord word="and"          index={5}  progress={progress} trailingSpace />
+                <HWord word="getting"      index={6}  progress={progress} trailingSpace />
+                <HWord word="it"           index={7}  progress={progress} trailingSpace />
+                <HWord word="right"        index={8}  progress={progress} trailingSpace={false} />
                 {" "}
                 <TiltImage src="/B37FFF98-05DF-4025-BDF8-7415F841280C.JPG" />
-                {/* index 11 = image2 slot */}
-                <HWord word="isn&apos;t."  index={12} progress={progress} trailingSpace={false} />
+                {/* index 9 = image2 slot */}
+                <HWord word="is"           index={10} progress={progress} trailingSpace />
+                <HWord word="your"         index={11} progress={progress} trailingSpace />
+                <HWord word="real"         index={12} progress={progress} trailingSpace />
+                <HWord word="edge."        index={13} progress={progress} trailingSpace={false} />
               </span>
             </div>
 
