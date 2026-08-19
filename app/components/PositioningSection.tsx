@@ -118,7 +118,11 @@ export default function PositioningSection() {
           className="flex-1 flex items-center justify-center"
         >
           <div className="flex flex-col items-center gap-6 mx-auto">
-<div className="text-section-heading text-center w-fit">
+<p className="text-serif-eyebrow text-[#0C0C12] text-center max-w-xl">
+              In an age where AI gives everyone the same head start, design is your new edge.
+            </p>
+
+            <div className="text-section-heading text-center w-fit">
               <span className="block">
                 <HWord word="Building"     index={0}  progress={progress} trailingSpace={false} />
                 {" "}
