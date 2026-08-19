@@ -197,7 +197,7 @@ export default function HeroSection() {
           animate={animated ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.65 }}
         >
-          Strategy, product, and design for B2B startups that need to find market fit before they scale.
+          Milk helps B2B startups find market clarity and ship products that stick.
         </motion.p>
 
         {/* CTA Buttons */}
