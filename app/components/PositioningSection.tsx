@@ -8,7 +8,7 @@ const ease = [0.16, 1, 0.3, 1] as const;
 
 // Each word sweeps from dim to full color across a 6-item window.
 // Images count as one index slot so the sweep paces through them naturally.
-const TOTAL_ITEMS = 13; // 1 word + 1 img + 5 words + 1 br + 4 words + 1 img + 1 word
+const TOTAL_ITEMS = 19; // 1 word + 1 img + 5 words + 1 br + 4 words + 1 img + 1 word + 1 br + 6 words
 
 function HWord({
   word,
@@ -80,7 +80,7 @@ function TiltImage({ src, objectPosition }: { src: string; objectPosition?: stri
   );
 }
 
-// Segment layout (all indices relative to TOTAL_ITEMS = 13):
+// Segment layout (all indices relative to TOTAL_ITEMS = 19):
 // 0:"Building"
 // 1:[image1]
 // 2:"is"  3:"the"  4:"easy"  5:"part"  6:"now."
@@ -88,6 +88,8 @@ function TiltImage({ src, objectPosition }: { src: string; objectPosition?: stri
 // 7:"Knowing"  8:"what"  9:"to"  10:"build"
 // 11:[image2]
 // 12:"isn't."
+// [br]
+// 13:"Build"  14:"on"  15:"evidence,"  16:"not"  17:"on"  18:"hunches."
 
 export default function PositioningSection() {
   const ref = useRef<HTMLDivElement>(null);
@@ -138,6 +140,13 @@ export default function PositioningSection() {
                 <TiltImage src="/B37FFF98-05DF-4025-BDF8-7415F841280C.JPG" />
                 {/* index 11 = image2 slot */}
                 <HWord word="isn&apos;t."  index={12} progress={progress} trailingSpace={false} />
+                <br />
+                <HWord word="Build"        index={13} progress={progress} trailingSpace />
+                <HWord word="on"           index={14} progress={progress} trailingSpace />
+                <HWord word="evidence,"    index={15} progress={progress} trailingSpace />
+                <HWord word="not"          index={16} progress={progress} trailingSpace />
+                <HWord word="on"           index={17} progress={progress} trailingSpace />
+                <HWord word="hunches."     index={18} progress={progress} trailingSpace={false} />
               </span>
             </div>
 
