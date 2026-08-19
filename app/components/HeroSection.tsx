@@ -173,12 +173,7 @@ export default function HeroSection() {
           animate={animated ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
         >
-          <span className="inline-flex items-center gap-2.5 border border-[#2E2E2E]/20 rounded-full px-4 py-2">
-            <span className="font-mono font-bold text-[11px] text-[#2E2E2E] tracking-[-0.48px] uppercase">B2B</span>
-            <span className="w-px h-3 bg-[#2E2E2E]/20" />
-            <span className="text-serif-eyebrow text-[#2E2E2E]/60">Startups that win</span>
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#2E2E2E]/40"><path d="M2.5 6h7M6.5 3l3 3-3 3"/></svg>
-          </span>
+          <span className="text-subheading text-[#2E2E2E]">Startups that win</span>
         </motion.div>
 
         {/* Headline — line 1 full, line 2 scroll-driven reveal */}
