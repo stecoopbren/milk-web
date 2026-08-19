@@ -173,7 +173,7 @@ export default function HeroSection() {
           animate={animated ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
         >
-          <span className="text-title text-[#2E2E2E]">Startups that win</span>
+          <span className="text-case-title text-[#2E2E2E]">Startups that win</span>
         </motion.div>
 
         {/* Headline — line 1 full, line 2 scroll-driven reveal */}
