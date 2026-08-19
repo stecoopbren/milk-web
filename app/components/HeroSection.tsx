@@ -175,8 +175,8 @@ export default function HeroSection() {
         >
           <h1 className="text-center" style={{ fontFamily: "Ambit", fontWeight: 700, letterSpacing: "-0.05em", lineHeight: 0.9 }}>
             <span className="text-[#2E2E2E] mb-8 lg:mb-10 block" style={{ fontFamily: "Ambit", fontWeight: 700, fontSize: "clamp(29px, 3.5vw, 68px)", letterSpacing: "-0.05em", lineHeight: 1.2 }}>Startups that win</span>
-            <span className="block text-display text-[#2E2E2E] text-[64px] lg:text-[152px]" style={{ fontFamily: "Ambit" }}>Don&apos;t move FASTER.</span>
-            <motion.span className="block text-display text-[64px] lg:text-[152px]" style={{ fontFamily: "Ambit", color: line2Color }}>Move SMARTER.</motion.span>
+            <span className="block text-display text-[#2E2E2E] text-[64px] lg:text-[152px]" style={{ fontFamily: "Ambit" }}>Don&apos;t move faster.</span>
+            <motion.span className="block text-display text-[64px] lg:text-[152px]" style={{ fontFamily: "Ambit", color: line2Color }}>Move smarter.</motion.span>
           </h1>
         </motion.div>
 
