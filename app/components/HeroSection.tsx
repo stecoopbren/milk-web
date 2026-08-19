@@ -173,7 +173,7 @@ export default function HeroSection() {
             animate={animated ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
           >
-            <span className="text-[#2E2E2E]" style={{ fontFamily: "Ambit", fontWeight: 700, fontSize: "clamp(16px, 1.8vw, 32px)", letterSpacing: "-0.04em", lineHeight: 1.2, display: "block" }}>
+            <span className="text-title text-[#2E2E2E] block">
               Startups that win
             </span>
           </motion.div>
