@@ -149,13 +149,6 @@ export default function HeroSection() {
   const { scrollY } = useScroll();
   const contentOpacity = useTransform(scrollY, [0, 1200], [1, 0]);
 
-  const cycleWords = ["They move smarter.", "They know their market.", "They build with clarity."];
-  const [wordIndex, setWordIndex] = useState(0);
-  useEffect(() => {
-    if (!animated) return;
-    const id = setInterval(() => setWordIndex(i => (i + 1) % cycleWords.length), 4000);
-    return () => clearInterval(id);
-  }, [animated]);
 
 
 
@@ -176,23 +169,23 @@ export default function HeroSection() {
         {/* Headline */}
         <div className="flex flex-col items-center w-full text-center gap-3">
           <motion.div
-            initial={{ opacity: 0, y: 18 }}
+            initial={{ opacity: 0, y: 14 }}
             animate={animated ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
           >
-            <h1 className="text-display text-[#2E2E2E] text-center text-[64px] lg:text-[152px]" style={{ fontFamily: "Ambit" }}>
-              Don&apos;t move faster,<br />move smarter.
-            </h1>
+            <span className="text-[#2E2E2E]" style={{ fontFamily: "Ambit", fontWeight: 700, fontSize: "clamp(16px, 1.8vw, 32px)", letterSpacing: "-0.04em", lineHeight: 1.2, display: "block" }}>
+              Startups that win
+            </span>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 18 }}
             animate={animated ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.72 }}
+            transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.52 }}
           >
-            <div className="text-[#2E2E2E]" style={{ fontFamily: "Ambit", fontWeight: 700, fontSize: "clamp(22px, 3vw, 56px)", letterSpacing: "-0.04em", lineHeight: 1.1 }}>
-              <TypewriterWord word={cycleWords[wordIndex]} longest="They know their market." animated={animated} />
-            </div>
+            <h1 className="text-display text-[#2E2E2E] text-center text-[64px] lg:text-[152px]" style={{ fontFamily: "Ambit" }}>
+              Don&apos;t move faster,<br />move smarter.
+            </h1>
           </motion.div>
         </div>
 
