@@ -187,14 +187,7 @@ export default function HeroSection() {
           animate={animated ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 2.0, ease, delay: 0.6 }}
         >
-          <p
-            className="font-sans text-[#2E2E2E]/60 text-center"
-            style={{ fontSize: "clamp(15px, 1.2vw, 18px)", letterSpacing: "-0.02em", lineHeight: 1.5, maxWidth: "520px" }}
-          >
-            Let me help you gain clarity and ship products that stick.
-          </p>
-
-          <div className="flex items-center gap-3">
+<div className="flex items-center gap-3">
             <motion.button
               onClick={() => window.dispatchEvent(new CustomEvent("milk:open-contact"))}
               className="inline-flex items-center justify-center gap-2 rounded-full font-sans font-medium text-[15px] text-white tracking-[-0.45px] w-[148px] transition-opacity hover:opacity-80"
