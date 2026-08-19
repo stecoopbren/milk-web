@@ -176,22 +176,12 @@ export default function HeroSection() {
         {/* Headline */}
         <div className="flex flex-col items-center w-full text-center gap-3">
           <motion.div
-            initial={{ opacity: 0, y: 14 }}
+            initial={{ opacity: 0, y: 18 }}
             animate={animated ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
           >
-            <span className="text-[#2E2E2E]" style={{ fontFamily: "Ambit", fontWeight: 700, fontSize: "clamp(29px, 3.5vw, 68px)", letterSpacing: "-0.05em", lineHeight: 1.2, display: "block" }}>
-              B2B startups that win
-            </span>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={animated ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.52 }}
-          >
             <h1 className="text-display text-[#2E2E2E] text-center text-[64px] lg:text-[152px]" style={{ fontFamily: "Ambit" }}>
-              don&apos;t move faster.
+              Don&apos;t move faster,<br />move smarter.
             </h1>
           </motion.div>
 
