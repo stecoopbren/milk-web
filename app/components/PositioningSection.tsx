@@ -117,7 +117,7 @@ export default function PositioningSection() {
         >
           <div className="flex flex-col items-center gap-6 mx-auto">
             <p className="text-serif-eyebrow text-[#0C0C12] text-center">
-              After a decade building and leading teams around the world, I&apos;ve learned:
+              Speed was never what separated the winners.
             </p>
 
             <div className="text-section-heading text-center w-fit">
@@ -130,7 +130,8 @@ export default function PositioningSection() {
                 <HWord word="ship"         index={3}  progress={progress} trailingSpace />
                 <HWord word="anything"     index={4}  progress={progress} trailingSpace />
                 <HWord word="overnight"    index={5}  progress={progress} trailingSpace />
-                <HWord word="now."         index={6}  progress={progress} trailingSpace />
+                <HWord word="now."         index={6}  progress={progress} trailingSpace={false} />
+                <br />
                 <HWord word="Knowing"      index={7}  progress={progress} trailingSpace />
                 <HWord word="what's"       index={8}  progress={progress} trailingSpace />
                 <HWord word="worth"        index={9}  progress={progress} trailingSpace />
