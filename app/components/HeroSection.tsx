@@ -207,23 +207,21 @@ export default function HeroSection() {
             Helping B2B startups gain clarity and ship products that stick.
           </p>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <motion.button
               onClick={() => window.dispatchEvent(new CustomEvent("milk:open-contact"))}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl font-sans font-semibold text-[15px] text-white tracking-[-0.3px] transition-opacity hover:opacity-80"
-              style={{ background: "#111", padding: "14px 28px" }}
+              className="inline-flex items-center justify-center gap-2 rounded-full font-sans font-medium text-[15px] text-white tracking-[-0.45px] w-[148px] transition-opacity hover:opacity-80"
+              style={{ background: "#111", padding: "12px 20px" }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.97 }}
               transition={{ duration: 0.15 }}
             >
               Let&apos;s Talk
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M2 7h10M7.5 3l4.5 4-4.5 4"/></svg>
             </motion.button>
 
             <motion.button
               onClick={() => window.dispatchEvent(new CustomEvent("milk:snap-to", { detail: { id: "portfolio" } }))}
-              className="border border-[#2E2E2E]/20 rounded-2xl font-sans font-semibold text-[15px] text-[#2E2E2E] tracking-[-0.3px] inline-flex items-center justify-center gap-2 hover:border-[#2E2E2E]/40 transition-colors"
-              style={{ padding: "14px 28px" }}
+              className="border border-[#2E2E2E]/15 rounded-full py-[11px] font-sans font-medium text-[15px] text-[#2E2E2E] tracking-[-0.45px] inline-flex items-center justify-center gap-2 hover:border-[#2E2E2E]/40 transition-colors w-[148px]"
               whileTap={{ scale: 0.97 }}
               transition={{ duration: 0.15 }}
             >
