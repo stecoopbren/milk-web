@@ -184,10 +184,21 @@ export default function HeroSection() {
             transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.52 }}
           >
             <h1 className="text-display text-[#2E2E2E] text-center text-[64px] lg:text-[152px]" style={{ fontFamily: "Ambit" }}>
-              Don&apos;t move faster,<br />move smarter.
+              Don&apos;t move faster.<br />Move smarter.
             </h1>
           </motion.div>
         </div>
+
+        {/* Descriptor */}
+        <motion.p
+          className="text-[#2E2E2E] text-center font-sans"
+          style={{ fontSize: "clamp(15px, 1.2vw, 20px)", letterSpacing: "-0.03em", lineHeight: 1.4, maxWidth: "480px" }}
+          initial={{ opacity: 0, y: 14 }}
+          animate={animated ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.65 }}
+        >
+          Strategy, product, and design for B2B startups that need to find market fit before they scale.
+        </motion.p>
 
         {/* CTA Buttons */}
         <motion.div
