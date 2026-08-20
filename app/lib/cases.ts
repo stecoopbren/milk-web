@@ -227,7 +227,7 @@ const cases: CaseData[] = [
           '/GXM/gxm-scope-definition.png',
           '/GXM/IMG_9702-temp.jpg',
         ],
-        positions: ['center', 'center', 'center 82%'],
+        positions: ['center', 'center', 'center 40%'],
       },
       {
         type: 'split',
@@ -272,7 +272,7 @@ const cases: CaseData[] = [
           '/GXM/Case 2/Assesment.png',
           '/GXM/Case 2/gxm-diligent-demo.png',
         ],
-        positions: ['center 80%', 'center', 'center'],
+        positions: ['center 40%', 'center', 'center'],
       },
       {
         type: 'chapters',
