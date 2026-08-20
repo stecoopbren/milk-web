@@ -119,19 +119,6 @@ body.is-snapping .snap-section:not([data-free-scroll]) {
   transform: scale(0.97);
 }
 
-/* ─── Bottom fade — circular gradient fades each section into white ────── */
-.snap-section:not([data-dark="true"]):not([data-free-scroll="true"])::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 40%;
-  background: radial-gradient(ellipse 110% 100% at 50% 100%, #ffffff 0%, rgba(255,255,255,0.8) 35%, rgba(255,255,255,0.3) 60%, transparent 80%);
-  pointer-events: none;
-  z-index: 50;
-}
-
 /* ─── Base ───────────────────────────────────────────────────────────────── */
 html {
   overflow-x: clip;
