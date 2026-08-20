@@ -112,7 +112,9 @@ export default function PositioningSection() {
       data-free-scroll="true"
       style={{ height: "300vh" }}
     >
-      <div className="sticky top-0 h-screen overflow-hidden flex flex-col px-8 lg:px-[180px]">
+      <div className="sticky top-0 h-screen overflow-hidden flex flex-col px-8 lg:px-[180px]" style={{ position: "relative" }}>
+        {/* Bottom circular fade */}
+        <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ height: "40%", background: "radial-gradient(ellipse 110% 100% at 50% 100%, #ffffff 0%, rgba(255,255,255,0.8) 35%, rgba(255,255,255,0.3) 60%, transparent 80%)", zIndex: 50 }} />
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
