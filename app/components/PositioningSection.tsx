@@ -110,7 +110,7 @@ export default function PositioningSection() {
       id="about-us"
       className="snap-section relative"
       data-free-scroll="true"
-      style={{ height: "300vh" }}
+      style={{ height: "200vh" }}
     >
       <div className="sticky top-0 h-screen overflow-hidden flex flex-col px-8 lg:px-[180px]">
         <motion.div
