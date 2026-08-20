@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform, useMotionTemplate } from "framer-motion";
 import Image from "next/image";
 import ContactModal from "./ContactModal";
 
@@ -57,6 +57,11 @@ export default function Nav() {
   const [pendingSection, setPendingSection] = useState<string | null>(null);
   const [showCta, setShowCta] = useState(true);
   const [activeSection, setActiveSection] = useState<string | null>(null);
+  const { scrollY } = useScroll();
+  const shadowBlur   = useTransform(scrollY, [0, 160], [0, 24]);
+  const shadowAlpha  = useTransform(scrollY, [0, 160], [0, 0.09]);
+  const pillShadow   = useMotionTemplate`0 2px ${shadowBlur}px rgba(0,0,0,${shadowAlpha}), 0 1px 0 rgba(255,255,255,0.8) inset`;
+
   const pathname = usePathname();
   const router = useRouter();
 
@@ -213,7 +218,7 @@ export default function Nav() {
               backdropFilter: "blur(40px) saturate(160%)",
               WebkitBackdropFilter: "blur(40px) saturate(160%)",
               border: "1px solid rgba(255,255,255,0.6)",
-              boxShadow: "0 2px 24px rgba(0,0,0,0.08), 0 1px 0 rgba(255,255,255,0.8) inset",
+              boxShadow: pillShadow,
             }}
             transition={{ type: "spring", stiffness: 280, damping: 26 }}
           >
