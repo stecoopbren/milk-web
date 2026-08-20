@@ -922,7 +922,7 @@ export default function ContactModal({ open, onClose, initialService }: Props) {
                           </motion.div>
 
                           <motion.div
-                            className="flex flex-col gap-2.5 w-full max-w-[320px]"
+                            className="flex flex-col gap-2.5 w-full"
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.5, duration: 0.4, ease }}
