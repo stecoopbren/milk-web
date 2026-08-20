@@ -52,12 +52,12 @@ const leftPanelCopy: Record<string, { title: string; description: string }> = {
 };
 
 const fallbackChips: Record<string, string[][]> = {
-  project:       [["Redesign our product", "Build something new", "Improve conversion"], ["Still figuring it out", "Happy to share more", "Can we jump on a call?"]],
-  hiring:        [["Full-time role", "Contract opportunity", "Advisory position"], ["Early stage startup", "Growth company", "I can share the JD"]],
-  collaboration: [["Co-design project", "Subcontracting work", "Agency partnership"], ["Short-term project", "Ongoing partnership", "Let me share details"]],
-  speaking:      [["Design conference", "Podcast appearance", "Team workshop"], ["Online audience", "In-person event", "Happy to share more"]],
-  mentorship:    [["Career transition", "Starting something new", "Getting unstuck"], ["A few sessions", "Ongoing support", "Just a quick chat"]],
-  connecting:    [["Big fan of your work", "Have a quick question", "Just saying hi"], ["Would love to connect", "Saw your project", "Mutual connection suggested"]],
+  project:       [["Biggest risk is scope", "Finding product-market fit", "Defining the MVP"], ["Happy to share a brief", "Timeline is tight", "Can we jump on a call?"]],
+  hiring:        [["Product direction and roadmap", "Design org and culture", "Fundraising narrative"], ["Happy to share the deck", "Can we jump on a call?", "Equity and retainer"]],
+  collaboration: [["A client project coming up", "Ongoing design support", "A pitch we're building"], ["Short-term, a few months", "Could be recurring", "Happy to share the brief"]],
+  speaking:      [["AI and building products", "Design leadership", "Strategy and product thinking"], ["A few hundred people", "Smaller focused group", "Online, global audience"]],
+  mentorship:    [["What to build next", "How to lead my team", "Making a career change"], ["Just a few sessions", "Ongoing support", "One focused conversation"]],
+  connecting:    [["Your work caught my eye", "Mutual connection suggested you", "Been following your work"], ["Quick question to share", "No agenda, just hi", "Exploring a potential fit"]],
 };
 
 const contextStepTitle: Record<string, string> = {
@@ -722,7 +722,7 @@ export default function ContactModal({ open, onClose, initialService }: Props) {
                               </div>
                               <div className="flex justify-between">
                                 <button onClick={() => goTo(hasContext ? "context" : "reason", -1)} className={backBtn}>Back</button>
-                                <button onClick={() => goTo("details")} className={backBtn}>Skip →</button>
+                                <button onClick={() => goTo("details")} className={backBtn}>{messages.length > 0 || input.trim() ? "Next →" : "Skip →"}</button>
                               </div>
                             </div>
                           ) : (
@@ -798,18 +798,23 @@ export default function ContactModal({ open, onClose, initialService }: Props) {
                             <div className="flex flex-col gap-1.5">
                               <label className="font-sans font-medium text-[11px] text-[#888] tracking-[0.5px] uppercase">Phone (optional)</label>
                               <div className="flex gap-2">
-                                <select
-                                  value={details.countryCode}
-                                  onChange={e => setDetails(prev => ({ ...prev, countryCode: e.target.value }))}
-                                  className="font-sans text-[14px] tracking-[-0.2px] rounded-xl px-3 py-3 border bg-white outline-none transition-colors shrink-0"
-                                  style={{ borderColor: "#E2E2E2", color: "#111" }}
-                                  onFocus={e => (e.target.style.borderColor = "#111")}
-                                  onBlur={e => (e.target.style.borderColor = "#E2E2E2")}
-                                >
-                                  {COUNTRY_CODES.map(c => (
-                                    <option key={c.code + c.dial} value={c.dial}>{c.name} ({c.dial})</option>
-                                  ))}
-                                </select>
+                                <div className="relative shrink-0">
+                                  <select
+                                    value={details.countryCode}
+                                    onChange={e => setDetails(prev => ({ ...prev, countryCode: e.target.value }))}
+                                    className="font-sans text-[14px] tracking-[-0.2px] rounded-xl pl-3 pr-8 py-3 border bg-white outline-none transition-colors appearance-none w-full"
+                                    style={{ borderColor: "#E2E2E2", color: "#111" }}
+                                    onFocus={e => (e.target.style.borderColor = "#111")}
+                                    onBlur={e => (e.target.style.borderColor = "#E2E2E2")}
+                                  >
+                                    {COUNTRY_CODES.map(c => (
+                                      <option key={c.code + c.dial} value={c.dial}>{c.name} ({c.dial})</option>
+                                    ))}
+                                  </select>
+                                  <svg className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#888" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M2 4l4 4 4-4" />
+                                  </svg>
+                                </div>
                                 <input
                                   value={details.phone}
                                   onChange={e => setDetails(prev => ({ ...prev, phone: e.target.value }))}
@@ -917,18 +922,18 @@ export default function ContactModal({ open, onClose, initialService }: Props) {
                           </motion.div>
 
                           <motion.div
-                            className="flex flex-col gap-2 w-full max-w-[280px]"
+                            className="flex flex-col gap-2.5 w-full max-w-[320px]"
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.5, duration: 0.4, ease }}
                           >
                             {[
                               { icon: "📬", text: "Check your inbox. I reply personally." },
-                              { icon: "📎", text: "Feel free to attach anything useful when you reply" },
+                              { icon: "📎", text: "Feel free to attach anything useful when you reply." },
                             ].map(item => (
-                              <div key={item.icon} className="flex items-start gap-2.5 text-left">
-                                <span className="text-[14px] mt-0.5">{item.icon}</span>
-                                <p className="font-sans text-[12.5px] text-[#999] leading-[1.5] tracking-[-0.15px]">{item.text}</p>
+                              <div key={item.icon} className="flex items-center gap-3 text-left px-4 py-3 rounded-2xl" style={{ background: "#F7F7F7" }}>
+                                <span className="text-[18px] shrink-0">{item.icon}</span>
+                                <p className="font-sans text-[13px] text-[#666] leading-[1.45] tracking-[-0.2px]">{item.text}</p>
                               </div>
                             ))}
                           </motion.div>

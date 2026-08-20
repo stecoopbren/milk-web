@@ -68,7 +68,7 @@ export default function BioSection() {
           </p>
           <div className="text-case-title text-center w-full">
             <div style={{ color: "#0C0C12" }}>
-              I help Startups
+              I help teams of all sizes
             </div>
             <div>
               {line2.map((word, i) => (
