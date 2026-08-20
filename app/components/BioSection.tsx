@@ -63,7 +63,7 @@ export default function BioSection() {
     >
       <div className="sticky top-0 flex items-start justify-center px-8 lg:px-[180px]" style={{ height: "100svh", paddingTop: 148, position: "relative" }}>
         {/* Bottom circular fade */}
-        <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ height: "40%", background: "radial-gradient(ellipse 110% 100% at 50% 100%, #ffffff 0%, rgba(255,255,255,0.8) 35%, rgba(255,255,255,0.3) 60%, transparent 80%)", zIndex: 50 }} />
+        <div className="absolute bottom-0 left-0 right-0 pointer-events-none" style={{ height: "40%", background: "radial-gradient(ellipse 110% 100% at 50% 100%, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.3) 40%, transparent 70%)", zIndex: 50 }} />
         <div className="relative w-full flex flex-col items-center gap-4">
           <p className="text-serif-eyebrow text-[#0C0C12]">
             Long story short
