@@ -20,7 +20,7 @@ function Word({
   defaultHighlighted?: boolean;
 }) {
   const start = index / total;
-  const end = Math.min((index + 5) / total, 1);
+  const end = Math.min((index + 4) / total, 1);
   const color = useTransform(progress, [start, end], [defaultHighlighted ? "#0C0C12" : "#C0C0C0", "#0C0C12"]);
   return (
     <>
@@ -41,6 +41,9 @@ export default function BioSection() {
     target: outerRef,
     offset: ["start start", "end end"],
   });
+
+  // Offset so words start lighting on arrival and all complete before exit
+  const progress = useTransform(scrollYProgress, [0, 1], [0.1, 1.2]);
 
   useEffect(() => {
     fetch("/Formula/12.json")
@@ -72,12 +75,12 @@ export default function BioSection() {
             </div>
             <div>
               {line2.map((word, i) => (
-                <Word key={i} word={word} index={i} total={total} progress={scrollYProgress} trailingSpace={i < line2.length - 1} defaultHighlighted={false} />
+                <Word key={i} word={word} index={i} total={total} progress={progress} trailingSpace={i < line2.length - 1} defaultHighlighted={false} />
               ))}
             </div>
             <div>
               {line3.map((word, i) => (
-                <Word key={i + line2.length} word={word} index={i + line2.length} total={total} progress={scrollYProgress} trailingSpace={i < line3.length - 1} defaultHighlighted={[0, 1].includes(i)} />
+                <Word key={i + line2.length} word={word} index={i + line2.length} total={total} progress={progress} trailingSpace={i < line3.length - 1} defaultHighlighted={[0, 1].includes(i)} />
               ))}
             </div>
           </div>
