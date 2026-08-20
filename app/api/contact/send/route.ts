@@ -1,11 +1,19 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
-  if (!process.env.RESEND_API_KEY) {
+  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
     return NextResponse.json({ ok: false, error: "Email not configured" }, { status: 503 });
   }
-  const resend = new Resend(process.env.RESEND_API_KEY);
+
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_APP_PASSWORD,
+    },
+  });
+
   const { reason, context, conversation, details } = await request.json();
 
   const contextLines = Object.entries((context ?? {}) as Record<string, string>)
@@ -47,8 +55,8 @@ export async function POST(request: NextRequest) {
   `;
 
   try {
-    await resend.emails.send({
-      from: "Milk Contact <noreply@milk.design>",
+    await transporter.sendMail({
+      from: `"Milk Contact" <${process.env.GMAIL_USER}>`,
       to: ["cooper@milk.design", "stecoopbren@gmail.com"],
       replyTo: details?.email,
       subject: `${details?.name ?? "Someone"} reached out — ${reason ?? "inquiry"}`,
@@ -56,7 +64,7 @@ export async function POST(request: NextRequest) {
     });
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("Resend error:", err);
+    console.error("Nodemailer error:", err);
     return NextResponse.json({ ok: false }, { status: 500 });
   }
 }
