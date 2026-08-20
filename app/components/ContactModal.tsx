@@ -47,7 +47,7 @@ const leftPanelCopy: Record<string, { title: string; description: string }> = {
   reason:  { title: "What brings\nyou here?",        description: "No wrong answers. Pick whatever fits best." },
   context: { title: "A bit more\ncontext",            description: "Two quick things so Steven can come prepared." },
   chat:    { title: "Let's dig in",                   description: "A short conversation to understand what you need." },
-  details: { title: "One more thing\u2014how do\nI find you?", description: "I reply personally. Usually within a day." },
+  details: { title: "One more thing, how do\nI find you?", description: "I reply personally. Usually within a day." },
   done:    { title: "You're all\nset ✓",              description: "Steven has your message and will be in touch soon." },
 };
 
