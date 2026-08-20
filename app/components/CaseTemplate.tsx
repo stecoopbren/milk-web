@@ -1472,7 +1472,7 @@ function ChaptersSection({ section }: { section: Extract<CaseSection, { type: "c
 
 // ─── ContainedMedia ──────────────────────────────────────────────────────────
 
-function ContainedMedia({ video, image }: { video?: string; image?: string }) {
+function ContainedMedia({ video, image, videoPosition }: { video?: string; image?: string; videoPosition?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-8%" });
   if (!video && !image) return null;
@@ -1485,11 +1485,21 @@ function ContainedMedia({ video, image }: { video?: string; image?: string }) {
         transition={{ duration: 0.8, ease }}
       >
         {video ? (
-          <video
-            src={video}
-            autoPlay muted loop playsInline
-            style={{ width: "100%", display: "block", borderRadius: 4 }}
-          />
+          videoPosition ? (
+            <div style={{ width: "100%", aspectRatio: "16/9", overflow: "hidden", borderRadius: 4 }}>
+              <video
+                src={video}
+                autoPlay muted loop playsInline
+                style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: videoPosition, display: "block" }}
+              />
+            </div>
+          ) : (
+            <video
+              src={video}
+              autoPlay muted loop playsInline
+              style={{ width: "100%", display: "block", borderRadius: 4 }}
+            />
+          )
         ) : (
           <img
             src={image}
@@ -1510,7 +1520,7 @@ function CaseSectionBlock({ section }: { section: CaseSection }) {
       return (
         <>
           <SplitSection section={section} />
-          <ContainedMedia video={section.video} image={section.image} />
+          <ContainedMedia video={section.video} image={section.image} videoPosition={section.videoPosition} />
         </>
       );
     case "centered":

@@ -8,7 +8,7 @@ export type ChapterItem = {
 };
 
 export type CaseSection =
-  | { type: 'split'; label: string; heading: string; body: string; bullets?: string[]; image?: string; image2?: string; video?: string }
+  | { type: 'split'; label: string; heading: string; body: string; bullets?: string[]; image?: string; image2?: string; video?: string; videoPosition?: string }
   | { type: 'centered'; label: string; heading: string; body: string; bullets?: string[] }
   | { type: 'carousel'; images: string[] }
   | { type: 'scroll-gallery'; images: string[]; positions?: string[] }
@@ -241,6 +241,7 @@ const cases: CaseData[] = [
           'Shared language established between compliance, operations, and product for the first time',
         ],
         video: '/GXM/gxm-challenge.mp4',
+        videoPosition: 'center 55%',
       },
       {
         type: 'split',
