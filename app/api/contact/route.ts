@@ -58,11 +58,11 @@ The chips are what the USER would type back to you in response to your question.
 
   const apiMessages = isInitial
     ? [{ role: 'user' as const, content: '[start]' }]
-    : (messages as { role: 'user' | 'assistant'; content: string }[]);
+    : (messages as { role: 'user' | 'assistant'; content: string }[]).map(({ role, content }) => ({ role, content }));
 
   const stream = await client.messages.stream({
     model: 'claude-haiku-4-5-20251001',
-    max_tokens: 300,
+    max_tokens: 250,
     system,
     messages: apiMessages,
   });
