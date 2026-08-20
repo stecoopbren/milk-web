@@ -124,7 +124,7 @@ export default function PositioningSection() {
               AI changed the game. Don&apos;t fall behind.
             </p>
 
-            <div className="text-section-heading text-center w-fit">
+            <div className="text-case-title text-center w-fit">
               <span className="block">
                 <HWord word="Building"     index={0}  progress={progress} trailingSpace={false} />
                 {" "}

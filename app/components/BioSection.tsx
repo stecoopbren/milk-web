@@ -89,12 +89,12 @@ export default function BioSection() {
               {/* Mobile: absolutely positioned below text, rises into view */}
               <motion.div
                 className="absolute top-full lg:hidden"
-                style={{ marginTop: -80, width: "min(95vw, 560px)", left: "50%", transform: "translateX(-50%)" }}
+                style={{ marginTop: -80, width: "min(95vw, 560px)", left: "50%" }}
                 initial="hidden"
                 animate={inView ? "visible" : "hidden"}
                 variants={{
-                  hidden: { y: 320, opacity: 0, transition: { duration: 1.0, ease: [0.22, 1, 0.36, 1] } },
-                  visible: { y: 0, opacity: 1, transition: { duration: 1.4, ease: [0.22, 1, 0.36, 1], delay: 0.5 } },
+                  hidden: { y: 320, x: "-50%", opacity: 0, transition: { duration: 1.0, ease: [0.22, 1, 0.36, 1] } },
+                  visible: { y: 0, x: "-50%", opacity: 1, transition: { duration: 1.4, ease: [0.22, 1, 0.36, 1], delay: 0.5 } },
                 }}
               >
                 <Lottie animationData={animData} loop />

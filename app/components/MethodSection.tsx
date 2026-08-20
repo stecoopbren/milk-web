@@ -313,7 +313,7 @@ export default function MethodSection() {
       <div
         ref={mobileRef}
         className="lg:hidden flex flex-col items-start justify-start w-full px-6"
-        style={{ minHeight: "100svh", paddingTop: "108px", paddingBottom: "40px" }}
+        style={{ minHeight: "140svh", paddingTop: "108px", paddingBottom: "40px" }}
       >
         {/* Header */}
         <div className="flex flex-col gap-2 w-full text-center items-center">
@@ -372,6 +372,7 @@ export default function MethodSection() {
               }}
               className="absolute inset-0"
               style={{ cursor: "grab", touchAction: "pan-y" }}
+              onTap={() => { if (!mobileCards[mobileActive]?.isCta) setMobileFlipped(mobileFlipped === mobileActive ? null : mobileActive); }}
             >
               <MobileCarouselCard
                 step={mobileCards[mobileActive]}
