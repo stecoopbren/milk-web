@@ -697,7 +697,8 @@ function ScrollGallerySection({ section }: { section: Extract<CaseSection, { typ
         {/* Image 1: top-left */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-8%" }}
           transition={{ duration: 0.7, ease, delay: 0 }}
           style={{
             position: "absolute", top: "5vw", left: "8vw",
@@ -710,7 +711,8 @@ function ScrollGallerySection({ section }: { section: Extract<CaseSection, { typ
         {/* Image 2: mid-left */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-8%" }}
           transition={{ duration: 0.7, ease, delay: 0.1 }}
           style={{
             position: "absolute", top: "46vw", left: "2vw",
@@ -723,7 +725,8 @@ function ScrollGallerySection({ section }: { section: Extract<CaseSection, { typ
         {/* Image 3: lower-right */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-8%" }}
           transition={{ duration: 0.7, ease, delay: 0.2 }}
           style={{
             position: "absolute", top: "58vw", left: "28vw",
