@@ -1,8 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
 import CinematicBoard, { type BoardShot, type CursorDef, DEFAULT_SHOTS, DEFAULT_CURSORS } from "./CinematicBoard";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { EffectCoverflow, Pagination, Autoplay } from "swiper/modules";
+import type { Swiper as SwiperType } from "swiper";
+import "swiper/css";
+import "swiper/css/effect-coverflow";
+import "swiper/css/pagination";
 
 
 export type OrbitItem = {
@@ -182,342 +188,153 @@ function ChevronRight() {
   );
 }
 
-// ── Desktop: orbit carousel ────────────────────────────────────────────────────
-function DesktopOrbit() {
-  const total = orbitItems.length;
-  const [active, setActive] = useState(0);
-  const [slideIndex, setSlideIndex] = useState(0);
-  const go = (dir: number) => setActive((prev) => ((prev + dir) % total + total) % total);
+const coverflowCss = `
+  .milk-swiper {
+    width: 100%;
+    padding-bottom: 52px !important;
+  }
+  .milk-swiper .swiper-slide {
+    width: clamp(260px, 32vw, 480px);
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: grab;
+  }
+  .milk-swiper .swiper-slide:active { cursor: grabbing; }
+  .milk-swiper .swiper-pagination-bullet {
+    background: #0C0C12 !important;
+    opacity: 0.2;
+    width: 6px;
+    height: 6px;
+    transition: all 0.3s;
+  }
+  .milk-swiper .swiper-pagination-bullet-active {
+    opacity: 1;
+    width: 20px;
+    border-radius: 3px;
+  }
+`;
 
-  // Reset slide when active card changes
-  useEffect(() => {
-    setSlideIndex(0);
-  }, [active]);
-
-  // Cycle through images for active GXM cards
-  useEffect(() => {
-    const activeItem = orbitItems[active];
-    if (!activeItem.images || activeItem.images.length <= 1) return;
-    const timer = setInterval(() => {
-      setSlideIndex((prev) => (prev + 1) % activeItem.images!.length);
-    }, 500);
-    return () => clearInterval(timer);
-  }, [active]);
+// ── Coverflow carousel (desktop + mobile) ─────────────────────────────────────
+function CoverflowCarousel() {
+  const swiperRef = useRef<SwiperType | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   return (
     <div
       id="portfolio"
-      className="snap-section hidden lg:flex flex-col"
+      className="snap-section flex flex-col"
       style={{ height: "100vh", paddingTop: 80, paddingBottom: 36 }}
     >
-      {/* Inner: centers the whole block (heading + cards + controls) vertically */}
+      <style>{coverflowCss}</style>
+
       <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+        {/* Heading */}
+        <h2
+          className="font-sans font-medium text-[#0C0C12] text-center shrink-0"
+          style={{ fontSize: "clamp(40px, 7vw, 88px)", letterSpacing: "-0.05em", lineHeight: 0.9, marginBottom: 32 }}
+        >
+          Featured Work
+        </h2>
 
-      {/* Heading — exactly 24px above the cards */}
-      <h2
-        className="font-sans font-medium text-[#0C0C12] text-center shrink-0"
-        style={{ fontSize: "clamp(52px, 7vw, 88px)", letterSpacing: "-0.05em", lineHeight: 0.9, marginBottom: 24 }}
-      >
-        Featured Work
-      </h2>
-
-      {/* Orbit stage — fixed height so centering is predictable */}
-      <div className="relative overflow-hidden flex items-center justify-center" style={{ height: "58vh" }}>
-        {orbitItems.map((item, i) => {
-          let offset = i - active;
-          if (offset > total / 2)  offset -= total;
-          if (offset < -total / 2) offset += total;
-          const abs = Math.abs(offset);
-          if (abs > 1) return null;
-          const isActive = offset === 0;
-
-          return (
-            <motion.div
-              key={item.href}
-              className="absolute top-0 bottom-0 flex items-center"
-              style={{ left: "50%" }}
-              animate={{
-                x: `calc(-50% + ${offset * 520}px)`,
-                scale: isActive ? 1 : 1 - abs * 0.16,
-                opacity: 1,
-                zIndex: 10 - abs,
-              }}
-              transition={{ duration: 0.55, ease }}
-              onClick={() => !isActive && setActive(i)}
-            >
-              <motion.a
-                href={isActive ? item.href : undefined}
-                onClick={(e) => !isActive && e.preventDefault()}
-                data-dark="true"
-                variants={{
-                  idle:  { scale: 1 },
-                  hover: { scale: 1.025 },
-                }}
-                initial="idle"
-                whileHover={isActive ? "hover" : "idle"}
-                transition={{ duration: 0.35, ease }}
-                style={{
-                  display: "block",
-                  height: isActive ? "96%" : "84%",
-                  width: isActive ? "clamp(580px, 54vw, 860px)" : undefined,
-                  aspectRatio: isActive ? undefined : "3/4",
-                  borderRadius: 20,
-                  overflow: "hidden",
-                  position: "relative",
-                  flexShrink: 0,
-                  textDecoration: "none",
-                  cursor: "pointer",
-                }}
-              >
-                {isActive && item.cinematicSrc ? (
-                  <div style={{ position: "absolute", inset: 0 }}>
-                    <CinematicBoard
-                      src={item.cinematicSrc}
-                      shots={item.cinematicShots ?? DEFAULT_SHOTS}
-                      cursors={item.cinematicCursors ?? DEFAULT_CURSORS}
-                      height={800}
-                      bg="#0C0C12"
-                    />
-                  </div>
-                ) : (
+        {/* Swiper */}
+        <Swiper
+          onSwiper={(s) => { swiperRef.current = s; }}
+          onSlideChange={(s) => setActiveIndex(s.realIndex)}
+          effect="coverflow"
+          grabCursor
+          centeredSlides
+          slidesPerView="auto"
+          loop
+          coverflowEffect={{
+            rotate: 38,
+            stretch: 0,
+            depth: 120,
+            modifier: 1,
+            slideShadows: true,
+          }}
+          modules={[EffectCoverflow, Pagination]}
+          className="milk-swiper w-full"
+          style={{ height: "clamp(300px, 58vh, 600px)" }}
+        >
+          {orbitItems.map((item, i) => (
+            <SwiperSlide key={item.href}>
+              {({ isActive }) => (
+                <a
+                  href={isActive ? item.href : undefined}
+                  onClick={(e) => { if (!isActive) { e.preventDefault(); swiperRef.current?.slideToLoop(i); } }}
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    height: "100%",
+                    position: "relative",
+                    textDecoration: "none",
+                  }}
+                >
                   <img
-                    src={isActive
-                      ? (item.images ? item.images[slideIndex] : item.image)
-                      : (item.staticImage ?? item.image)}
+                    src={item.staticImage ?? item.image}
                     alt={item.title}
                     style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                   />
-                )}
 
-                {/* Dark scrim on non-active cards */}
-                {!isActive && (
-                  <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)", transition: "opacity 0.4s ease" }} />
-                )}
-
-                <AnimatePresence>
-                  {isActive && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                      style={{ position: "absolute", inset: 0 }}
-                    >
-                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 45%, rgba(0,0,0,0.72) 100%)" }} />
-                      <div style={{ position: "absolute", bottom: 28, left: 28, right: 28, display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
-                        <div>
-                          <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 10, letterSpacing: "-0.3px", fontFamily: "var(--font-mono)", marginBottom: 8 }}>
-                            {item.tag} · {item.year}
-                          </p>
-                          <p style={{ color: "#fff", fontSize: 20, fontWeight: 600, letterSpacing: "-0.8px", lineHeight: 1.2, fontFamily: "var(--font-sans)" }}>
-                            {item.title}
-                          </p>
-                          <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, fontFamily: "var(--font-sans)", marginTop: 6 }}>
-                            {item.role}
-                          </p>
-                        </div>
-                        {/* View case CTA — slides up on hover */}
-                        <motion.div
-                          variants={{
-                            idle:  { opacity: 0, y: 8 },
-                            hover: { opacity: 1, y: 0 },
-                          }}
-                          transition={{ duration: 0.25, ease }}
-                          style={{
-                            flexShrink: 0,
-                            marginLeft: 16,
-                            background: "rgba(255,255,255,0.15)",
-                            backdropFilter: "blur(8px)",
-                            WebkitBackdropFilter: "blur(8px)",
-                            border: "1px solid rgba(255,255,255,0.25)",
-                            borderRadius: 100,
-                            padding: "8px 14px",
-                            color: "#fff",
-                            fontSize: 12,
-                            fontWeight: 500,
-                            letterSpacing: "-0.3px",
-                            fontFamily: "var(--font-sans)",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          View case →
-                        </motion.div>
-                      </div>
-                    </motion.div>
+                  {/* Scrim on inactive */}
+                  {!isActive && (
+                    <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.38)" }} />
                   )}
-                </AnimatePresence>
-              </motion.a>
-            </motion.div>
-          );
-        })}
-      </div>
 
-      {/* Controls — centered below focused card */}
-      <div className="shrink-0 flex items-center justify-center gap-4 mt-5">
-        <button
-          onClick={() => go(-1)}
-          className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors"
-          aria-label="Previous project"
-        >
-          <ChevronLeft />
-        </button>
-
-        <div className="flex gap-2 items-center">
-          {orbitItems.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setActive(i)}
-              className={`rounded-full transition-all duration-300 ${
-                i === active ? "w-5 h-[6px] bg-[#0C0C12]" : "w-[6px] h-[6px] bg-[#C0C0C0]"
-              }`}
-              aria-label={`Go to project ${i + 1}`}
-            />
+                  {/* Caption on active */}
+                  {isActive && (
+                    <div style={{ position: "absolute", inset: 0 }}>
+                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.75) 100%)" }} />
+                      <div style={{ position: "absolute", bottom: 24, left: 24, right: 24 }}>
+                        <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 10, letterSpacing: "-0.3px", fontFamily: "var(--font-mono)", marginBottom: 6 }}>
+                          {item.tag} · {item.year}
+                        </p>
+                        <p style={{ color: "#fff", fontSize: 18, fontWeight: 600, letterSpacing: "-0.7px", lineHeight: 1.2, fontFamily: "var(--font-sans)" }}>
+                          {item.title}
+                        </p>
+                        <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, fontFamily: "var(--font-sans)", marginTop: 5 }}>
+                          {item.role}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </a>
+              )}
+            </SwiperSlide>
           ))}
+        </Swiper>
+
+        {/* Controls */}
+        <div className="shrink-0 flex items-center justify-center gap-4" style={{ marginTop: 4 }}>
+          <button
+            onClick={() => swiperRef.current?.slidePrev()}
+            className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors"
+            aria-label="Previous project"
+          >
+            <ChevronLeft />
+          </button>
+
+          <div className="flex gap-2 items-center">
+            {orbitItems.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => swiperRef.current?.slideToLoop(i)}
+                className={`rounded-full transition-all duration-300 ${
+                  i === activeIndex ? "w-5 h-[6px] bg-[#0C0C12]" : "w-[6px] h-[6px] bg-[#C0C0C0]"
+                }`}
+                aria-label={`Go to project ${i + 1}`}
+              />
+            ))}
+          </div>
+
+          <button
+            onClick={() => swiperRef.current?.slideNext()}
+            className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors"
+            aria-label="Next project"
+          >
+            <ChevronRight />
+          </button>
         </div>
-
-        <button
-          onClick={() => go(1)}
-          className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors"
-          aria-label="Next project"
-        >
-          <ChevronRight />
-        </button>
-      </div>
-
-      </div>{/* end inner centering wrapper */}
-    </div>
-  );
-}
-
-// ── Mobile card ───────────────────────────────────────────────────────────────
-function MobileCard({ item }: { item: OrbitItem }) {
-  // Use the static cover image (same as desktop side cards), not the cycling reel
-  const src = item.staticImage ?? item.image;
-
-  return (
-    <a
-      href={item.href}
-      style={{
-        display: "block",
-        width: "100%",
-        height: 380,
-        borderRadius: 14,
-        overflow: "hidden",
-        position: "relative",
-        textDecoration: "none",
-      }}
-    >
-      <img
-        src={src}
-        alt={item.title}
-        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-      />
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, transparent 45%, rgba(0,0,0,0.55) 100%)" }} />
-      <div style={{ position: "absolute", top: 16, left: 16, right: 16, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-        <p style={{ color: "#fff", fontSize: 14, fontWeight: 600, letterSpacing: "-0.3px", maxWidth: "65%", lineHeight: 1.3, fontFamily: "var(--font-sans)" }}>
-          {item.title}
-        </p>
-        <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 9, letterSpacing: "-0.2px", fontFamily: "var(--font-mono)" }}>
-          {item.year}
-        </p>
-      </div>
-      <div style={{ position: "absolute", bottom: 16, left: 16 }}>
-        <span style={{ color: "rgba(255,255,255,0.65)", fontSize: 9, letterSpacing: "-0.2px", fontFamily: "var(--font-mono)" }}>
-          {item.tag}
-        </span>
-      </div>
-    </a>
-  );
-}
-
-// ── Mobile: carousel ─────────────────────────────────────────────────────────
-function MobileCarousel() {
-  const [active, setActive] = useState(0);
-  const total = orbitItems.length;
-  const x = useMotionValue(0);
-  const rotate = useTransform(x, [-220, 220], [-14, 14]);
-  const cardOpacity = useTransform(x, [-220, 0, 220], [0.5, 1, 0.5]);
-
-  const go = (d: number) => {
-    const target = d > 0 ? -420 : 420;
-    animate(x, target, { duration: 0.32, ease: [0.22, 1, 0.36, 1] }).then(() => {
-      setActive((prev) => ((prev + d) % total + total) % total);
-      x.set(0);
-    });
-  };
-
-  const goTo = (i: number) => go(i > active ? 1 : -1);
-
-  const handleDragEnd = (_: never, info: { offset: { x: number }; velocity: { x: number } }) => {
-    const { offset, velocity } = info;
-    if (offset.x < -60 || velocity.x < -400) {
-      go(1);
-    } else if (offset.x > 60 || velocity.x > 400) {
-      go(-1);
-    } else {
-      animate(x, 0, { type: "spring", stiffness: 400, damping: 30 });
-    }
-  };
-
-  return (
-    <div
-      id="portfolio"
-      className="snap-section lg:hidden"
-      style={{ paddingTop: 108, paddingBottom: 60 }}
-    >
-      <div className="px-8 pb-6 text-center">
-        <h2 className="text-heading text-[#0C0C12]">
-          Featured Work
-        </h2>
-      </div>
-
-      <div className="px-5 overflow-hidden">
-        <motion.div
-          key={active}
-          drag="x"
-          dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0.18}
-          onDragEnd={handleDragEnd}
-          style={{ x, rotate, opacity: cardOpacity, cursor: "grab", touchAction: "pan-y" }}
-          initial={{ scale: 0.95, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-          whileDrag={{ cursor: "grabbing" }}
-        >
-          <MobileCard item={orbitItems[active]} />
-        </motion.div>
-      </div>
-
-      {/* Controls */}
-      <div className="flex items-center justify-center gap-4 mt-5">
-        <button
-          onClick={() => go(-1)}
-          className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors"
-          aria-label="Previous project"
-        >
-          <ChevronLeft />
-        </button>
-
-        <div className="flex gap-2 items-center">
-          {orbitItems.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => goTo(i)}
-              className={`rounded-full transition-all duration-300 ${
-                i === active ? "w-5 h-[6px] bg-[#0C0C12]" : "w-[6px] h-[6px] bg-[#C0C0C0]"
-              }`}
-              aria-label={`Go to project ${i + 1}`}
-            />
-          ))}
-        </div>
-
-        <button
-          onClick={() => go(1)}
-          className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors"
-          aria-label="Next project"
-        >
-          <ChevronRight />
-        </button>
       </div>
     </div>
   );
@@ -525,10 +342,5 @@ function MobileCarousel() {
 
 // ── Main export ───────────────────────────────────────────────────────────────
 export default function ProjectsSection() {
-  return (
-    <>
-      <DesktopOrbit />
-      <MobileCarousel />
-    </>
-  );
+  return <CoverflowCarousel />;
 }
