@@ -106,7 +106,7 @@ const serviceQuotes: Record<string, string> = {
 
 
 export default function ServicesSection() {
-  const [expanded, setExpanded] = useState<number | null>(0);
+  const [expanded, setExpanded] = useState<number | null>(null);
 
   return (
     <div
@@ -120,14 +120,14 @@ export default function ServicesSection() {
         <div className="flex flex-col lg:flex-row lg:gap-32 lg:items-start">
 
           {/* Left: sticky heading */}
-          <div className="mb-12 lg:mb-0 lg:w-[38%] lg:shrink-0 lg:sticky lg:self-start lg:top-[50vh] lg:-translate-y-1/2 text-left">
+          <div className="mb-12 lg:mb-0 lg:w-[38%] lg:shrink-0 lg:sticky lg:self-start lg:top-[50vh] lg:-translate-y-1/2 text-center lg:text-left">
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, ease }}
             >
-            <p className="text-serif-eyebrow text-[#0C0C12] mb-5">How I help</p>
+            <p className="text-serif-eyebrow text-[#0C0C12] mb-5">Disciplines</p>
             <h2
               style={{
                 fontFamily: "Ambit",
@@ -138,7 +138,7 @@ export default function ServicesSection() {
                 color: "#0C0C12",
               }}
             >
-              Pull one thread.<br />The rest follows.
+              Different tools.<br />Same mission.
             </h2>
             </motion.div>
           </div>
