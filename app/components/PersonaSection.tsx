@@ -6,7 +6,8 @@ import { motion, useInView } from "framer-motion";
 const ease = [0.22, 1, 0.36, 1] as const;
 
 const lines = [
-  { text: "For 10+ years I've helped teams and companies of all sizes see the problem clearly before solving it.", finalOpacity: 1 },
+  { text: "I've worked across business, product, brand, research, and technology with teams at Google, Microsoft, Cisco, Meta, and beyond. I help teams figure out where they're going and make it real through strategy, research, design, and AI.", finalOpacity: 1 },
+  { text: "10+ years across startups and Fortune 500 companies.", finalOpacity: 0.45 },
 ];
 
 export default function PersonaSection() {

@@ -125,7 +125,7 @@ export default function PositioningSection() {
             </p>
 
             <div className="text-case-title text-center w-fit">
-              <span className="block">
+              <span className="block whitespace-nowrap">
                 <HWord word="Building"     index={0}  progress={progress} trailingSpace={false} />
                 {" "}
                 <TiltImage src="/FullSizeRender_VSCO.JPG" objectPosition="center 60%" />
