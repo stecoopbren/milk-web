@@ -658,8 +658,15 @@ function CarouselSection({ section }: { section: Extract<CaseSection, { type: "c
 
 function ScrollGallerySection({ section }: { section: Extract<CaseSection, { type: "scroll-gallery" }> }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const mobileContainerRef = useRef<HTMLDivElement>(null);
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
+    offset: ["start start", "end end"],
+  });
+
+  const { scrollYProgress: mobileScroll } = useScroll({
+    target: mobileContainerRef,
     offset: ["start start", "end end"],
   });
 
@@ -684,6 +691,17 @@ function ScrollGallerySection({ section }: { section: Extract<CaseSection, { typ
   const heroHeight = useTransform(scrollYProgress, [0.65, 0.7, 0.9, 1], ["44vh", "44vh", "100vh", "100vh"]);
   const underOpacity = useTransform(scrollYProgress, [0.75, 0.85], [1, 0]);
 
+  // Mobile transforms — same three-phase choreography adapted for portrait
+  const heroXMobile  = useTransform(mobileScroll, [0, 0.3, 0.35, 0.65, 1], ["-3vw", "-3vw", "-3vw", "0vw", "0vw"]);
+  const heroYMobile  = useTransform(mobileScroll, [0, 0.3, 0.35, 0.65, 1], ["-16vh", "-16vh", "-16vh", "0vh", "0vh"]);
+  const leftXMobile  = useTransform(mobileScroll, [0, 0.3, 0.35, 0.65, 1], ["-22vw", "-22vw", "-22vw", "0vw", "0vw"]);
+  const leftYMobile  = useTransform(mobileScroll, [0, 0.3, 0.35, 0.65, 1], ["20vh", "20vh", "20vh", "0vh", "0vh"]);
+  const rightXMobile = useTransform(mobileScroll, [0, 0.3, 0.35, 0.65, 1], ["20vw", "20vw", "20vw", "0vw", "0vw"]);
+  const rightYMobile = useTransform(mobileScroll, [0, 0.3, 0.35, 0.65, 1], ["20vh", "2vh", "2vh", "0vh", "0vh"]);
+  const heroWidthMobile  = useTransform(mobileScroll, [0.65, 0.7, 0.9, 1], ["74vw", "74vw", "100vw", "100vw"]);
+  const heroHeightMobile = useTransform(mobileScroll, [0.65, 0.7, 0.9, 1], ["46vh", "46vh", "100vh", "100vh"]);
+  const underOpacityMobile = useTransform(mobileScroll, [0.75, 0.85], [1, 0]);
+
   const baseClass = "absolute left-1/2 top-1/2 overflow-hidden -translate-x-1/2 -translate-y-1/2 shadow-2xl will-change-transform";
   const imgStyle = (pos?: string): React.CSSProperties => ({ width: "100%", height: "100%", objectFit: "cover", objectPosition: pos ?? "center", display: "block" });
 
@@ -692,50 +710,30 @@ function ScrollGallerySection({ section }: { section: Extract<CaseSection, { typ
 
   return (
     <>
-      {/* Mobile: staggered cascade for 3 images */}
-      <div className="lg:hidden" style={{ position: "relative", height: "130vw", overflow: "hidden", margin: "4rem 0" }}>
-        {/* Image 1: top-left */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-8%" }}
-          transition={{ duration: 0.7, ease, delay: 0 }}
-          style={{
-            position: "absolute", top: "5vw", left: "8vw",
-            width: "64vw", height: "44vw", overflow: "hidden",
-            zIndex: 3, borderRadius: 4,
-            boxShadow: "0 4px 24px rgba(0,0,0,0.14)",
-          }}>
-          <img src={img0} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: pos0 ?? "center", display: "block" }} />
-        </motion.div>
-        {/* Image 2: mid-left */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-8%" }}
-          transition={{ duration: 0.7, ease, delay: 0.1 }}
-          style={{
-            position: "absolute", top: "46vw", left: "2vw",
-            width: "64vw", height: "44vw", overflow: "hidden",
-            zIndex: 2, borderRadius: 4,
-            boxShadow: "0 4px 24px rgba(0,0,0,0.14)",
-          }}>
-          <img src={img1} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: pos1 ?? "center", display: "block" }} />
-        </motion.div>
-        {/* Image 3: lower-right */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-8%" }}
-          transition={{ duration: 0.7, ease, delay: 0.2 }}
-          style={{
-            position: "absolute", top: "58vw", left: "28vw",
-            width: "64vw", height: "44vw", overflow: "hidden",
-            zIndex: 3, borderRadius: 4,
-            boxShadow: "0 4px 24px rgba(0,0,0,0.18)",
-          }}>
-          <img src={img2} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: pos2 ?? "center", display: "block" }} />
-        </motion.div>
+      {/* Mobile: scroll choreography — mirrors desktop triangle → expand */}
+      <div
+        ref={mobileContainerRef}
+        className="lg:hidden"
+        style={{ height: "250vh" }}
+      >
+        <div className="sticky top-0 h-screen w-full overflow-hidden">
+          <div className="absolute inset-0">
+            {/* Left image → converges, then fades */}
+            <motion.div style={{ x: leftXMobile, y: leftYMobile, opacity: underOpacityMobile, width: "62vw", height: "42vw" }} className={`${baseClass} z-10 rounded`}>
+              <img src={img1} alt="" style={imgStyle(pos1)} />
+            </motion.div>
+
+            {/* Right image → drifts up slightly, then converges, then fades */}
+            <motion.div style={{ x: rightXMobile, y: rightYMobile, opacity: underOpacityMobile, width: "62vw", height: "42vw" }} className={`${baseClass} z-20 rounded`}>
+              <img src={img2} alt="" style={imgStyle(pos2)} />
+            </motion.div>
+
+            {/* Hero → near center-top, then expands to full screen */}
+            <motion.div style={{ x: heroXMobile, y: heroYMobile, width: heroWidthMobile, height: heroHeightMobile }} className={`${baseClass} z-30 rounded`}>
+              <img src={img0} alt="" style={imgStyle(pos0)} />
+            </motion.div>
+          </div>
+        </div>
       </div>
 
       {/* Desktop: scroll choreography — triangle composition */}

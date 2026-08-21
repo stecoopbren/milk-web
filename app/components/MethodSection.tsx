@@ -322,7 +322,7 @@ export default function MethodSection() {
             delay={0.1}
             inView={mobileInView}
           >
-            Here&apos;s my Method®
+            The Milk Formula®
           </RevealLine>
           <h2 className="text-heading text-[#2E2E2E]">
             <RevealLine delay={0.25} inView={mobileInView}>No more guesswork.</RevealLine>
@@ -478,7 +478,7 @@ export default function MethodSection() {
               delay={0.1}
               inView={inView}
             >
-              Here&apos;s my Method®
+              The Milk Formula®
             </RevealLine>
             <h2 className="text-heading text-[#2E2E2E] mt-3" style={{ paddingBottom: "0.35em" }}>
               <RevealLine delay={0.25} inView={inView}>Three Steps.</RevealLine>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { motion, useScroll, useMotionValue, useMotionValueEvent } from "framer-motion";
+import { motion, useScroll, useMotionValue, useMotionValueEvent, useTransform, animate } from "framer-motion";
 
 const TYPE_TARGET = "Why Milk?";
 const PAN_END = 0.65;
@@ -38,6 +38,8 @@ export default function TeamSection() {
   const [typedChars, setTypedChars] = useState(0);
 
   const x         = useMotionValue(0);
+  const nudgeX    = useMotionValue(0);
+  const combinedX = useTransform([x, nudgeX], (latest: number[]) => latest[0] + latest[1]);
   const overlayOp = useMotionValue(0);
   const reveal1Op = useMotionValue(0);
   const reveal1Y  = useMotionValue(28);
@@ -114,6 +116,35 @@ export default function TeamSection() {
     return () => window.removeEventListener("resize", measure);
   }, []);
 
+  // Nudge hint — bounces the track slightly right then back, loops until the user scrolls
+  useEffect(() => {
+    let controls: ReturnType<typeof animate> | null = null;
+
+    const timer = setTimeout(() => {
+      controls = animate(nudgeX, [0, 44, 0], {
+        duration: 1.5,
+        ease: "easeInOut",
+        repeat: Infinity,
+        repeatDelay: 2.4,
+        times: [0, 0.38, 1],
+      });
+    }, 900);
+
+    const unsub = scrollYProgress.on("change", (v) => {
+      if (v > 0.02) {
+        controls?.stop();
+        animate(nudgeX, 0, { duration: 0.25, ease: "easeOut" });
+        unsub();
+      }
+    });
+
+    return () => {
+      clearTimeout(timer);
+      controls?.stop();
+      unsub();
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   useMotionValueEvent(scrollYProgress, "change", (v) => {
     // Typewriter
     setTypedChars(Math.floor(Math.min(1, v / 0.10) * TYPE_TARGET.length));
@@ -161,7 +192,7 @@ export default function TeamSection() {
         <motion.div
           ref={trackRef}
           className="absolute top-0 left-0 h-full flex items-center"
-          style={{ x, gap: "10vw", paddingLeft: "10vw" }}
+          style={{ x: combinedX, gap: "10vw", paddingLeft: "10vw" }}
         >
           {/* Frame 1 — "You might be wondering" + typewriter "Why Milk?" as one line */}
           <div className="shrink-0 whitespace-nowrap">
