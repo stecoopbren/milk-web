@@ -245,7 +245,6 @@ function CoverflowCarousel() {
           grabCursor
           centeredSlides
           slidesPerView="auto"
-          loop
           coverflowEffect={{
             rotate: 38,
             stretch: 0,
@@ -262,7 +261,7 @@ function CoverflowCarousel() {
               {({ isActive }) => (
                 <a
                   href={isActive ? item.href : undefined}
-                  onClick={(e) => { if (!isActive) { e.preventDefault(); swiperRef.current?.slideToLoop(i); } }}
+                  onClick={(e) => { if (!isActive) { e.preventDefault(); swiperRef.current?.slideTo(i); } }}
                   style={{
                     display: "block",
                     width: "100%",
@@ -271,8 +270,8 @@ function CoverflowCarousel() {
                     textDecoration: "none",
                   }}
                 >
-                  {isActive && item.cinematicSrc ? (
-                    <div style={{ width: "100%", height: "100%", overflow: "hidden" }}>
+                  {i === activeIndex && item.cinematicSrc ? (
+                    <div key={`cinematic-${activeIndex}`} style={{ width: "100%", height: "100%", overflow: "hidden" }}>
                       <CinematicBoard
                         src={item.cinematicSrc}
                         shots={item.cinematicShots ?? DEFAULT_SHOTS}
@@ -330,7 +329,7 @@ function CoverflowCarousel() {
             {orbitItems.map((_, i) => (
               <button
                 key={i}
-                onClick={() => swiperRef.current?.slideToLoop(i)}
+                onClick={() => swiperRef.current?.slideTo(i)}
                 className={`rounded-full transition-all duration-300 ${
                   i === activeIndex ? "w-5 h-[6px] bg-[#0C0C12]" : "w-[6px] h-[6px] bg-[#C0C0C0]"
                 }`}
