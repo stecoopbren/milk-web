@@ -77,7 +77,6 @@ let heroHasPlayed = false;
 const logos = [
   { src: "/logo-google.svg",               alt: "Google",      height: 22 },
   { src: "/logo-meta.svg",                 alt: "Meta",        height: 20 },
-  { src: "/logo-microsoft.svg",            alt: "Microsoft",   height: 20 },
   { src: "/Cisco_logo_blue_2016.svg.png",  alt: "Cisco",       height: 24 },
   { src: "/logo-stripe.svg",               alt: "Stripe",      height: 22 },
   { src: "/accenture-transparent.webp",    alt: "Accenture",   height: 22 },
