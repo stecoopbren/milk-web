@@ -194,7 +194,7 @@ const coverflowCss = `
     padding-bottom: 52px !important;
   }
   .milk-swiper .swiper-slide {
-    width: clamp(260px, 32vw, 480px);
+    width: clamp(460px, 54vw, 780px);
     border-radius: 16px;
     overflow: hidden;
     cursor: grab;
@@ -240,6 +240,7 @@ function CoverflowCarousel() {
         <Swiper
           onSwiper={(s) => { swiperRef.current = s; }}
           onSlideChange={(s) => setActiveIndex(s.realIndex)}
+          initialSlide={0}
           effect="coverflow"
           grabCursor
           centeredSlides
@@ -270,11 +271,22 @@ function CoverflowCarousel() {
                     textDecoration: "none",
                   }}
                 >
-                  <img
-                    src={item.staticImage ?? item.image}
-                    alt={item.title}
-                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                  />
+                  {isActive && item.cinematicSrc ? (
+                    <div style={{ width: "100%", height: "100%", overflow: "hidden" }}>
+                      <CinematicBoard
+                        src={item.cinematicSrc}
+                        shots={item.cinematicShots ?? DEFAULT_SHOTS}
+                        cursors={item.cinematicCursors ?? DEFAULT_CURSORS}
+                        height={640}
+                      />
+                    </div>
+                  ) : (
+                    <img
+                      src={item.staticImage ?? item.image}
+                      alt={item.title}
+                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                    />
+                  )}
 
                   {/* Scrim on inactive */}
                   {!isActive && (
