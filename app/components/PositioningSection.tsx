@@ -125,7 +125,7 @@ export default function PositioningSection() {
             </p>
 
             <div className="text-case-title text-center w-fit">
-              <span className="block whitespace-nowrap">
+              <span className="block lg:whitespace-nowrap">
                 <HWord word="Building"     index={0}  progress={progress} trailingSpace={false} />
                 {" "}
                 <TiltImage src="/FullSizeRender_VSCO.JPG" objectPosition="center 60%" />
@@ -148,7 +148,7 @@ export default function PositioningSection() {
             </div>
 
             <p className="text-body text-[#565656] text-center max-w-[480px]">
-              Build on evidence, not on hunches.
+              Speed matters only if you're heading in the right direction. Build on evidence, not on hunches.
             </p>
 
             <a

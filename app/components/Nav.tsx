@@ -407,8 +407,8 @@ export default function Nav() {
                   <motion.a
                     key={link.label}
                     href={link.href}
-                    className="font-sans font-semibold text-[28px] leading-[1.1] tracking-[-1.8px] py-2"
-                    style={{ color: isActive ? "#111" : "#999", fontWeight: 600 }}
+                    className="text-title py-2"
+                    style={{ color: isActive ? "#111" : "#999" }}
                     initial={{ opacity: 0, x: -12 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.05, duration: 0.3, ease }}
@@ -424,7 +424,7 @@ export default function Nav() {
                   href={s.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-sans font-semibold text-[28px] leading-[1.1] tracking-[-1.8px] text-[#999] py-2 flex items-center gap-3"
+                  className="text-subheading text-[#999] py-2 flex items-center gap-3"
                   initial={{ opacity: 0, x: -12 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: (links.length + i) * 0.05, duration: 0.3, ease }}

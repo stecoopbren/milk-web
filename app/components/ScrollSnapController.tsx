@@ -192,7 +192,10 @@ export default function ScrollSnapController() {
         // to scroll again (which would waste one input event).
         if (!isInFreeScrollZone()) {
           const nearest = getNearestIndex();
-          const target = Math.max(currentIndex - 1, Math.min(currentIndex + 1, nearest));
+          const clamped = Math.max(currentIndex - 1, Math.min(currentIndex + 1, nearest));
+          // If stepping forward and nearest is still the free-scroll zone itself
+          // (currentIndex), force advance to the next section instead of snapping back.
+          const target = (direction > 0 && clamped <= currentIndex) ? currentIndex + 1 : clamped;
           snapToIndex(target);
           return;
         }
