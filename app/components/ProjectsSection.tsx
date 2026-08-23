@@ -319,7 +319,8 @@ function CoverflowCarousel() {
         <div className="shrink-0 flex items-center justify-center gap-4" style={{ marginTop: 4 }}>
           <button
             onClick={() => swiperRef.current?.slidePrev()}
-            className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors"
+            disabled={activeIndex === 0}
+            className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-[#2E2E2E]/15"
             aria-label="Previous project"
           >
             <ChevronLeft />
@@ -340,7 +341,8 @@ function CoverflowCarousel() {
 
           <button
             onClick={() => swiperRef.current?.slideNext()}
-            className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors"
+            disabled={activeIndex === orbitItems.length - 1}
+            className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-[#2E2E2E]/15"
             aria-label="Next project"
           >
             <ChevronRight />
