@@ -191,6 +191,7 @@ function ChevronRight() {
 const coverflowCss = `
   .milk-swiper {
     width: 100%;
+    overflow: visible !important;
     padding-bottom: 52px !important;
   }
   .milk-swiper .swiper-slide {
@@ -218,12 +219,19 @@ const coverflowCss = `
 function CoverflowCarousel() {
   const swiperRef = useRef<SwiperType | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  // Defer CinematicBoard mount so Swiper finishes positioning slides
+  // before the IntersectionObserver inside CinematicBoard fires.
+  const [cinematicReady, setCinematicReady] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setCinematicReady(true), 200);
+    return () => clearTimeout(t);
+  }, []);
 
   return (
     <div
       id="portfolio"
       className="snap-section flex flex-col"
-      style={{ height: "100vh", paddingTop: 80, paddingBottom: 36 }}
+      style={{ height: "100vh", paddingTop: 80, paddingBottom: 36, background: "#FAFAFA" }}
     >
       <style>{coverflowCss}</style>
 
@@ -237,6 +245,7 @@ function CoverflowCarousel() {
         </h2>
 
         {/* Swiper */}
+        <div style={{ width: "80%", margin: "0 auto", overflow: "hidden" }}>
         <Swiper
           onSwiper={(s) => { swiperRef.current = s; }}
           onSlideChange={(s) => setActiveIndex(s.realIndex)}
@@ -245,6 +254,7 @@ function CoverflowCarousel() {
           grabCursor
           centeredSlides
           slidesPerView="auto"
+          loop
           coverflowEffect={{
             rotate: 38,
             stretch: 0,
@@ -261,7 +271,7 @@ function CoverflowCarousel() {
               {({ isActive }) => (
                 <a
                   href={isActive ? item.href : undefined}
-                  onClick={(e) => { if (!isActive) { e.preventDefault(); swiperRef.current?.slideTo(i); } }}
+                  onClick={(e) => { if (!isActive) { e.preventDefault(); swiperRef.current?.slideToLoop(i); } }}
                   style={{
                     display: "block",
                     width: "100%",
@@ -270,8 +280,8 @@ function CoverflowCarousel() {
                     textDecoration: "none",
                   }}
                 >
-                  {i === activeIndex && item.cinematicSrc ? (
-                    <div key={`cinematic-${activeIndex}`} style={{ width: "100%", height: "100%", overflow: "hidden" }}>
+                  {i === activeIndex && item.cinematicSrc && cinematicReady ? (
+                    <div style={{ width: "100%", height: "100%", overflow: "hidden" }}>
                       <CinematicBoard
                         src={item.cinematicSrc}
                         shots={item.cinematicShots ?? DEFAULT_SHOTS}
@@ -314,13 +324,13 @@ function CoverflowCarousel() {
             </SwiperSlide>
           ))}
         </Swiper>
+        </div>
 
         {/* Controls */}
         <div className="shrink-0 flex items-center justify-center gap-4" style={{ marginTop: 4 }}>
           <button
             onClick={() => swiperRef.current?.slidePrev()}
-            disabled={activeIndex === 0}
-            className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-[#2E2E2E]/15"
+            className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors"
             aria-label="Previous project"
           >
             <ChevronLeft />
@@ -330,7 +340,7 @@ function CoverflowCarousel() {
             {orbitItems.map((_, i) => (
               <button
                 key={i}
-                onClick={() => swiperRef.current?.slideTo(i)}
+                onClick={() => swiperRef.current?.slideToLoop(i)}
                 className={`rounded-full transition-all duration-300 ${
                   i === activeIndex ? "w-5 h-[6px] bg-[#0C0C12]" : "w-[6px] h-[6px] bg-[#C0C0C0]"
                 }`}
@@ -341,8 +351,7 @@ function CoverflowCarousel() {
 
           <button
             onClick={() => swiperRef.current?.slideNext()}
-            disabled={activeIndex === orbitItems.length - 1}
-            className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-[#2E2E2E]/15"
+            className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors"
             aria-label="Next project"
           >
             <ChevronRight />
