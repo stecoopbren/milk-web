@@ -124,25 +124,26 @@ export default function PositioningSection() {
               AI changed the game.
             </p>
 
-            <div className="text-case-title text-center w-fit">
-              <span className="block lg:whitespace-nowrap">
+            <div className="text-case-title text-center w-full max-w-[90vw] lg:max-w-[80vw]">
+              <span className="block">
                 <HWord word="Building"     index={0}  progress={progress} trailingSpace={false} />
                 {" "}
                 <TiltImage src="/FullSizeRender_VSCO.JPG" objectPosition="center 60%" />
-                {/* index 1 = image1 slot */}
+                {" "}
                 <HWord word="is"           index={2}  progress={progress} trailingSpace />
                 <HWord word="the"          index={3}  progress={progress} trailingSpace />
                 <HWord word="easy"         index={4}  progress={progress} trailingSpace />
                 <HWord word="part"         index={5}  progress={progress} trailingSpace />
                 <HWord word="now."         index={6}  progress={progress} trailingSpace={false} />
-                <br />
+              </span>
+              <span className="block">
                 <HWord word="Knowing"      index={7}  progress={progress} trailingSpace />
                 <HWord word="what"         index={8}  progress={progress} trailingSpace />
                 <HWord word="to"           index={9}  progress={progress} trailingSpace />
                 <HWord word="build"        index={10} progress={progress} trailingSpace={false} />
                 {" "}
                 <TiltImage src="/B37FFF98-05DF-4025-BDF8-7415F841280C.JPG" />
-                {/* index 11 = image2 slot */}
+                {" "}
                 <HWord word="isn&apos;t."  index={12} progress={progress} trailingSpace={false} />
               </span>
             </div>
