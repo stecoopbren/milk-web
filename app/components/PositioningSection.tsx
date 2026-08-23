@@ -124,7 +124,7 @@ export default function PositioningSection() {
               AI changed the game.
             </p>
 
-            <div className="text-case-title text-center w-full max-w-[90vw] lg:max-w-[80vw]">
+            <div className="text-case-title text-center w-full max-w-[95vw] lg:max-w-[90vw]">
               <span className="block">
                 <HWord word="Building"     index={0}  progress={progress} trailingSpace={false} />
                 {" "}
