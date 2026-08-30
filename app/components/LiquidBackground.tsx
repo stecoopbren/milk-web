@@ -12,8 +12,8 @@ export default function LiquidBackground() {
 
   const { scrollY } = useScroll();
 
-  // Fade the liquid out between end of section 2 and start of section 3
-  const opacity = useTransform(scrollY, [vh * 1.6, vh * 2.1], [1, 0]);
+  // Fade the liquid out between end of section 3 (About Milk) and start of section 4
+  const opacity = useTransform(scrollY, [vh * 2.4, vh * 3.0], [1, 0]);
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 0, background: BASE, opacity: 0.8 }}>

@@ -313,6 +313,7 @@ export default function MethodSection() {
       <div
         ref={mobileRef}
         className="lg:hidden flex flex-col items-start justify-start w-full px-6"
+        data-native-scroll="true"
         style={{ minHeight: "140svh", paddingTop: "108px", paddingBottom: "40px" }}
       >
         {/* Header */}

@@ -111,9 +111,9 @@ export default function ServicesSection() {
   return (
     <div
       id="services"
-      className="snap-section relative"
+      className="snap-section relative pt-[100px] pb-[80px] lg:pb-[260px]"
       data-native-scroll="true"
-      style={{ scrollSnapAlign: "none", paddingTop: 100, paddingBottom: 260, minHeight: "calc(100svh + 1px)" }}
+      style={{ scrollSnapAlign: "none", minHeight: "calc(100svh + 1px)" }}
     >
       <div className="px-8 lg:px-[180px]">
 
@@ -153,7 +153,7 @@ export default function ServicesSection() {
                   <button
                     onClick={() => setExpanded(isOpen ? null : i)}
                     className="w-full flex items-center justify-between gap-6 text-left"
-                    style={{ paddingTop: 26, paddingBottom: 26 }}
+                    style={{ paddingTop: 26, paddingBottom: 26, touchAction: "manipulation" }}
                   >
                     <div className="flex items-center min-w-0">
                       <span

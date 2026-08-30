@@ -58,8 +58,29 @@ export default async function CasePage({
   const caseData = getCaseBySlug(slug);
   if (!caseData) notFound();
 
+  const title = `${caseData.title.replace(/\n/g, " ")} — ${caseData.client}`;
+  const url = `https://www.milk.design/cases/${slug}`;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    name: title,
+    description: caseData.subtitle,
+    url,
+    image: caseData.heroImage,
+    creator: {
+      "@type": "Organization",
+      name: "Milk Design Studio",
+      url: "https://www.milk.design",
+    },
+    keywords: caseData.tags.join(", "),
+  };
+
   return (
     <main className="relative">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="relative z-10">
         <Nav />
         <CaseTemplate caseData={caseData} />

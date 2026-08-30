@@ -19,8 +19,8 @@ export default function CursorDotTrail() {
   const my = useMotionValue(-400);
 
   // Ring lags behind with a spring
-  const rx = useSpring(mx, { stiffness: 380, damping: 28, mass: 0.25 });
-  const ry = useSpring(my, { stiffness: 380, damping: 28, mass: 0.25 });
+  const rx = useSpring(mx, { stiffness: 600, damping: 28, mass: 0.12 });
+  const ry = useSpring(my, { stiffness: 600, damping: 28, mass: 0.12 });
 
   // Offset by half the element size so they're centered on the cursor
   const dotX  = useTransform(mx, v => v - DOT_SIZE  / 2);

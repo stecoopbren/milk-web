@@ -4,10 +4,9 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
 import CinematicBoard, { type BoardShot, type CursorDef, DEFAULT_SHOTS, DEFAULT_CURSORS } from "./CinematicBoard";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { EffectCoverflow, Pagination, Autoplay } from "swiper/modules";
+import { Pagination, Autoplay } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
 import "swiper/css";
-import "swiper/css/effect-coverflow";
 import "swiper/css/pagination";
 
 
@@ -97,7 +96,7 @@ export const orbitItems: OrbitItem[] = [
   {
     title: "Digital Transformation", role: "Product Strategy & Design Lead", year: "2024",
     image: "/GXM/IMG_9711.jpg",
-    staticImage: "/GXM/IMG_9702.jpg",
+    staticImage: "/GXM/mockuuups-female-in-the-office-working-on-a-macbook-mockup.webp",
     images: [
       "/GXM/IMG_9711.jpg",
       "/GXM/IMG_9702.jpg",
@@ -115,26 +114,10 @@ export const orbitItems: OrbitItem[] = [
       "/GXM/Case 2/Screenshot 2026-08-03 at 5.31.41 PM.png",
     ],
     href: "/cases/gxm", tag: "Enterprise SaaS",
-    cinematicSrc: "/GXM/gxm-journey-map.png",
-    cinematicShots: [
-      { x: 0,   y: 0,   scale: 1.0,  hold: 2.5 },
-      { x: 24,  y: 8,   scale: 2.2,  hold: 5.0, label: "Programs & Ownership" },
-      { x: -12, y: -10, scale: 2.5,  hold: 5.0, label: "Customer Journey" },
-      { x: -22, y: 12,  scale: 2.1,  hold: 4.5, label: "Service Gaps" },
-      { x: 0,   y: 0,   scale: 1.1,  hold: 2.5 },
-    ],
-    cinematicCursors: [
-      { name: "Steven",  color: "#FF3377", path: [[25, 50], [42, 32], [58, 55], [38, 68]], stepDuration: 3.2, startDelay: 0.0 },
-      { name: "Lena",    color: "#FACC15", path: [[68, 22], [55, 40], [72, 58], [60, 35]], stepDuration: 3.8, startDelay: 0.8 },
-      { name: "Marcus",  color: "#3B82F6", path: [[15, 30], [30, 55], [20, 72], [35, 45]], stepDuration: 4.1, startDelay: 1.4 },
-      { name: "Elise",   color: "#22C55E", path: [[78, 45], [62, 28], [80, 18], [70, 60]], stepDuration: 3.5, startDelay: 2.0 },
-      { name: "Jordan",  color: "#A855F7", path: [[48, 70], [60, 50], [45, 35], [55, 65]], stepDuration: 4.4, startDelay: 1.0 },
-      { name: "Hugo",    color: "#F97316", path: [[82, 70], [72, 48], [88, 30], [75, 65]], stepDuration: 3.9, startDelay: 2.6 },
-    ],
   },
   {
     title: "Regenerative Community", role: "Growth & Brand Lead", year: "2026",
-    image: "/Chaguite/hero.webp", staticImage: "/Chaguite/card-cover.webp",
+    image: "/Chaguite/hero.webp", staticImage: "/Chaguite/hf_concept4_regen.webp",
     images: [
       "/Chaguite/hero.webp",
       "/Chaguite/concept-2.webp",
@@ -159,6 +142,20 @@ export const orbitItems: OrbitItem[] = [
       "/Siwa/hf_20260530_011818_1ccc9b48-4177-4e24-931e-79b8b3b2da5f.webp",
     ],
     href: "/cases/casa-siwa", tag: "Hospitality",
+  },
+  {
+    title: "Dropclub", role: "Business Design & Lean Validation", year: "2026",
+    image: "/DC/Mocks/Lifestyle.png",
+    staticImage: "/DC/Mocks/Lifestyle.png",
+    images: [
+      "/DC/Mocks/Lifestyle.png",
+      "/DC/Mocks/mockuuups-iphone-17-pro-mockup-held-over-a-gray-fabric-surface.webp",
+      "/DC/Mocks/mockuuups-iphone-17-pro-mockup-held-over-a-gray-fabric-surface.webp",
+      "/DC/Mocks/mockuuups-free-iphone-17-pro-mockup-in-hand.webp",
+      "/DC/Stories/dc-nude.webp",
+      "/DC/Stories/dc-sambas.webp",
+    ],
+    href: "/cases/dropclub", tag: "Commerce",
   },
 ];
 
@@ -188,55 +185,187 @@ function ChevronRight() {
   );
 }
 
-const coverflowCss = `
-  .milk-swiper {
+const CARD_W = 640;
+const CARD_H = 480;
+const SIDE_OFFSET = 400; // px from center to side-card center
+
+const mobileCss = `
+  .milk-swiper-mobile {
     width: 100%;
     overflow: visible !important;
-    padding-bottom: 52px !important;
+    padding-bottom: 0 !important;
   }
-  .milk-swiper .swiper-slide {
-    width: clamp(460px, 54vw, 780px);
+  .milk-swiper-mobile .swiper-slide {
+    width: 85vw;
+    max-width: 360px;
     border-radius: 16px;
     overflow: hidden;
-    cursor: grab;
-  }
-  .milk-swiper .swiper-slide:active { cursor: grabbing; }
-  .milk-swiper .swiper-pagination-bullet {
-    background: #0C0C12 !important;
-    opacity: 0.2;
-    width: 6px;
-    height: 6px;
-    transition: all 0.3s;
-  }
-  .milk-swiper .swiper-pagination-bullet-active {
-    opacity: 1;
-    width: 20px;
-    border-radius: 3px;
   }
 `;
 
-// ── Coverflow carousel (desktop + mobile) ─────────────────────────────────────
-function CoverflowCarousel() {
-  const swiperRef = useRef<SwiperType | null>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  // Defer CinematicBoard mount so Swiper finishes positioning slides
-  // before the IntersectionObserver inside CinematicBoard fires.
-  const [cinematicReady, setCinematicReady] = useState(false);
+// ── Shared slide content ───────────────────────────────────────────────────────
+function SlideContent({
+  item,
+  index,
+  activeIndex,
+  isActive,
+  cinematicReady,
+  isMobile,
+  swiperRef,
+}: {
+  item: OrbitItem;
+  index: number;
+  activeIndex: number;
+  isActive: boolean;
+  cinematicReady: boolean;
+  isMobile: boolean;
+  swiperRef: React.RefObject<SwiperType | null>;
+}) {
+  return (
+    <a
+      href={isActive ? item.href : undefined}
+      onClick={(e) => { if (!isActive) { e.preventDefault(); swiperRef.current?.slideToLoop(index); } }}
+      style={{ display: "block", width: "100%", height: "100%", position: "relative", textDecoration: "none" }}
+    >
+      {/* Image or CinematicBoard (desktop only) */}
+      {!isMobile && index === activeIndex && item.cinematicSrc && cinematicReady ? (
+        <div style={{ width: "100%", height: "100%", overflow: "hidden" }}>
+          <CinematicBoard
+            src={item.cinematicSrc}
+            shots={item.cinematicShots ?? DEFAULT_SHOTS}
+            cursors={item.cinematicCursors ?? DEFAULT_CURSORS}
+            height={500}
+          />
+        </div>
+      ) : (
+        <img
+          src={item.staticImage ?? item.image}
+          alt={item.title}
+          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+        />
+      )}
+
+      {/* Scrim on inactive */}
+      {!isActive && (
+        <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.38)" }} />
+      )}
+
+      {/* Caption on active */}
+      {isActive && (
+        <div style={{ position: "absolute", inset: 0 }}>
+          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.75) 100%)" }} />
+          <div style={{ position: "absolute", bottom: 24, left: 24, right: 24 }}>
+            <p className="text-micro" style={{ color: "rgba(255,255,255,0.55)", marginBottom: 6 }}>
+              {item.tag} · {item.year}
+            </p>
+            <p className="text-subheading" style={{ color: "#fff" }}>
+              {item.title}
+            </p>
+            <p className="text-body" style={{ color: "rgba(255,255,255,0.5)", marginTop: 6 }}>
+              {item.role}
+            </p>
+          </div>
+        </div>
+      )}
+    </a>
+  );
+}
+
+// ── Dot indicators (shared) ────────────────────────────────────────────────────
+function Dots({ count, active, onDotClick }: { count: number; active: number; onDotClick: (i: number) => void }) {
+  return (
+    <div className="flex gap-2 items-center justify-center">
+      {Array.from({ length: count }).map((_, i) => (
+        <button
+          key={i}
+          onClick={() => onDotClick(i)}
+          className={`rounded-full transition-all duration-300 ${
+            i === active ? "w-5 h-[6px] bg-[#0C0C12]" : "w-[6px] h-[6px] bg-[#C0C0C0]"
+          }`}
+          aria-label={`Go to project ${i + 1}`}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ── Mobile swipe hint ──────────────────────────────────────────────────────────
+function SwipeHint() {
+  const [visible, setVisible] = useState(false);
+
   useEffect(() => {
-    const t = setTimeout(() => setCinematicReady(true), 200);
-    return () => clearTimeout(t);
+    let timer: ReturnType<typeof setTimeout>;
+    const reset = () => {
+      setVisible(false);
+      clearTimeout(timer);
+      timer = setTimeout(() => setVisible(true), 4000);
+    };
+    timer = setTimeout(() => setVisible(true), 4000);
+    window.addEventListener("touchmove", reset, { passive: true });
+    window.addEventListener("scroll", reset, { passive: true });
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("touchmove", reset);
+      window.removeEventListener("scroll", reset);
+    };
   }, []);
+
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          className="absolute inset-0 flex items-center justify-center pointer-events-none"
+          style={{ zIndex: 20 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <div className="flex flex-col items-center gap-2">
+            <motion.div
+              className="flex items-center gap-3"
+              animate={{ x: [-10, 10, -10] }}
+              transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M13 4l-6 6 6 6" stroke="#2E2E2E" strokeOpacity="0.4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(47,47,47,0.08)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width="16" height="20" viewBox="0 0 16 20" fill="none">
+                  <path d="M8 1C9.5 1 10.5 2 10.5 3.5v8C10.5 13 9.5 14 8 14s-2.5-1-2.5-2.5v-8C5.5 2 6.5 1 8 1z" stroke="#2E2E2E" strokeOpacity="0.4" strokeWidth="1.2" />
+                  <path d="M10.5 6.5C12 6.5 14 7.5 14 9.5v4C14 16.5 11.5 19 8 19S2 16.5 2 13.5v-4C2 7.5 4 6.5 5.5 6.5" stroke="#2E2E2E" strokeOpacity="0.4" strokeWidth="1.2" strokeLinecap="round" />
+                </svg>
+              </div>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M7 4l6 6-6 6" stroke="#2E2E2E" strokeOpacity="0.4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </motion.div>
+            <span className="text-micro" style={{ color: "rgba(47,47,47,0.4)" }}>swipe</span>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+// ── Coverflow carousel ─────────────────────────────────────────────────────────
+function CoverflowCarousel({ initialIndex = 0 }: { initialIndex?: number }) {
+  const swiperMobile = useRef<SwiperType | null>(null);
+  const [activeIndex, setActiveIndex] = useState(initialIndex);
+  const n = orbitItems.length;
+  const goNext = () => setActiveIndex(i => (i + 1) % n);
+  const goPrev = () => setActiveIndex(i => (i - 1 + n) % n);
 
   return (
     <div
       id="portfolio"
       className="snap-section flex flex-col"
-      style={{ height: "100vh", paddingTop: 80, paddingBottom: 36, background: "#FAFAFA" }}
+      style={{ height: "100vh", paddingTop: 80, paddingBottom: 36, background: "#FFFFFF", overflowY: "clip" }}
     >
-      <style>{coverflowCss}</style>
+      <style>{mobileCss}</style>
 
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center" }}>
-        {/* Heading */}
+      {/* ── DESKTOP: custom 3-card coverflow ── */}
+      <div className="hidden lg:flex flex-col" style={{ flex: 1, justifyContent: "center" }}>
         <h2
           className="font-sans font-medium text-[#0C0C12] text-center shrink-0"
           style={{ fontSize: "clamp(40px, 7vw, 88px)", letterSpacing: "-0.05em", lineHeight: 0.9, marginBottom: 32 }}
@@ -244,113 +373,133 @@ function CoverflowCarousel() {
           Featured Work
         </h2>
 
-        {/* Swiper */}
-        <div style={{ width: "80%", margin: "0 auto", overflow: "hidden" }}>
-        <Swiper
-          onSwiper={(s) => { swiperRef.current = s; }}
-          onSlideChange={(s) => setActiveIndex(s.realIndex)}
-          initialSlide={0}
-          effect="coverflow"
-          grabCursor
-          centeredSlides
-          slidesPerView="auto"
-          loop
-          coverflowEffect={{
-            rotate: 38,
-            stretch: 0,
-            depth: 120,
-            modifier: 1,
-            slideShadows: true,
-          }}
-          modules={[EffectCoverflow, Pagination]}
-          className="milk-swiper w-full"
-          style={{ height: "clamp(300px, 58vh, 600px)" }}
-        >
-          {orbitItems.map((item, i) => (
-            <SwiperSlide key={item.href}>
-              {({ isActive }) => (
-                <a
-                  href={isActive ? item.href : undefined}
-                  onClick={(e) => { if (!isActive) { e.preventDefault(); swiperRef.current?.slideToLoop(i); } }}
-                  style={{
-                    display: "block",
-                    width: "100%",
-                    height: "100%",
-                    position: "relative",
-                    textDecoration: "none",
-                  }}
-                >
-                  {i === activeIndex && item.cinematicSrc && cinematicReady ? (
-                    <div style={{ width: "100%", height: "100%", overflow: "hidden" }}>
-                      <CinematicBoard
-                        src={item.cinematicSrc}
-                        shots={item.cinematicShots ?? DEFAULT_SHOTS}
-                        cursors={item.cinematicCursors ?? DEFAULT_CURSORS}
-                        height={640}
-                      />
+        {/* 3-card coverflow — all cards in DOM, positioned via CSS transforms */}
+        <div style={{ position: "relative", height: CARD_H, perspective: "1400px" }}>
+          {orbitItems.map((item, i) => {
+            const diff = (i - activeIndex + n) % n;
+            const isActive = diff === 0;
+            const isRight = diff === 1;
+            const isLeft = diff === n - 1;
+            const isVisible = isActive || isRight || isLeft;
+            const tx = isActive ? 0 : isRight ? SIDE_OFFSET : -SIDE_OFFSET;
+            const ry = isActive ? 0 : isRight ? -30 : 30;
+            const sc = isActive ? 1 : 0.78;
+            const op = isVisible ? 1 : 0;
+            const zi = isActive ? 10 : 1;
+            return (
+              <a
+                key={item.href}
+                href={isActive ? item.href : undefined}
+                onClick={isActive ? undefined : (e) => { e.preventDefault(); if (isVisible) { isRight ? goNext() : goPrev(); } }}
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: `calc(50% - ${CARD_W / 2}px)`,
+                  width: CARD_W,
+                  height: CARD_H,
+                  display: "block",
+                  textDecoration: "none",
+                  borderRadius: 12,
+                  overflow: "hidden",
+                  cursor: isVisible ? "pointer" : "default",
+                  pointerEvents: isVisible ? "auto" : "none",
+                  zIndex: zi,
+                  transform: `translateX(${tx}px) rotateY(${ry}deg) scale(${sc})`,
+                  opacity: op,
+                  transition: "transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease",
+                  boxShadow: isActive ? "0 24px 80px rgba(0,0,0,0.28)" : "0 8px 40px rgba(0,0,0,0.15)",
+                }}
+              >
+                <img
+                  src={item.staticImage ?? item.image}
+                  alt={item.title}
+                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                />
+                {isActive && (
+                  <div style={{ position: "absolute", inset: 0 }}>
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.75) 100%)" }} />
+                    <div style={{ position: "absolute", bottom: 24, left: 24, right: 24 }}>
+                      <p className="text-micro" style={{ color: "rgba(255,255,255,0.55)", marginBottom: 6 }}>{item.tag} · {item.year}</p>
+                      <p className="text-subheading" style={{ color: "#fff" }}>{item.title}</p>
+                      <p className="text-body" style={{ color: "rgba(255,255,255,0.5)", marginTop: 6 }}>{item.role}</p>
                     </div>
-                  ) : (
-                    <img
-                      src={item.staticImage ?? item.image}
-                      alt={item.title}
-                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                    />
-                  )}
-
-                  {/* Scrim on inactive */}
-                  {!isActive && (
-                    <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.38)" }} />
-                  )}
-
-                  {/* Caption on active */}
-                  {isActive && (
-                    <div style={{ position: "absolute", inset: 0 }}>
-                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.75) 100%)" }} />
-                      <div style={{ position: "absolute", bottom: 24, left: 24, right: 24 }}>
-                        <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 10, letterSpacing: "-0.3px", fontFamily: "var(--font-mono)", marginBottom: 6 }}>
-                          {item.tag} · {item.year}
-                        </p>
-                        <p style={{ color: "#fff", fontSize: 18, fontWeight: 600, letterSpacing: "-0.7px", lineHeight: 1.2, fontFamily: "var(--font-sans)" }}>
-                          {item.title}
-                        </p>
-                        <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, fontFamily: "var(--font-sans)", marginTop: 5 }}>
-                          {item.role}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </a>
-              )}
-            </SwiperSlide>
-          ))}
-        </Swiper>
+                  </div>
+                )}
+              </a>
+            );
+          })}
         </div>
 
-        {/* Controls */}
-        <div className="shrink-0 flex items-center justify-center gap-4" style={{ marginTop: 4 }}>
+        <div className="shrink-0 flex items-center justify-center gap-4" style={{ marginTop: 28 }}>
           <button
-            onClick={() => swiperRef.current?.slidePrev()}
+            onClick={goPrev}
             className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors"
             aria-label="Previous project"
           >
             <ChevronLeft />
           </button>
-
-          <div className="flex gap-2 items-center">
-            {orbitItems.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => swiperRef.current?.slideToLoop(i)}
-                className={`rounded-full transition-all duration-300 ${
-                  i === activeIndex ? "w-5 h-[6px] bg-[#0C0C12]" : "w-[6px] h-[6px] bg-[#C0C0C0]"
-                }`}
-                aria-label={`Go to project ${i + 1}`}
-              />
-            ))}
-          </div>
-
+          <Dots count={n} active={activeIndex} onDotClick={setActiveIndex} />
           <button
-            onClick={() => swiperRef.current?.slideNext()}
+            onClick={goNext}
+            className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors"
+            aria-label="Next project"
+          >
+            <ChevronRight />
+          </button>
+        </div>
+      </div>
+
+      {/* ── MOBILE: peek slider ── */}
+      <div className="flex lg:hidden flex-col" style={{ flex: 1, justifyContent: "center" }}>
+        <h2
+          className="font-sans font-medium text-[#0C0C12] text-center shrink-0"
+          style={{ fontSize: "clamp(32px, 9vw, 48px)", letterSpacing: "-0.05em", lineHeight: 0.9, marginBottom: 24 }}
+        >
+          Featured Work
+        </h2>
+
+        <div className="relative w-full">
+          <Swiper
+            onSwiper={(s) => { swiperMobile.current = s; }}
+            onSlideChange={(s) => setActiveIndex(s.realIndex)}
+            initialSlide={0}
+            effect="slide"
+            slidesPerView={1.15}
+            spaceBetween={14}
+            slidesOffsetBefore={24}
+            slidesOffsetAfter={24}
+            loop
+            centeredSlides={false}
+            modules={[]}
+            className="milk-swiper-mobile w-full"
+            style={{ height: "clamp(360px, 55vh, 500px)" }}
+          >
+            {orbitItems.map((item, i) => (
+              <SwiperSlide key={item.href}>
+                {({ isActive }) => (
+                  <SlideContent
+                    item={item} index={i} activeIndex={activeIndex}
+                    isActive={isActive} cinematicReady={false}
+                    isMobile={true} swiperRef={swiperMobile}
+                  />
+                )}
+              </SwiperSlide>
+            ))}
+          </Swiper>
+          <SwipeHint />
+        </div>
+
+        <div className="shrink-0 flex items-center justify-center gap-4" style={{ marginTop: 20 }}>
+          <button
+            onClick={() => swiperMobile.current?.slidePrev()}
+            className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors"
+            aria-label="Previous project"
+          >
+            <ChevronLeft />
+          </button>
+          <Dots count={orbitItems.length} active={activeIndex} onDotClick={(i) => swiperMobile.current?.slideToLoop(i)} />
+          <button
+            onClick={() => swiperMobile.current?.slideNext()}
             className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors"
             aria-label="Next project"
           >
@@ -363,6 +512,6 @@ function CoverflowCarousel() {
 }
 
 // ── Main export ───────────────────────────────────────────────────────────────
-export default function ProjectsSection() {
-  return <CoverflowCarousel />;
+export default function ProjectsSection({ initialIndex }: { initialIndex?: number } = {}) {
+  return <CoverflowCarousel initialIndex={initialIndex} />;
 }

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { motion, useScroll, useTransform, useInView, type MotionValue } from "framer-motion";
+import { motion, useScroll, useTransform, useInView } from "framer-motion";
+import type { MotionValue } from "framer-motion";
 import Lottie from "lottie-react";
 
 function Word({
@@ -30,7 +31,6 @@ function Word({
   );
 }
 
-
 export default function BioSection() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [animData, setAnimData] = useState<any>(null);
@@ -42,7 +42,6 @@ export default function BioSection() {
     offset: ["start start", "end end"],
   });
 
-  // Offset so words start lighting on arrival and all complete before exit
   const progress = useTransform(scrollYProgress, [0, 1], [0.1, 1.2]);
 
   useEffect(() => {
@@ -86,7 +85,6 @@ export default function BioSection() {
           </div>
           {animData && (
             <>
-              {/* Mobile: absolutely positioned below text, rises into view */}
               <motion.div
                 className="absolute top-full lg:hidden"
                 style={{ marginTop: -80, width: "min(95vw, 560px)", left: "50%" }}
@@ -99,7 +97,6 @@ export default function BioSection() {
               >
                 <Lottie animationData={animData} loop />
               </motion.div>
-              {/* Desktop: rises from below the fold */}
               <motion.div
                 className="absolute top-full hidden lg:block"
                 style={{ marginTop: -160, width: "clamp(480px, 65vw, 900px)" }}

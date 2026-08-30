@@ -3,10 +3,11 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, useInView, useScroll, useTransform, useMotionValue, type MotionValue } from "framer-motion";
-import { RevealLine, BlurReveal } from "./animations";
+import { RevealLine } from "./animations";
 import Link from "next/link";
 import { CaseData, CaseSection } from "@/app/lib/cases";
-import { ProjectCard, projects, orbitItems, type OrbitItem } from "./ProjectsSection";
+import ProjectsSection, { ProjectCard, projects, orbitItems, type OrbitItem } from "./ProjectsSection";
+import SocialCards from "./ui/card-fan-carousel";
 import CinematicBoard, { DEFAULT_SHOTS, DEFAULT_CURSORS } from "./CinematicBoard";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -50,7 +51,7 @@ function ChevronRight() {
 // Continuous conveyor-belt strip. Card rotateY is a function of screen x-position
 // (not tied to a specific card) so each card's tilt smoothly updates as it drifts.
 
-const HERO_BG = "#FFFFFF"; // strip edge fades — matches liquid wave background
+const HERO_BG = "#FAFAFA"; // strip edge fades — matches site background
 
 function CaseHeroImageStrip({ images, inView }: { images: string[]; inView: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -60,14 +61,9 @@ function CaseHeroImageStrip({ images, inView }: { images: string[]; inView: bool
   // Landscape 3:2 cards
   const CARD_H = 260;  // px
   const CARD_W = 390;  // px  (3:2 ratio)
-  const GAP = 6;
+  const GAP = 0;
   const SPEED = 1.125;
   const MAX_ANGLE = 44; // degrees at screen edges
-
-  // Which slot per set renders as the filmstrip variant
-  const FILM_SLOT = Math.floor(images.length / 2);
-  // Images to show inside the filmstrip (up to 4 thumbnails)
-  const filmThumb = images.slice(0, 4);
 
   // Triple the array so the strip overflows both viewport sides seamlessly
   const isVideoSrc = (s: string) => /\.(mp4|webm|mov)$/i.test(s);
@@ -126,8 +122,6 @@ function CaseHeroImageStrip({ images, inView }: { images: string[]; inView: bool
           }}
         >
           {loopImages.map((src, i) => {
-            const slotInSet = i % images.length;
-            const isFilm = slotInSet === FILM_SLOT;
             return (
               <div
                 key={i}
@@ -140,29 +134,15 @@ function CaseHeroImageStrip({ images, inView }: { images: string[]; inView: bool
                   height: CARD_H,
                   borderRadius: 12,
                   overflow: "hidden",
-                  boxShadow: "0 6px 28px rgba(0,0,0,0.13)",
+                  boxShadow: "none",
                   willChange: "transform",
-                  // filmstrip card gets a dark frame
-                  background: isFilm ? "#111" : undefined,
-                  display: isFilm ? "flex" : "block",
-                  alignItems: isFilm ? "stretch" : undefined,
-                  gap: isFilm ? "4px" : undefined,
-                  padding: isFilm ? "8px" : undefined,
-                  boxSizing: isFilm ? "border-box" : undefined,
+                  background: "transparent",
                 }}
               >
-                {isFilm ? (
-                  filmThumb.map((ts, j) => (
-                    <div key={j} style={{ flex: 1, borderRadius: 6, overflow: "hidden" }}>
-                      {isVideoSrc(ts)
-                        ? <video src={ts} autoPlay muted loop playsInline style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                        : <img src={ts} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />}
-                    </div>
-                  ))
-                ) : isVideoSrc(src) ? (
-                  <video src={src} autoPlay muted loop playsInline style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                {isVideoSrc(src) ? (
+                  <video src={src} autoPlay muted loop playsInline style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
                 ) : (
-                  <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                  <img src={src} alt="" {...(i === 0 ? { fetchPriority: "high" as const } : { loading: "lazy" as const })} style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
                 )}
               </div>
             );
@@ -238,11 +218,14 @@ function CaseHero({ caseData }: { caseData: CaseData }) {
               </RevealLine>
             ))}
           </h1>
-          <BlurReveal
-            text={caseData.subtitle}
+          <motion.p
             className="text-body text-[#565656] max-w-[640px] mt-1"
-            delay={0.45}
-          />
+            initial={{ opacity: 0 }}
+            animate={inView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.7, ease, delay: 0.45 }}
+          >
+            {caseData.subtitle}
+          </motion.p>
           <motion.div
             className="flex flex-col sm:flex-row sm:flex-wrap justify-center items-stretch sm:items-center gap-3 w-full sm:w-auto"
             initial={{ opacity: 0, y: 12 }}
@@ -287,7 +270,7 @@ function CaseHero({ caseData }: { caseData: CaseData }) {
           hero buttons. Absolutely positioned so it straddles the hero/sections
           boundary. overflow: hidden clips horizontal card bleed. ── */}
       {heroImages.length > 0 && (
-        <div className="hidden lg:block" style={{ position: "absolute", bottom: -130, left: 0, right: 0, zIndex: 5, overflow: "hidden" }}>
+        <div style={{ position: "absolute", bottom: -210, left: 0, right: 0, zIndex: 5, overflow: "hidden" }}>
           <CaseHeroImageStrip images={heroImages} inView={inView} />
         </div>
       )}
@@ -575,81 +558,105 @@ function CenteredSection({ section }: { section: Extract<CaseSection, { type: "c
 
 function CarouselSection({ section }: { section: Extract<CaseSection, { type: "carousel" }> }) {
   const [active, setActive] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-8%" });
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(innerRef, { once: true, margin: "-8%" });
 
   const total = section.images.length;
   const go = (next: number) => setActive(((next % total) + total) % total);
 
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end end"],
+  });
+
+  // Advance the active slide as the user scrolls through the section
+  useEffect(() => {
+    return scrollYProgress.on("change", (v) => {
+      setActive(Math.min(total - 1, Math.floor(v * total)));
+    });
+  }, [scrollYProgress, total]);
+
   return (
-    <div ref={ref} className="snap-section min-h-screen flex items-center px-8 lg:px-[180px] py-24 lg:py-28 relative bg-[#FAFAFA]">
-      <motion.div
-        className="w-full"
-        initial={{ opacity: 0, y: 40 }}
-        animate={inView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.9, ease, delay: 0.1 }}
+    <div
+      ref={sectionRef}
+      className="snap-section"
+      data-native-scroll="true"
+      style={{ height: `${total * 100}vh` }}
+    >
+      <div
+        ref={innerRef}
+        className="sticky top-0 flex items-center px-8 lg:px-[180px] py-24 lg:py-28 relative bg-[#FAFAFA]"
+        style={{ height: "100svh" }}
       >
         <motion.div
-          className="relative overflow-hidden rounded-2xl aspect-[4/3] lg:aspect-[16/9] bg-[#0C0C12]"
-          data-dark="true"
-          drag="x"
-          dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0.12}
-          onDragEnd={(_e, info) => {
-            if (Math.abs(info.velocity.x) > 200 || Math.abs(info.offset.x) > 60) {
-              go(info.offset.x < 0 ? active + 1 : active - 1);
-            }
-          }}
-          style={{ touchAction: "pan-y", cursor: "grab" }}
-          whileTap={{ cursor: "grabbing" }}
+          className="w-full"
+          initial={{ opacity: 0, y: 40 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.9, ease, delay: 0.1 }}
         >
-          <AnimatePresence mode="wait">
-            <motion.img
-              key={active}
-              src={section.images[active]}
-              alt={`Slide ${active + 1}`}
-              className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-              initial={{ scale: 1.0, opacity: 0 }}
-              animate={{ scale: 1.06, opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{
-                scale: { duration: 9, ease: "linear" },
-                opacity: { duration: 0.45, ease: "easeInOut" },
-              }}
-            />
-          </AnimatePresence>
-        </motion.div>
-        <div className="flex items-center justify-between mt-4">
-          <div className="flex gap-2 items-center">
-            {section.images.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => go(i)}
-                className={`rounded-full transition-all duration-300 ${
-                  i === active ? "w-5 h-[6px] bg-[#0C0C12]" : "w-[6px] h-[6px] bg-[#C0C0C0]"
-                }`}
-                aria-label={`Go to image ${i + 1}`}
+          <motion.div
+            className="relative overflow-hidden rounded-2xl aspect-[4/3] lg:aspect-[16/9] bg-[#0C0C12]"
+            data-dark="true"
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.12}
+            onDragEnd={(_e, info) => {
+              if (Math.abs(info.velocity.x) > 200 || Math.abs(info.offset.x) > 60) {
+                go(info.offset.x < 0 ? active + 1 : active - 1);
+              }
+            }}
+            style={{ touchAction: "pan-y", cursor: "grab" }}
+            whileTap={{ cursor: "grabbing" }}
+          >
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={active}
+                src={section.images[active]}
+                alt={`Slide ${active + 1}`}
+                className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                initial={{ scale: 1.0, opacity: 0 }}
+                animate={{ scale: 1.06, opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  scale: { duration: 9, ease: "linear" },
+                  opacity: { duration: 0.45, ease: "easeInOut" },
+                }}
               />
-            ))}
+            </AnimatePresence>
+          </motion.div>
+          <div className="flex items-center justify-between mt-4">
+            <div className="flex gap-2 items-center">
+              {section.images.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => go(i)}
+                  className={`rounded-full transition-all duration-300 ${
+                    i === active ? "w-5 h-[6px] bg-[#0C0C12]" : "w-[6px] h-[6px] bg-[#C0C0C0]"
+                  }`}
+                  aria-label={`Go to image ${i + 1}`}
+                />
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => go(active - 1)}
+                className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors"
+                aria-label="Previous image"
+              >
+                <ChevronLeft />
+              </button>
+              <button
+                onClick={() => go(active + 1)}
+                className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors"
+                aria-label="Next image"
+              >
+                <ChevronRight />
+              </button>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => go(active - 1)}
-              className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors"
-              aria-label="Previous image"
-            >
-              <ChevronLeft />
-            </button>
-            <button
-              onClick={() => go(active + 1)}
-              className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors"
-              aria-label="Next image"
-            >
-              <ChevronRight />
-            </button>
-          </div>
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
     </div>
   );
 }
@@ -658,15 +665,11 @@ function CarouselSection({ section }: { section: Extract<CaseSection, { type: "c
 
 function ScrollGallerySection({ section }: { section: Extract<CaseSection, { type: "scroll-gallery" }> }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mobileContainerRef = useRef<HTMLDivElement>(null);
+  const mobileRef    = useRef<HTMLDivElement>(null);
+  const mobileInView = useInView(mobileRef, { once: true, margin: "-10%" });
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start start", "end end"],
-  });
-
-  const { scrollYProgress: mobileScroll } = useScroll({
-    target: mobileContainerRef,
     offset: ["start start", "end end"],
   });
 
@@ -689,18 +692,9 @@ function ScrollGallerySection({ section }: { section: Extract<CaseSection, { typ
 
   const heroWidth  = useTransform(scrollYProgress, [0.65, 0.7, 0.9, 1], ["36vw", "36vw", "100vw", "100vw"]);
   const heroHeight = useTransform(scrollYProgress, [0.65, 0.7, 0.9, 1], ["44vh", "44vh", "100vh", "100vh"]);
-  const underOpacity = useTransform(scrollYProgress, [0.75, 0.85], [1, 0]);
-
-  // Mobile transforms — same three-phase choreography adapted for portrait
-  const heroXMobile  = useTransform(mobileScroll, [0, 0.3, 0.35, 0.65, 1], ["-3vw", "-3vw", "-3vw", "0vw", "0vw"]);
-  const heroYMobile  = useTransform(mobileScroll, [0, 0.3, 0.35, 0.65, 1], ["-16vh", "-16vh", "-16vh", "0vh", "0vh"]);
-  const leftXMobile  = useTransform(mobileScroll, [0, 0.3, 0.35, 0.65, 1], ["-22vw", "-22vw", "-22vw", "0vw", "0vw"]);
-  const leftYMobile  = useTransform(mobileScroll, [0, 0.3, 0.35, 0.65, 1], ["20vh", "20vh", "20vh", "0vh", "0vh"]);
-  const rightXMobile = useTransform(mobileScroll, [0, 0.3, 0.35, 0.65, 1], ["20vw", "20vw", "20vw", "0vw", "0vw"]);
-  const rightYMobile = useTransform(mobileScroll, [0, 0.3, 0.35, 0.65, 1], ["20vh", "2vh", "2vh", "0vh", "0vh"]);
-  const heroWidthMobile  = useTransform(mobileScroll, [0.65, 0.7, 0.9, 1], ["74vw", "74vw", "100vw", "100vw"]);
-  const heroHeightMobile = useTransform(mobileScroll, [0.65, 0.7, 0.9, 1], ["46vh", "46vh", "100vh", "100vh"]);
-  const underOpacityMobile = useTransform(mobileScroll, [0.75, 0.85], [1, 0]);
+  const underOpacity = useTransform(scrollYProgress, [0.60, 0.68], [1, 0]);
+  const heroOpacity  = useMotionValue(1);
+  const introScale   = useTransform(scrollYProgress, [0, 0.12], [0.88, 1]);
 
   const baseClass = "absolute left-1/2 top-1/2 overflow-hidden -translate-x-1/2 -translate-y-1/2 shadow-2xl will-change-transform";
   const imgStyle = (pos?: string): React.CSSProperties => ({ width: "100%", height: "100%", objectFit: "cover", objectPosition: pos ?? "center", display: "block" });
@@ -710,29 +704,26 @@ function ScrollGallerySection({ section }: { section: Extract<CaseSection, { typ
 
   return (
     <>
-      {/* Mobile: scroll choreography — mirrors desktop triangle → expand */}
+      {/* Mobile: simple stacked layout — no scroll choreography, no motion */}
       <div
-        ref={mobileContainerRef}
-        className="lg:hidden"
-        style={{ height: "250vh" }}
+        ref={mobileRef}
+        className="snap-section lg:hidden"
+        style={{ padding: "60px 16px 60px" }}
       >
-        <div className="sticky top-0 h-screen w-full overflow-hidden">
-          <div className="absolute inset-0">
-            {/* Left image → converges, then fades */}
-            <motion.div style={{ x: leftXMobile, y: leftYMobile, opacity: underOpacityMobile, width: "62vw", height: "42vw" }} className={`${baseClass} z-10 rounded`}>
-              <img src={img1} alt="" style={imgStyle(pos1)} />
-            </motion.div>
-
-            {/* Right image → drifts up slightly, then converges, then fades */}
-            <motion.div style={{ x: rightXMobile, y: rightYMobile, opacity: underOpacityMobile, width: "62vw", height: "42vw" }} className={`${baseClass} z-20 rounded`}>
-              <img src={img2} alt="" style={imgStyle(pos2)} />
-            </motion.div>
-
-            {/* Hero → near center-top, then expands to full screen */}
-            <motion.div style={{ x: heroXMobile, y: heroYMobile, width: heroWidthMobile, height: heroHeightMobile }} className={`${baseClass} z-30 rounded`}>
-              <img src={img0} alt="" style={imgStyle(pos0)} />
-            </motion.div>
-          </div>
+        <div style={{ width: "100%", height: "55svh", borderRadius: 14, overflow: "hidden", marginBottom: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <img src={img0} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
+        </div>
+        <div style={{ display: "flex", gap: 10, height: "38svh" }}>
+          {img1 && (
+            <div style={{ flex: 1, borderRadius: 14, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <img src={img1} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
+            </div>
+          )}
+          {img2 && (
+            <div style={{ flex: 1, borderRadius: 14, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <img src={img2} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
+            </div>
+          )}
         </div>
       </div>
 
@@ -743,25 +734,25 @@ function ScrollGallerySection({ section }: { section: Extract<CaseSection, { typ
         style={{ height: "300vh" }}
         data-free-scroll="true"
       >
-        <div className="sticky top-0 h-screen w-full overflow-hidden">
+        <div className="sticky top-0 h-screen w-full overflow-hidden" style={{ background: "#FAFAFA" }}>
           <div className="absolute inset-0 flex items-center justify-center">
 
             {/* Left image → stays, then converges */}
-            <motion.div style={{ x: leftX, y: leftY, opacity: underOpacity, width: "36vw", maxHeight: "44vh" }} className={`${baseClass} z-10 rounded`}>
-              <img src={img1} alt="" style={imgStyle(pos1)} />
+            <motion.div style={{ x: leftX, y: leftY, opacity: underOpacity, scale: introScale, width: "36vw", maxHeight: "44vh" }} className={`${baseClass} z-10 rounded`}>
+              <img src={img1} alt="" loading="lazy" style={imgStyle(pos1)} />
             </motion.div>
 
             {/* Right image → drifts up, then converges */}
-            <motion.div style={{ x: rightX, y: rightY, opacity: underOpacity, width: "36vw", maxHeight: "44vh" }} className={`${baseClass} z-20 rounded`}>
-              <img src={img2} alt="" style={imgStyle(pos2)} />
+            <motion.div style={{ x: rightX, y: rightY, opacity: underOpacity, scale: introScale, width: "36vw", maxHeight: "44vh" }} className={`${baseClass} z-20 rounded`}>
+              <img src={img2} alt="" loading="lazy" style={imgStyle(pos2)} />
             </motion.div>
 
             {/* Hero → near center, then expands to full screen */}
             <motion.div
-              style={{ x: heroX, y: heroY, width: heroWidth, height: heroHeight }}
+              style={{ x: heroX, y: heroY, width: heroWidth, height: heroHeight, opacity: heroOpacity, scale: introScale }}
               className={`${baseClass} z-30 rounded`}
             >
-              <img src={img0} alt="" style={imgStyle(pos0)} />
+              <img src={img0} alt="" loading="lazy" style={imgStyle(pos0)} />
             </motion.div>
 
           </div>
@@ -818,7 +809,7 @@ function StatsSectionBlock({ section }: { section: Extract<CaseSection, { type: 
         </h2>
 
         {/* Two-column body — both top-aligned 24px below heading */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-32 lg:items-start" style={{ marginTop: 24 }}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-32 lg:items-start">
 
           {/* Left — first paragraph */}
           <div className="flex flex-col gap-4">
@@ -1063,25 +1054,13 @@ function KeepStalkingCarousel({ currentSlug }: { currentSlug: string }) {
                       cursor: "pointer",
                     }}
                   >
-                    {isActive && item.cinematicSrc ? (
-                      <div style={{ position: "absolute", inset: 0 }}>
-                        <CinematicBoard
-                          src={item.cinematicSrc}
-                          shots={item.cinematicShots ?? DEFAULT_SHOTS}
-                          cursors={item.cinematicCursors ?? DEFAULT_CURSORS}
-                          height={800}
-                          bg="#0C0C12"
-                        />
-                      </div>
-                    ) : (
-                      <img
-                        src={isActive
-                          ? (item.images ? item.images[slideIndex] : item.image)
-                          : (item.staticImage ?? item.image)}
-                        alt={item.title}
-                        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                      />
-                    )}
+                    <img
+                      src={isActive
+                        ? (item.images ? item.images[slideIndex] : item.image)
+                        : (item.staticImage ?? item.image)}
+                      alt={item.title}
+                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                    />
 
                     {!isActive && (
                       <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.45)", transition: "opacity 0.4s ease" }} />
@@ -1230,6 +1209,67 @@ type ChapterItemType = {
   image: string; video?: string; slug?: string;
 };
 
+// ─── H0. MobileTimelineCard (per-card entrance + reveal on mobile) ───────────
+
+function MobileTimelineCard({ item, i }: { item: ChapterItemType; i: number }) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const inView  = useInView(cardRef, { once: true, margin: "-6%" });
+  const avail   = !!item.slug;
+
+  const mediaBlock = (
+    <motion.div
+      className="relative overflow-hidden mb-3"
+      style={{ aspectRatio: "16/9" }}
+      animate={{ clipPath: inView ? "inset(0% 0% 0% 0%)" : "inset(100% 0% 0% 0%)" }}
+      transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1], delay: 0.18 }}
+    >
+      <motion.div
+        style={{ height: "116%", width: "100%", marginTop: "-8%", position: "relative" }}
+        animate={{ scale: inView ? 1 : 1.06 }}
+        transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1], delay: 0.18 }}
+      >
+        {item.video
+          ? <video src={item.video} autoPlay muted loop playsInline disablePictureInPicture className="w-full h-full object-cover" />
+          : <img src={item.image} alt={item.title} className="w-full h-full object-cover" />}
+      </motion.div>
+    </motion.div>
+  );
+
+  return (
+    <motion.div
+      ref={cardRef}
+      className="flex gap-4 pb-8 last:pb-0"
+      initial={{ opacity: 0, y: 14 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.65, ease, delay: 0.08 }}
+    >
+      {/* Dot */}
+      <div style={{ width: 10, flexShrink: 0, paddingTop: 5, position: "relative", zIndex: 1 }}>
+        <div style={{ width: 9, height: 9, borderRadius: "50%", background: avail ? "#0C0C12" : "#C4C4C4", border: "2px solid #FAFAFA" }} />
+      </div>
+
+      {/* Card */}
+      <div className="flex-1" style={{ opacity: avail ? 1 : 0.5 }}>
+        <p className="text-micro text-[#565656] mb-2">{item.part}</p>
+        {avail ? (
+          <a href={`/cases/${item.slug}`} className="block">
+            {mediaBlock}
+            <p className="text-subheading text-[#0C0C12] mt-1">{item.title}</p>
+            <p className="text-body text-[#565656] mt-1">{item.description}</p>
+          </a>
+        ) : (
+          <div>
+            {mediaBlock}
+            <p className="text-subheading text-[#0C0C12] mt-1">{item.title}</p>
+            <p className="text-body text-[#565656] mt-1">{item.description}</p>
+            <span className="inline-block mt-2 text-micro text-[#565656] border border-[#C4C4C4] rounded-full px-2.5 py-0.5">Coming soon</span>
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
 function TimelineItem({
   item, i, activeIndex, onActivate,
 }: {
@@ -1248,8 +1288,12 @@ function TimelineItem({
   const avail    = !!item.slug;
   const textLeft = i % 2 === 0;
 
-  // C: spotlight opacity — future 0.08, active 1, past 0.35
-  const targetOpacity = !inViewOnce ? 0.08 : i === activeIndex ? 1 : 0.35;
+  // C: spotlight — text fades, image uses scale+filter
+  const isActive       = i === activeIndex;
+  const textOpacity    = !inViewOnce ? 0.08 : isActive ? 1 : 0.45;
+  const imageScale     = !inViewOnce ? 1 : isActive ? 1 : 0.97;
+  const imageBrightness = !inViewOnce ? 1 : isActive ? 1 : 0.88;
+  const imageSaturate  = !inViewOnce ? 1 : isActive ? 1 : 0.72;
 
   // A: text slides in from outer edge
   const textXFrom  = textLeft ? -50 : 50;
@@ -1258,7 +1302,7 @@ function TimelineItem({
   const textSide = (
     <motion.div
       className={`flex-1 flex ${textLeft ? "justify-end pr-16" : "justify-start pl-16"}`}
-      animate={{ opacity: targetOpacity, x: inViewOnce ? 0 : textXFrom }}
+      animate={{ opacity: textOpacity, x: inViewOnce ? 0 : textXFrom }}
       transition={{ duration: 0.8, ease }}
     >
       <div className={`flex flex-col gap-4 max-w-[340px] ${textLeft ? "items-end text-right" : "items-start text-left"}`}>
@@ -1283,25 +1327,31 @@ function TimelineItem({
   const imageSide = (
     <motion.div
       className={`flex-1 flex ${textLeft ? "justify-start pl-16" : "justify-end pr-16"}`}
-      animate={{ opacity: targetOpacity, x: inViewOnce ? 0 : imageXFrom }}
+      animate={{ opacity: inViewOnce ? 1 : 0, x: inViewOnce ? 0 : imageXFrom }}
       transition={{ duration: 0.8, ease, delay: 0.07 }}
     >
-      {/* B: clip-path wipe | D: parallax inner */}
+      {/* B: bottom-up clip reveal | C: scale+filter spotlight | D: parallax inner zoom */}
       <motion.div
-        className="relative overflow-hidden rounded-2xl w-full"
+        className="relative overflow-hidden w-full"
         style={{ aspectRatio: "16/9", maxWidth: 460 }}
         animate={{
-          clipPath: inViewOnce
-            ? "inset(0% 0% 0% 0% round 16px)"
-            : textLeft
-              ? "inset(0% 100% 0% 0% round 16px)"
-              : "inset(0% 0% 0% 100% round 16px)",
+          clipPath: inViewOnce ? "inset(0% 0% 0% 0%)" : "inset(100% 0% 0% 0%)",
+          scale: imageScale,
+          filter: `brightness(${imageBrightness}) saturate(${imageSaturate})`,
         }}
-        transition={{ duration: 0.95, ease: [0.22, 1, 0.36, 1], delay: 0.12 }}
+        transition={{
+          clipPath: { duration: 0.95, ease: [0.22, 1, 0.36, 1], delay: 0.12 },
+          scale:    { duration: 0.65, ease: [0.22, 1, 0.36, 1] },
+          filter:   { duration: 0.65, ease: [0.22, 1, 0.36, 1] },
+        }}
       >
-        <motion.div style={{ y: imageY, height: "116%", width: "100%", marginTop: "-8%", position: "relative" }}>
+        <motion.div
+          style={{ y: imageY, height: "116%", width: "100%", marginTop: "-8%", position: "relative" }}
+          animate={{ scale: inViewOnce ? 1 : 1.07 }}
+          transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1], delay: 0.12 }}
+        >
           {item.video
-            ? <video src={item.video} autoPlay muted loop playsInline style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+            ? <video src={item.video} autoPlay muted loop playsInline disablePictureInPicture style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
             : <img src={item.image} alt={item.title} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />}
         </motion.div>
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.35) 100%)" }} />
@@ -1311,7 +1361,7 @@ function TimelineItem({
   );
 
   return (
-    <div ref={ref} className="relative flex items-start">
+    <div ref={ref} className="relative flex items-center min-h-[80vh]">
       {textLeft ? textSide : imageSide}
 
       {/* Dot with sonar pulse */}
@@ -1337,26 +1387,144 @@ function TimelineItem({
   );
 }
 
+// ─── G0. PhaseSnapSection (desktop: one full-viewport snap-section per phase) ─
+
+function PhaseSnapSection({
+  item, i, isLast, firstAvailSlug, chapterLabel, chapterHeading,
+}: {
+  item: ChapterItemType; i: number; isLast: boolean; firstAvailSlug?: string;
+  chapterLabel?: string; chapterHeading?: string;
+}) {
+  const ref        = useRef<HTMLDivElement>(null);
+  const inViewOnce = useInView(ref, { once: true, margin: "-10%" });
+
+  // Scroll-driven exit: content lifts as section scrolls off the top
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const exitY = useTransform(scrollYProgress, [0, 1], ["0%", "-40%"]);
+
+  // Parallax on image
+  const { scrollYProgress: imgScroll } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const imageY = useTransform(imgScroll, [0, 1], ["-6%", "6%"]);
+
+  const avail    = !!item.slug;
+  const textLeft = i % 2 === 0;
+
+  const textContent = (
+    <div className={`flex-1 flex ${textLeft ? "justify-end pr-16" : "justify-start pl-16"}`}>
+      <div className={`flex flex-col gap-4 max-w-[340px] ${textLeft ? "items-end text-right" : "items-start text-left"}`}>
+        <span className="text-micro text-[#0C0C12]" style={{ border: "1px solid rgba(0,0,0,0.18)", borderRadius: 100, padding: "3px 10px" }}>
+          {item.part}
+        </span>
+        <h3 className="text-subheading text-[#0C0C12]">{item.title}</h3>
+        <p className="text-body text-[#565656]">{item.description}</p>
+        {avail ? (
+          <a href={`/cases/${item.slug}`} className="text-ui text-[#0C0C12] inline-flex items-center gap-2">
+            Read case <ArrowUpRight />
+          </a>
+        ) : (
+          <span className="text-micro text-[#B0B0B0]" style={{ border: "1px solid #E0E0E0", borderRadius: 100, padding: "3px 10px" }}>
+            Coming soon
+          </span>
+        )}
+      </div>
+    </div>
+  );
+
+  const imageInner = (
+    <motion.div
+      className="relative overflow-hidden w-full"
+      style={{ aspectRatio: "16/9", maxWidth: 460 }}
+      initial={{ clipPath: "inset(100% 0% 0% 0%)" }}
+      animate={inViewOnce ? { clipPath: "inset(0% 0% 0% 0%)" } : {}}
+      transition={{ duration: 0.95, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
+    >
+      <motion.div style={{ y: imageY, height: "116%", width: "100%", marginTop: "-8%", position: "relative" }}>
+        {item.video
+          ? <video src={item.video} autoPlay muted loop playsInline disablePictureInPicture style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+          : <img src={item.image} alt={item.title} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />}
+      </motion.div>
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.35) 100%)" }} />
+      {!avail && <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.25)" }} />}
+    </motion.div>
+  );
+
+  const imageContent = (
+    <div className={`flex-1 flex ${textLeft ? "justify-start pl-16" : "justify-end pr-16"}`}>
+      {avail
+        ? <a href={`/cases/${item.slug}`} className="w-full" style={{ maxWidth: 460, display: "block" }}>{imageInner}</a>
+        : imageInner}
+    </div>
+  );
+
+  return (
+    <div ref={ref} id={chapterLabel ? "chapters" : undefined} className="snap-section hidden lg:flex flex-col" style={{ minHeight: "100svh" }}>
+      {/* Scroll-driven exit: lifts and fades as section scrolls off the top */}
+      <motion.div style={{ y: exitY }} className="flex-1 flex flex-col justify-center lg:px-[180px]">
+        {/* Chapter heading — only on first phase */}
+        {chapterLabel && chapterHeading && (
+          <div className="flex flex-col items-center text-center gap-3 mb-[112px]">
+            <p className="text-serif-eyebrow text-[#0C0C12]">{chapterLabel}</p>
+            <h2 className="text-section-heading text-[#2E2E2E] whitespace-pre-line">{chapterHeading}</h2>
+          </div>
+        )}
+        {/* Entrance animation */}
+        <motion.div
+          className="flex items-center w-full relative"
+          initial={{ opacity: 0, y: 28 }}
+          animate={inViewOnce ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.75, ease }}
+        >
+          {/* Vertical spine line through center dot */}
+          <div style={{
+            position: "absolute",
+            left: "50%",
+            top: i === 0 ? "50%" : "-50vh",
+            bottom: "-50vh",
+            width: 1,
+            background: "#E0E0E0",
+            transform: "translateX(-50%)",
+            zIndex: 1,
+          }} />
+
+          {textLeft ? textContent : imageContent}
+
+          {/* Center dot */}
+          <div style={{ position: "relative", width: 12, flexShrink: 0, zIndex: 2 }}>
+            <div style={{
+              width: 12, height: 12, borderRadius: "50%",
+              background: avail ? "#0C0C12" : "#C8C8C8",
+              border: "2px solid #FAFAFA",
+              boxShadow: "0 0 0 1px " + (avail ? "#0C0C12" : "#C8C8C8"),
+            }} />
+            {avail && (
+              <motion.div
+                style={{ position: "absolute", inset: -6, borderRadius: "50%", border: "1.5px solid #0C0C12" }}
+                animate={{ scale: [1, 2.2], opacity: [0.45, 0] }}
+                transition={{ duration: 1.6, repeat: Infinity, ease: "easeOut", repeatDelay: 0.6 }}
+              />
+            )}
+          </div>
+
+          {textLeft ? imageContent : textContent}
+        </motion.div>
+
+      </motion.div>
+    </div>
+  );
+}
+
 // ─── G. ChaptersSection ──────────────────────────────────────────────────────
 
 function ChaptersSection({ section }: { section: Extract<CaseSection, { type: "chapters" }> }) {
-  const mobileRef  = useRef<HTMLDivElement>(null);
-  const itemsRef   = useRef<HTMLDivElement>(null);
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const handleActivate = useCallback((i: number) => setActiveIndex(i), []);
-
-  const mobileInView = useInView(mobileRef, { once: true, margin: "-8%" });
-
-  // Bar fill: tracks the items container as it scrolls through the viewport
-  const { scrollYProgress } = useScroll({ target: itemsRef, offset: ["start center", "end center"] });
-  const lineHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+  const mobileRef      = useRef<HTMLDivElement>(null);
+  const mobileInView   = useInView(mobileRef, { once: true, margin: "-8%" });
+  const firstAvailSlug = section.items.find(it => !!it.slug)?.slug;
 
   return (
     <>
       {/* ── Mobile: timeline cards ──────────────────────────────── */}
       <div
-        id="chapters"
+        id="chapters-mobile"
         className="snap-section min-h-screen lg:hidden px-8 pt-24 pb-12"
         data-native-scroll="true"
       >
@@ -1382,128 +1550,92 @@ function ChaptersSection({ section }: { section: Extract<CaseSection, { type: "c
             {/* Continuous spine line behind all dots */}
             <div className="absolute w-px bg-[#E0E0E0]" style={{ left: 4, top: 8, bottom: 8 }} />
 
-            {section.items.map((item, i) => {
-              const avail = !!item.slug;
-              return (
-                <motion.div
-                  key={i}
-                  className="flex gap-4 pb-8 last:pb-0"
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={mobileInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.7, ease, delay: 0.15 + i * 0.08 }}
-                >
-                  {/* Dot */}
-                  <div style={{ width: 10, flexShrink: 0, paddingTop: 5, position: "relative", zIndex: 1 }}>
-                    <div style={{
-                      width: 9, height: 9, borderRadius: "50%",
-                      background: avail ? "#0C0C12" : "#C4C4C4",
-                      border: "2px solid #FAFAFA",
-                    }} />
-                  </div>
-
-                  {/* Card content */}
-                  <div className="flex-1" style={{ opacity: avail ? 1 : 0.5 }}>
-                    <p className="text-micro text-[#565656] mb-2">{item.part}</p>
-                    {avail ? (
-                      <a href={`/cases/${item.slug}`} className="block">
-                        <div className="relative overflow-hidden rounded-xl mb-3" style={{ aspectRatio: "16/9" }}>
-                          {item.video ? (
-                            <video src={item.video} autoPlay muted loop playsInline className="w-full h-full object-cover" />
-                          ) : (
-                            <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-                          )}
-                        </div>
-                        <p className="text-subheading text-[#0C0C12] mt-1">{item.title}</p>
-                        <p className="text-body text-[#565656] mt-1">{item.description}</p>
-                      </a>
-                    ) : (
-                      <div>
-                        <div className="relative overflow-hidden rounded-xl mb-3" style={{ aspectRatio: "16/9" }}>
-                          {item.video ? (
-                            <video src={item.video} autoPlay muted loop playsInline className="w-full h-full object-cover" />
-                          ) : (
-                            <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-                          )}
-                        </div>
-                        <p className="text-subheading text-[#0C0C12] mt-1">{item.title}</p>
-                        <p className="text-body text-[#565656] mt-1">{item.description}</p>
-                        <span className="inline-block mt-2 text-micro text-[#565656] border border-[#C4C4C4] rounded-full px-2.5 py-0.5">Coming soon</span>
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* ── Desktop: heading + timeline ── */}
-      <div
-        ref={sectionRef}
-        id="chapters"
-        className="snap-section hidden lg:block lg:px-[180px]"
-        style={{ scrollSnapAlign: "none", paddingTop: 160, paddingBottom: 120 }}
-        data-free-scroll="true"
-        data-native-scroll="true"
-      >
-        {/* Static heading */}
-        <div className="flex flex-col gap-3 mb-24">
-          <p className="text-serif-eyebrow text-[#0C0C12]">{section.label}</p>
-          <h2 className="text-section-heading text-[#2E2E2E] whitespace-pre-line">{section.heading}</h2>
-        </div>
-
-        {/* Timeline */}
-        <div ref={itemsRef} className="relative">
-          <div style={{ position: "absolute", left: "calc(50% - 0.5px)", top: 0, bottom: 0, width: 1, background: "#E8E8E8" }} />
-          <motion.div style={{ position: "absolute", left: "calc(50% - 0.5px)", top: 0, width: 1, height: lineHeight, background: "#0C0C12" }} />
-          <div className="flex flex-col gap-28">
             {section.items.map((item, i) => (
-              <TimelineItem key={i} item={item} i={i} activeIndex={activeIndex} onActivate={handleActivate} />
+              <MobileTimelineCard key={i} item={item} i={i} />
             ))}
           </div>
         </div>
       </div>
+
+      {/* ── Desktop: one snap-section per phase (heading embedded in first) ── */}
+      {section.items.map((item, i) => (
+        <PhaseSnapSection
+          key={i}
+          item={item}
+          i={i}
+          isLast={i === section.items.length - 1}
+          firstAvailSlug={firstAvailSlug}
+          chapterLabel={i === 0 ? section.label : undefined}
+          chapterHeading={i === 0 ? section.heading : undefined}
+        />
+      ))}
+
+      {/* ── Desktop: Go deeper CTA — own snap section ── */}
+      {firstAvailSlug && (
+        <div className="snap-section hidden lg:flex flex-col items-center justify-center text-center gap-5 lg:px-[180px]" style={{ minHeight: "100svh" }}>
+          <p className="text-serif-eyebrow text-[#0C0C12]">Go deeper</p>
+          <h3 className="text-section-heading text-[#2E2E2E] max-w-[640px]">
+            Every phase built on what the one before proved.
+          </h3>
+          <p className="text-body text-[#565656] max-w-[400px]">
+            The product shipped because the thinking came first. Start with the decision that made all the others possible.
+          </p>
+          <a
+            href={`/cases/${firstAvailSlug}`}
+            className="inline-flex items-center gap-2 bg-[#0C0C12] text-white rounded-full px-6 py-2.5 font-sans font-medium text-[14px] tracking-[-0.28px] hover:bg-[#2E2E2E] transition-colors"
+          >
+            Start with Phase 1
+            <ArrowUpRight />
+          </a>
+        </div>
+      )}
     </>
   );
 }
 
 // ─── ContainedMedia ──────────────────────────────────────────────────────────
 
-function ContainedMedia({ video, image, videoPosition }: { video?: string; image?: string; videoPosition?: string }) {
+function ContainedMedia({ video, image, videoPosition, alt }: { video?: string; image?: string; videoPosition?: string; alt?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-8%" });
   if (!video && !image) return null;
   return (
-    <div ref={ref} className="snap-section min-h-screen flex items-center justify-center px-[10vw] relative bg-[#FAFAFA]">
+    <div ref={ref} className="snap-section min-h-screen flex items-center justify-center px-5 lg:px-[10vw] relative bg-[#FAFAFA]">
       <motion.div
-        style={{ width: "100%" }}
+        className="w-full"
         initial={{ opacity: 0, y: 24 }}
         animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.8, ease }}
       >
         {video ? (
           videoPosition ? (
-            <div style={{ width: "100%", aspectRatio: "16/9", overflow: "hidden", borderRadius: 4 }}>
+            <div className="w-full overflow-hidden rounded-[4px] h-[80svh] lg:h-[56vw]">
               <video
                 src={video}
-                autoPlay muted loop playsInline
+                autoPlay muted loop playsInline preload="none"
                 style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: videoPosition, display: "block" }}
               />
             </div>
           ) : (
-            <video
-              src={video}
-              autoPlay muted loop playsInline
-              style={{ width: "100%", display: "block", borderRadius: 4 }}
-            />
+            <div className="w-full overflow-hidden rounded-[4px] h-[80svh] lg:h-auto">
+              <video
+                src={video}
+                autoPlay muted loop playsInline preload="none"
+                className="w-full h-full object-cover lg:h-auto"
+                style={{ display: "block" }}
+              />
+            </div>
           )
         ) : (
-          <img
-            src={image}
-            alt=""
-            style={{ width: "100%", display: "block", borderRadius: 4 }}
-          />
+          <div className="w-full overflow-hidden rounded-[4px] h-[80svh] lg:h-auto">
+            <img
+              src={image}
+              alt={alt ?? ""}
+              loading="lazy"
+              className="w-full h-full object-cover lg:h-auto"
+              style={{ display: "block" }}
+            />
+          </div>
         )}
       </motion.div>
     </div>
@@ -1512,13 +1644,73 @@ function ContainedMedia({ video, image, videoPosition }: { video?: string; image
 
 // ─── Section dispatcher ───────────────────────────────────────────────────────
 
+// ─── Fan Gallery Section ──────────────────────────────────────────────────────
+
+function FanGallerySection({ section }: { section: Extract<CaseSection, { type: "fan-gallery" }> }) {
+  const cards = section.images.map((imgUrl, i) => ({
+    imgUrl,
+    videoUrl: section.videos?.[i] ?? null,
+  }));
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(sectionRef, { once: true, margin: "-15%" });
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "start start"],
+  });
+
+  const headingOpacity = useTransform(scrollYProgress, [0, 0.35], [0, 1]);
+  const headingY = useTransform(scrollYProgress, [0, 0.35], [24, 0]);
+  const cardsOpacity = useTransform(scrollYProgress, [0.2, 0.5], [0, 1]);
+  const cardsY = useTransform(scrollYProgress, [0.2, 0.5], [32, 0]);
+
+  return (
+    <div
+      ref={sectionRef}
+      data-free-scroll="true"
+      style={{ height: "220vh", scrollSnapAlign: "none" }}
+    >
+      <div
+        className="sticky top-0 flex flex-col items-center bg-[#FAFAFA]"
+        style={{ height: "100svh", paddingTop: 84 }}
+      >
+        {/* spacer pushes heading + cards to the lower portion of the viewport */}
+        <div style={{ flex: "1 1 0" }} />
+        {(section.label || section.heading) && (
+          <motion.div
+            style={{ opacity: headingOpacity, y: headingY }}
+            className="w-full max-w-[640px] text-center mb-4 px-8 lg:px-0"
+          >
+            {section.label && (
+              <p className="text-serif-eyebrow text-[#0C0C12] mb-3">
+                {section.label}
+              </p>
+            )}
+            {section.heading && (
+              <h2 className="text-section-heading text-[#2E2E2E]">
+                {section.heading}
+              </h2>
+            )}
+          </motion.div>
+        )}
+        <motion.div
+          style={{ opacity: cardsOpacity, y: cardsY }}
+          className="w-full px-8 lg:px-[180px]"
+        >
+          {inView && <SocialCards cards={cards} />}
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
 function CaseSectionBlock({ section }: { section: CaseSection }) {
   switch (section.type) {
     case "split":
       return (
         <>
           <SplitSection section={section} />
-          <ContainedMedia video={section.video} image={section.image} videoPosition={section.videoPosition} />
+          <ContainedMedia video={section.video} image={section.image} videoPosition={section.videoPosition} alt={section.heading.replace(/\n/g, " ")} />
         </>
       );
     case "centered":
@@ -1529,6 +1721,8 @@ function CaseSectionBlock({ section }: { section: CaseSection }) {
       return <ScrollGallerySection section={section} />;
     case "image-block":
       return <ImageBlockSection section={section} />;
+    case "fan-gallery":
+      return <FanGallerySection section={section} />;
     case "stats":
       return <StatsSectionBlock section={section} />;
     case "chapters":
@@ -1567,6 +1761,12 @@ export default function CaseTemplate({ caseData }: { caseData: CaseData }) {
   let relatedHeading = "Recommended projects";
   let relatedPriority: string[] = [];
 
+  const GXM_PART_SLUGS = [GXM_PART1_SLUG, GXM_PART2_SLUG, GXM_PART3_SLUG];
+  const currentPartIndex = GXM_PART_SLUGS.indexOf(caseData.slug);
+  const nextPartSlug = currentPartIndex >= 0 && currentPartIndex < GXM_PART_SLUGS.length - 1
+    ? GXM_PART_SLUGS[currentPartIndex + 1]
+    : null;
+
   if (isGXMOverview) {
     relatedEyebrow = "Go deeper";
     relatedHeading = "Explore each phase in detail";
@@ -1590,22 +1790,39 @@ export default function CaseTemplate({ caseData }: { caseData: CaseData }) {
       <CaseHero caseData={caseData} />
 
       {/* Opaque wrapper so the global liquid wave doesn't bleed into content sections.
-          paddingTop: 130 compensates for the image strip bridging 130px below the hero. */}
-      <div style={{ background: "#FAFAFA", paddingTop: (caseData.heroImages?.length ?? 0) > 0 || caseData.heroImage ? 130 : 0 }}>
+          paddingTop: 210 on desktop compensates for the image strip. Mobile gets 0 (strip is desktop-only). */}
+      <div className={(caseData.heroImages?.length ?? 0) > 0 || caseData.heroImage ? "pt-[210px]" : ""} style={{ background: "#FAFAFA" }}>
         {caseData.sections.map((section, i) => (
           <CaseSectionBlock key={i} section={section} />
         ))}
 
         {isGXMPart && (
-          <RelatedProjects
-            currentSlug={caseData.slug}
-            eyebrow={relatedEyebrow}
-            heading={relatedHeading}
-            prioritizeSlugs={relatedPriority}
-          />
+          <>
+            <div className="snap-section flex flex-col items-center justify-center text-center gap-5 px-8 lg:px-[180px]" style={{ minHeight: "100svh" }}>
+              <p className="text-serif-eyebrow text-[#0C0C12]">Go deeper</p>
+              <h3 className="text-section-heading text-[#2E2E2E] max-w-[640px]">
+                Every phase built on what the one before proved.
+              </h3>
+              <p className="text-body text-[#565656] max-w-[400px]">
+                The product shipped because the thinking came first. Start with the decision that made all the others possible.
+              </p>
+              <a
+                href={`/cases/${nextPartSlug ?? GXM_OVERVIEW_SLUG}`}
+                className="inline-flex items-center gap-2 bg-[#0C0C12] text-white rounded-full px-6 py-2.5 font-sans font-medium text-[14px] tracking-[-0.28px] hover:bg-[#2E2E2E] transition-colors"
+              >
+                {nextPartSlug ? "Continue with Next Phase" : "See the full story"}
+                <ArrowUpRight />
+              </a>
+            </div>
+            <div className="snap-section" style={{ minHeight: "100svh" }}>
+              <ProjectsSection initialIndex={1} />
+            </div>
+          </>
         )}
         {!isGXMOverview && !isGXMPart && (
-          <KeepStalkingCarousel currentSlug={caseData.slug} />
+          <div className="snap-section" style={{ minHeight: "100svh" }}>
+            <ProjectsSection initialIndex={0} />
+          </div>
         )}
       </div>
     </article>

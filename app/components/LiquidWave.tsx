@@ -9,6 +9,7 @@ interface Props {
   baseColor?:      [number, number, number];  // RGB 0–1
   highlightColor?: [number, number, number];
   shadowColor?:    [number, number, number];
+  loopSweep?:      boolean;                   // repeat auto-disturb sweep on a loop
 }
 
 // ── Vertex shader (shared) ────────────────────────────────────────────────────
@@ -116,6 +117,7 @@ export default function LiquidWave({
   baseColor      = [1.000, 1.000, 1.000] as [number,number,number],   // #FFFFFF
   highlightColor = [1.000, 1.000, 1.000] as [number,number,number],   // pure white crest
   shadowColor    = [0.880, 0.876, 0.872] as [number,number,number],   // soft warm grey — visible depth without harsh contrast
+  loopSweep      = false,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -269,7 +271,9 @@ export default function LiquidWave({
     // ── Auto-disturb: sweeps after hero text settles (~3.2s) ──────────────
     const auto = { x: 0.5, y: 0.5, active: 0, speed: 0 };
 
-    const autoTimer = setTimeout(() => {
+    let autoTimerId: ReturnType<typeof setTimeout>;
+
+    const runSweep = () => {
       const startT  = performance.now();
       const duration = 2200;
 
@@ -281,10 +285,15 @@ export default function LiquidWave({
         auto.speed = Math.sin(p * Math.PI) * 0.7;   // ramp up then down
         auto.active = p < 1 ? 1 : 0;
         if (p < 1) requestAnimationFrame(sweep);
-        else auto.active = 0;
+        else {
+          auto.active = 0;
+          if (loopSweep) autoTimerId = setTimeout(runSweep, 5000);
+        }
       };
       requestAnimationFrame(sweep);
-    }, 3200);
+    };
+
+    autoTimerId = setTimeout(runSweep, 3200);
 
     // ── Gyroscope (mobile) ─────────────────────────────────────────────────
     // Maps device tilt to a virtual cursor that stirs the liquid
@@ -404,7 +413,7 @@ export default function LiquidWave({
 
     return () => {
       cancelAnimationFrame(raf);
-      clearTimeout(autoTimer);
+      clearTimeout(autoTimerId);
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("mouseleave", onLeave);
       window.removeEventListener("deviceorientation", onOrientation);

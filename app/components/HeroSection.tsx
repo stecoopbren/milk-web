@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 
 function TypewriterWord({ word, longest, animated }: { word: string; longest: string; animated: boolean }) {
   const [display, setDisplay] = useState("");
@@ -144,10 +144,6 @@ export default function HeroSection() {
     return () => window.removeEventListener("milk:intro-exit", onIntroExit);
   }, []);
 
-  // ── Scroll-driven animations ──────────────────────────────────────────────
-  const { scrollY } = useScroll();
-  const contentOpacity = useTransform(scrollY, [0, 1200], [1, 0]);
-
   const cycleWords = ["Business.", "Services.", "Products."];
   const [wordIndex, setWordIndex] = useState(0);
   useEffect(() => {
@@ -169,18 +165,18 @@ export default function HeroSection() {
       <motion.div
         ref={ref}
         className="flex flex-col items-center text-center gap-6 w-full"
-        style={{ position: "relative", zIndex: 1, opacity: contentOpacity }}
+        style={{ position: "relative", zIndex: 1 }}
       >
 
         {/* Headline */}
-        <div className="flex flex-col items-center w-full text-center gap-3">
+        <div className="flex flex-col items-center w-full text-center gap-[24px]">
           <motion.div
             initial={{ opacity: 0, y: 14 }}
             animate={animated ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
           >
-            <span className="text-[#2E2E2E]" style={{ fontFamily: "Ambit", fontWeight: 700, fontSize: "clamp(29px, 3.5vw, 68px)", letterSpacing: "-0.05em", lineHeight: 1.2, display: "block" }}>
-              Turn your big ideas into
+            <span className="text-[#2E2E2E]" style={{ fontFamily: "Ambit", fontWeight: 700, fontSize: "clamp(29px, 3.5vw, 68px)", letterSpacing: "-0.05em", lineHeight: 1.15, display: "block" }}>
+              Turning big ideas into
             </span>
           </motion.div>
 
@@ -196,12 +192,24 @@ export default function HeroSection() {
           </motion.div>
         </div>
 
+        {/* Body copy */}
+        <motion.p
+          style={{ fontFamily: "Ambit", fontWeight: 600, fontSize: "22px", letterSpacing: "-0.88px", lineHeight: 1.2 }}
+          className="text-[#565656] max-w-[600px] text-center"
+          initial={{ opacity: 0, y: 12 }}
+          animate={animated ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 1.8, ease, delay: 0.65 }}
+        >
+          <span className="lg:hidden">Great design starts<br />with the right questions.</span>
+          <span className="hidden lg:inline">Great design starts with the right questions.</span>
+        </motion.p>
+
         {/* CTA Buttons */}
         <motion.div
           className="flex items-center gap-3"
           initial={{ opacity: 0, y: 16 }}
           animate={animated ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 2.0, ease, delay: 0.78 }}
+          transition={{ duration: 2.0, ease, delay: 0.85 }}
         >
           <motion.button
             onClick={() => window.dispatchEvent(new CustomEvent("milk:open-contact"))}
@@ -231,7 +239,7 @@ export default function HeroSection() {
           animate={animated ? { opacity: 1 } : {}}
           transition={{ duration: 2.2, ease, delay: 1.05 }}
         >
-          <p style={{ fontFamily: "Ambit", fontWeight: 600, fontSize: "22px", letterSpacing: "-0.88px", lineHeight: 0.9 }} className="text-[#B0B0B0]">
+          <p className="text-body text-[#B0B0B0] text-center">
             Trusted by teams at
           </p>
 

@@ -1,171 +1,141 @@
 "use client";
 
-import { useRef, useEffect } from "react";
-import { motion, useInView, useMotionValue, useTransform, useSpring, useScroll } from "framer-motion";
-import type { MotionValue } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
+import LiquidWave from "./LiquidWave";
 
-const ease = [0.16, 1, 0.3, 1] as const;
+// initX: how far toward center the side cards start (positive = from right, negative = from left)
+// initRotate: side cards start flat (0°) and rotate into their final angle
+const fanSlots = [
+  { rotate: -6, initX: 72,  initRotate: 0, ty: 24, widthPct: 38, mr: -32, ml: 0,   zIndex: 10, delay: 0.55 },
+  { rotate:  0, initX: 0,   initRotate: 0, ty: -8, widthPct: 42, mr: 0,   ml: 0,   zIndex: 20, delay: 0.2  },
+  { rotate:  6, initX: -72, initRotate: 0, ty: 24, widthPct: 38, mr: 0,   ml: -32, zIndex: 10, delay: 0.7  },
+];
 
-// Each word sweeps from dim to full color across a 6-item window.
-// Images count as one index slot so the sweep paces through them naturally.
-const TOTAL_ITEMS = 13; // 1 word + 1 img + 5 words + 1 br + 4 words + 1 img + 1 word
+const photos = [
+  { src: "/IMG_7839_VSCO.JPG", alt: "Steven in Paris" },
+  { src: "/FullSizeRender_VSCO.JPG", alt: "Steven at Golden Gate" },
+  { src: "/B37FFF98-05DF-4025-BDF8-7415F841280C.JPG", alt: "Steven at Figma Config" },
+];
 
-function HWord({
-  word,
-  index,
-  progress,
-  trailingSpace,
-}: {
-  word: string;
-  index: number;
-  progress: MotionValue<number>;
-  trailingSpace: boolean;
-}) {
-  const start = index / TOTAL_ITEMS;
-  const end = Math.min((index + 6) / TOTAL_ITEMS, 1);
-  const color = useTransform(progress, [start, end], ["#C8C8C8", "#2E2E2E"]);
-  return (
-    <>
-      <motion.span suppressHydrationWarning style={{ color, display: "inline" }}>{word}</motion.span>
-      {trailingSpace && " "}
-    </>
-  );
-}
+const textVariants: Variants = {
+  hidden: { opacity: 0, y: 24, filter: "blur(6px)" },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
+  },
+};
 
-function TiltImage({ src, objectPosition }: { src: string; objectPosition?: string }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const rotateX = useMotionValue(0);
-  const rotateY = useMotionValue(0);
-  const springX = useSpring(rotateX, { stiffness: 200, damping: 20 });
-  const springY = useSpring(rotateY, { stiffness: 200, damping: 20 });
+const fanContainerVariants: Variants = {
+  hidden: {},
+  visible: { transition: {} },
+};
 
-  useEffect(() => {
-    const handleMove = (e: MouseEvent) => {
-      const el = ref.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const radius = 320;
-      const dx = Math.max(-1, Math.min(1, (e.clientX - cx) / radius));
-      const dy = Math.max(-1, Math.min(1, (e.clientY - cy) / radius));
-      rotateY.set(dx * 8);
-      rotateX.set(-dy * 8);
-    };
-    window.addEventListener("mousemove", handleMove);
-    return () => window.removeEventListener("mousemove", handleMove);
-  }, [rotateX, rotateY]);
-
-  return (
-    <span
-      ref={ref}
-      style={{ display: "inline-block", perspective: "500px", verticalAlign: "middle", marginInline: "0.25em" }}
-    >
-      <motion.img
-        src={src}
-        alt=""
-        style={{
-          display: "inline-block",
-          height: "1em",
-          width: "calc(2.5em - 20px)",
-          borderRadius: 24,
-          objectFit: "cover",
-          objectPosition: objectPosition ?? "center",
-          verticalAlign: "middle",
-          rotateX: springX,
-          rotateY: springY,
-        }}
-      />
-    </span>
-  );
-}
-
-// Segment layout (all indices relative to TOTAL_ITEMS = 19):
-// 0:"Building"
-// 1:[image1]
-// 2:"is"  3:"the"  4:"easy"  5:"part"  6:"now."
-// [br]
-// 7:"Knowing"  8:"what"  9:"to"  10:"build"
-// 11:[image2]
-// 12:"isn't."
-// [br]
-// 13:"Build"  14:"on"  15:"evidence,"  16:"not"  17:"on"  18:"hunches."
+const fanCardVariants: Variants = {
+  hidden: (slot: (typeof fanSlots)[number]) => ({
+    opacity: 0,
+    x: slot.initX,
+    y: slot.ty,
+    rotate: slot.initRotate,
+    scale: slot.zIndex === 20 ? 1 : 0.88,
+    filter: "blur(3px)",
+  }),
+  visible: (slot: (typeof fanSlots)[number]) => ({
+    opacity: 1,
+    x: 0,
+    y: slot.ty,
+    rotate: slot.rotate,
+    scale: 1,
+    filter: "blur(0px)",
+    transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1], delay: slot.delay },
+  }),
+};
 
 export default function PositioningSection() {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-10%" });
-
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end end"],
-  });
-
-  // Offset progress so the first ~4 words are already highlighted on arrival
-  const progress = useTransform(scrollYProgress, [0, 1], [0.65, 1.65]);
-
-
   return (
     <section
-      ref={ref}
       id="about-us"
-      className="snap-section relative"
-      data-free-scroll="true"
-      style={{ height: "200vh" }}
+      className="snap-section relative flex flex-col items-center justify-start gap-12 px-8 lg:px-[180px]"
+      data-native-scroll="true"
+      style={{ minHeight: "100vh", height: "auto", paddingTop: 132, paddingBottom: 60, position: "relative", background: "#FAFAFA" }}
     >
-      <div className="sticky top-0 h-screen overflow-hidden flex flex-col px-8 lg:px-[180px]">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 1.2, ease, delay: 0.1 }}
-          className="flex-1 flex items-center justify-center"
-        >
-          <div className="flex flex-col items-center gap-6 mx-auto">
-<p className="text-serif-eyebrow text-[#0C0C12] text-center">
-              AI changed the game.
-            </p>
-
-            <div className="text-case-title text-center w-full max-w-[95vw] lg:max-w-[90vw]">
-              <span className="block">
-                <HWord word="Building"     index={0}  progress={progress} trailingSpace={false} />
-                {" "}
-                <TiltImage src="/FullSizeRender_VSCO.JPG" objectPosition="center 60%" />
-                {" "}
-                <HWord word="is"           index={2}  progress={progress} trailingSpace />
-                <HWord word="the"          index={3}  progress={progress} trailingSpace />
-                <HWord word="easy"         index={4}  progress={progress} trailingSpace />
-                <HWord word="part"         index={5}  progress={progress} trailingSpace />
-                <HWord word="now."         index={6}  progress={progress} trailingSpace={false} />
-              </span>
-              <span className="block">
-                <HWord word="Knowing"      index={7}  progress={progress} trailingSpace />
-                <HWord word="what"         index={8}  progress={progress} trailingSpace />
-                <HWord word="to"           index={9}  progress={progress} trailingSpace />
-                <HWord word="build"        index={10} progress={progress} trailingSpace={false} />
-                {" "}
-                <TiltImage src="/B37FFF98-05DF-4025-BDF8-7415F841280C.JPG" />
-                {" "}
-                <HWord word="isn&apos;t."  index={12} progress={progress} trailingSpace={false} />
-              </span>
-            </div>
-
-            <p className="text-body text-[#565656] text-center max-w-[480px]">
-              Speed matters only if you're heading in the right direction. Build on evidence, not on hunches.
-            </p>
-
-            <a
-              href="https://medium.com/@stevencooper_75268/why-design-matters-05df943703eb?sharedUserId=stevencooper_75268"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-[#0C0C12] rounded-full px-6 py-2.5 font-sans text-[14px] font-medium text-white inline-flex items-center gap-2 hover:bg-[#2E2E2E] transition-colors tracking-[-0.28px]"
-            >
-              Why Design Matters?
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 13L13 3M13 3H6M13 3v7" />
-              </svg>
-            </a>
-          </div>
-        </motion.div>
+      {/* Liquid background — continuously animated so waves stay visible */}
+      <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}>
+        <LiquidWave loopSweep={true} />
       </div>
+
+      {/* Text block */}
+      <motion.div
+        className="flex flex-col items-center gap-6 text-center"
+        style={{ position: "relative", zIndex: 1 }}
+        variants={textVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-80px" }}
+      >
+        <p className="text-serif-eyebrow text-[#B0B0B0]">( About me &amp; Milk ® )</p>
+
+        <h2 className="text-section-heading text-center" style={{ maxWidth: 720 }}>
+          I help teams turn uncertainty into direction.
+        </h2>
+
+        <p className="text-body text-[#565656]" style={{ maxWidth: 500 }}>
+          Hi, I&apos;m Steven 👋🏼 For 10+ years, I&apos;ve worked across strategy,
+          product, research, and design, helping teams figure out what matters,
+          and turn that direction into something real. Now, that&apos;s Milk.
+        </p>
+
+        <a
+          href="https://medium.com/@stevencooper_75268/why-design-matters-05df943703eb?sharedUserId=stevencooper_75268"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-[#0C0C12] rounded-full px-6 py-2.5 font-sans text-[14px] font-medium text-white inline-flex items-center gap-2 hover:bg-[#2E2E2E] transition-colors tracking-[-0.28px]"
+        >
+          Why Design Matters?
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 13L13 3M13 3H6M13 3v7" />
+          </svg>
+        </a>
+      </motion.div>
+
+      {/* Image fan */}
+      <motion.div
+        className="relative flex w-full max-w-3xl items-center justify-center -mx-10 lg:mx-0"
+        style={{ position: "relative", zIndex: 1 }}
+        variants={fanContainerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-80px" }}
+      >
+        {photos.map((photo, i) => {
+          const slot = fanSlots[i];
+          return (
+            <motion.div
+              key={photo.src}
+              custom={slot}
+              variants={fanCardVariants}
+              className="relative shrink-0 overflow-hidden rounded-2xl shadow-xl"
+              style={{
+                width: `${slot.widthPct}%`,
+                aspectRatio: "4/5",
+                zIndex: slot.zIndex,
+                marginRight: slot.mr,
+                marginLeft: slot.ml,
+                outline: "1px solid rgba(0,0,0,0.07)",
+              }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={photo.src}
+                alt={photo.alt}
+                className="w-full h-full object-cover"
+                decoding="async"
+              />
+            </motion.div>
+          );
+        })}
+      </motion.div>
     </section>
   );
 }

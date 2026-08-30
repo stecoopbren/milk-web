@@ -15,7 +15,8 @@ export type CaseSection =
   | { type: 'stats'; label: string; heading: string; body: string; bullets?: string[] }
   | { type: 'chapters'; label: string; heading: string; items: ChapterItem[] }
   | { type: 'cinematic'; src: string; shots?: { x: number; y: number; scale: number; hold: number; label?: string }[]; cursors?: { name: string; color: string; path: [number, number][]; stepDuration: number; startDelay: number }[]; height?: number; bg?: string }
-  | { type: 'image-block'; src: string };
+  | { type: 'image-block'; src: string }
+  | { type: 'fan-gallery'; images: string[]; videos?: (string | null)[]; label?: string; heading?: string };
 
 export type CaseData = {
   slug: string;
@@ -43,7 +44,7 @@ const cases: CaseData[] = [
     subtitle:
       "Fifty-plus hectares on Costa Rica's South Caribbean coast, bordered by protected reserves. The land had everything it needed to be extraordinary. The narrative had to catch up. Without the right story, the rarest parcel in the region would sell at an average price.",
     tags: ['Business', 'Branding', 'Architecture', 'Growth', 'Marketing'],
-    heroImage: '/Chaguite/chaguite-hero.webp',
+    heroImage: '/Chaguite/hf_concept4_regen.webp',
     heroImages: [
       '/Chaguite/hero.webp',
       '/Chaguite/concept-2.webp',
@@ -84,16 +85,14 @@ const cases: CaseData[] = [
         body: "The identity starts with a seed. Not as metaphor, but as the literal center of what Chagüite is: something planted with intention, designed to grow, tended by people who understand that what you build now shapes what exists in fifty years.\n\nThe seed sits inside a crest. The reference is to lineage, to stewardship, to the kind of ownership that isn't really ownership at all. Timeless without being archaic. Grounded without being heavy. Because land isn't owned. It's held, passed forward, cared for.",
       },
       {
-        type: 'carousel',
+        type: 'scroll-gallery',
         images: [
-          '/Chaguite/concept-2.webp',
+          '/Chaguite/hf_interior_regen.webp',
+          '/Chaguite/Chaguite Concept 4 copy.png',
           '/Chaguite/concept-89.webp',
-          '/Chaguite/billboard.webp',
-          '/Chaguite/concept-1.webp',
-          '/Chaguite/concept-5.webp',
-          '/Chaguite/Chaguite Concept 6 copy.webp',
-          '/Chaguite/hf_20260601_134242_e3579c54-6929-4fb6-a858-8df029ae8810.webp',
+          '/Chaguite/hf_20260601_021631_6e2f2fcb-821e-4194-a461-9a1a59e33ccb.webp',
         ],
+        positions: ['center', 'center', 'center', 'center'],
       },
       {
         type: 'stats',
@@ -136,6 +135,15 @@ const cases: CaseData[] = [
         image: '/Siwa/siwa-challenge-wide.webp',
       },
       {
+        type: 'scroll-gallery',
+        images: [
+          '/Siwa/hf_20260530_010422_6e1baf86-9dd4-4520-a506-bf51ac168b75.webp',
+          '/Siwa/siwa-stone-hero.webp',
+          '/Siwa/hf_20260530_004913_e18d2766-720f-4b3d-aeea-19042417dcfc.webp',
+        ],
+        positions: ['center', 'center', 'center'],
+      },
+      {
         type: 'split',
         label: 'The work',
         heading: 'The oral tradition was the design system.',
@@ -158,7 +166,7 @@ const cases: CaseData[] = [
         body: "The Casa Siwä mark comes from a specific symbol: the Bribri solar figure, adapted with integrity and built into a complete brand language. The sun's irregular rays are intentional. They carry something precise geometry cannot: the hand, the tool, the person who made them. The seed at the center is Sibö. The space around it is the forest.\n\nApplied across every touchpoint, from embossed soap to woven towel tags to leather key fobs, the mark holds its weight because it isn't decorative. It comes from culture. Guests feel it before they can name it.",
       },
       {
-        type: 'carousel',
+        type: 'scroll-gallery',
         images: [
           '/Siwa/siwa-carousel-towels.webp',
           '/Siwa/siwa-carousel-keys.webp',
@@ -173,6 +181,7 @@ const cases: CaseData[] = [
           '/Siwa/hf_20260530_010811_ab2a0e3b-dac8-4a94-aeec-97b849ecf02a.webp',
           '/Siwa/hf_20260530_011818_1ccc9b48-4177-4e24-931e-79b8b3b2da5f.webp',
         ],
+        positions: ['center', 'center', 'center', 'center', 'center', 'center', 'center', 'center', 'center', 'center', 'center', 'center'],
       },
       {
         type: 'stats',
@@ -184,14 +193,14 @@ const cases: CaseData[] = [
   },
   {
     slug: 'gxm',
-    client: 'GXM',
+    client: 'Enterprise Compliance',
     category: 'Product Strategy & UX Design',
     heroLabel: 'Full Case Overview · 4 Parts',
     title: 'The expertise was\nnever the problem.',
     subtitle:
       'A compliance firm managing corporate entities across 120+ countries. Deep institutional knowledge. No infrastructure to translate it into a product. Two prior attempts. Thirty days to ship the third. The gap between knowing and shipping isn\'t talent. It\'s process.',
     tags: ['Product Strategy', 'User Research', 'Service Design', 'UX Leadership', 'Enterprise SaaS'],
-    heroImage: '/GXM/IMG_9711.jpg',
+    heroImage: '/GXM/mockuuups-macbook-pro-mockup-with-a-man-in-a-casual-workspace.webp',
     heroImages: [
       '/GXM/IMG_9711.jpg',
       '/GXM/IMG_9702.jpg',
@@ -223,11 +232,11 @@ const cases: CaseData[] = [
       {
         type: 'scroll-gallery',
         images: [
-          '/GXM/Case 4/ss/Mockuuups Apple Studio Display mockup on adjustable stand.jpeg',
-          '/GXM/gxm-scope-definition.png',
-          '/GXM/IMG_9702-temp.jpg',
+          '/GXM/mockuuups-macbook-pro-mockup-with-a-man-in-a-casual-workspace.webp',
+          '/GXM/mockuuups-female-typing-on-a-macbook-pro-14-mockup-1.webp',
+          '/GXM/mockuuups-macbook-pro-14-mockup-in-female-hands.webp',
         ],
-        positions: ['center', 'center', 'center 40%'],
+        positions: ['center', 'center', 'center'],
       },
       {
         type: 'split',
@@ -250,8 +259,13 @@ const cases: CaseData[] = [
         body: "The first question wasn't what to build. It was why the portal already in place wasn't being used.\n\nWe audited it systematically: every customer path, every point of failure. Ticketing buried new messages beneath old ones. Key account information was missing or unfindable. Twelve interviews across active and lapsed users confirmed it: when the platform couldn't surface what people needed, they defaulted to email. Small friction, consistent cost.\n\nThen we stress-tested the build decision itself. Four leading platforms, live demos, full schema review. None fit the compliance workflows closely enough. That analysis didn't just confirm the decision to build. It gave the team evidence they could defend at board level. All of that before a single screen was designed. Not because there was time to spare. Because there wasn't.",
       },
       {
-        type: 'image-block',
-        src: '/GXM/Case 4/Screenshot 2026-08-17 at 12.45.02 PM.png',
+        type: 'scroll-gallery',
+        images: [
+          '/GXM/GXMWOrkshop.png',
+          '/GXM/Case 4/Screenshot 2026-08-17 at 12.45.02 PM.png',
+          '/GXM/gxm-lean-ux-canvas.png',
+        ],
+        positions: ['center', 'center', 'center'],
       },
       {
         type: 'stats',
@@ -307,6 +321,7 @@ const cases: CaseData[] = [
             title: 'Launch, AI tooling & user testing',
             description: 'From validated designs to shipped product: AI-assisted development, lean testing, and the outcomes that followed.',
             image: '/GXM/IMG_9711.jpg',
+            video: '/GXM/Case 4/Interviews/gxm-interview-churnzero.mp4',
           },
         ],
       },
@@ -367,7 +382,7 @@ const cases: CaseData[] = [
         image: '/GXM/Case 2/Screenshot 2024-03-28 at 9.34.18 AM.png',
       },
       {
-        type: 'carousel',
+        type: 'scroll-gallery',
         images: [
           '/GXM/Case 2/Screenshot 2026-08-03 at 5.31.41 PM.png',
           '/GXM/Case 2/Assesment.png',
@@ -384,7 +399,7 @@ const cases: CaseData[] = [
         video: '/GXM/Case 2/gxm-competitor-demo.mp4',
       },
       {
-        type: 'carousel',
+        type: 'scroll-gallery',
         images: [
           '/GXM/Case 2/Screenshot 2024-07-25 at 4.14.41 PM.png',
           '/GXM/Case 2/Screenshot 2026-08-03 at 5.43.18 PM.png',
@@ -451,7 +466,7 @@ const cases: CaseData[] = [
         video: '/GXM/Case 4/Interviews/gxm-interview-churnzero.mp4',
       },
       {
-        type: 'carousel',
+        type: 'scroll-gallery',
         images: [
           '/GXM/Case 4/Screenshot 2026-08-17 at 12.25.27 PM.png',
           '/GXM/Case 4/Screenshot 2026-08-17 at 12.45.02 PM.png',
@@ -479,8 +494,9 @@ const cases: CaseData[] = [
         image: '/GXM/Case 4/Screenshot 2026-08-17 at 2.49.51 PM.png',
       },
       {
-        type: 'carousel',
+        type: 'scroll-gallery',
         images: [
+          '/GXM/gxm-macbook-mockup.png',
           '/GXM/Case 4/ss/Mockuuups Apple Studio Display mockup on adjustable stand.jpeg',
           '/GXM/Case 4/ss/Mockuuups Apple Studio Display mockup on an industrial desk stand.jpeg',
           '/GXM/Case 4/ss/Mockuuups Apple Studio Display mockup on an industrial stand.jpeg',
@@ -554,7 +570,7 @@ const cases: CaseData[] = [
           'Three programs structured with owners, problem statements, and action plans',
           'Platform scope defined from operational reality, agreed across the organisation',
         ],
-        image: '/GXM/IMG_9702.jpg',
+        image: '/GXM/IMG_7526-2.jpg',
       },
       {
         type: 'split',
@@ -563,7 +579,7 @@ const cases: CaseData[] = [
         body: "What the map revealed wasn't what anyone expected. The customer-facing experience had friction, but it wasn't the source of the real cost. The real cost was backstage: no centralised place to store the information that kept every engagement running. When something was missing, someone re-ran it. When a vendor needed something, someone coordinated it manually. That operational overhead was reducing margins across every account.\n\nOnce the problem was named, it could be designed around. Everyone left knowing what to build first. And why.",
       },
       {
-        type: 'carousel',
+        type: 'scroll-gallery',
         images: [
           '/GXM/gxm-journey-map.png',
           '/GXM/Case 2/gxm-programs.png',
@@ -582,6 +598,116 @@ const cases: CaseData[] = [
           'Three programs structured with owners, problem statements, and action plans',
           'A team that now discovers before it builds',
         ],
+      },
+    ],
+  },
+  {
+    slug: 'dropclub',
+    client: 'Dropclub',
+    category: 'Business Design & Lean Validation',
+    heroLabel: 'Business Design · Lean UX',
+    title: 'Everything visible.\nNot everything accessible.',
+    subtitle:
+      'A personal business experiment built on zero inventory and one hypothesis: people in Costa Rica want the products going viral globally, just not the friction to get them. Dropclub is testing whether the gap between global discovery and local access can become a system.',
+    tags: ['Business Design', 'Lean UX', 'Ecommerce', 'Product Strategy', 'Commerce'],
+    heroImage: '/DC/Mocks/mockuuups-iphone-17-pro-mockup-on-a-black-leather-jacket.webp',
+    heroImages: [
+      '/DC/Mocks/mockuuups-iphone-17-pro-mockup-on-a-black-leather-jacket.webp',
+      '/DC/Stories 2/dc-rhode.webp',
+      '/DC/Mocks/Lifestyle.png',
+      '/DC/Mocks/mockuuups-free-iphone-17-pro-mockup-in-hand.webp',
+      '/DC/Stories 2/dc-nude.webp',
+      '/DC/Stories 2/dc-rh1.webp',
+      '/DC/Mocks/mockuuups-iphone-17-pro-mockup-held-over-a-gray-fabric-surface.webp',
+      '/DC/Stories 2/dc-sambas.webp',
+      '/DC/Mocks/BenditoxParadiso-O-01-iPhone.jpg',
+      '/DC/Stories 2/dc-toast.webp',
+      '/DC/Mocks/mockuuups-iphone-air-mockup-on-a-terracotta-textured-surface.webp',
+      '/DC/Stories 2/dc-cortez.webp',
+    ],
+    heroVideo: '/DC/dc-drop-1.mp4',
+    sections: [
+      {
+        type: 'split',
+        label: 'The business problem',
+        heading: 'Global discovery became borderless. Access didn\'t.',
+        body: "People in Costa Rica are exposed to the same products, brands, and cultural moments as consumers anywhere else. The gap is in getting to them. Many international brands don't ship here. Importing requires knowledge most customers don't have. Local selection covers only a fraction of what people discover online.\n\nThe initial hypothesis was direct: people will pay a reasonable premium for trusted, convenient access to products they already want but can't easily buy locally. Before testing that with inventory, we needed evidence the problem was real.",
+        image: '/DC/Mocks/mockuuups-poster-mockup-leaning-against-a-concrete-wall.webp',
+      },
+      {
+        type: 'scroll-gallery',
+        images: [
+          '/DC/Mocks/Lifestyle.png',
+          '/DC/Mocks/Indulge.png',
+          '/DC/Mocks/mockuuups-iphone-17-pro-mockup-on-a-blue-angled-surface.webp',
+        ],
+      },
+      {
+        type: 'fan-gallery',
+        label: 'The catalog',
+        heading: 'Products people already want.',
+        videos: ['/DC/Videos%202/36a62bff29b8445cab63a9f272e076ca.MOV', null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+        images: [
+          '/DC/Stories 2/dc-rhode.webp',
+          '/DC/Stories 2/dc-boldie-1.webp',
+          '/DC/Stories 2/dc-nude.webp',
+          '/DC/Stories 2/dc-rh1.webp',
+          '/DC/Stories 2/dc-boldie-2.webp',
+          '/DC/Stories 2/dc-sambas.webp',
+          '/DC/Stories 2/dc-toast.webp',
+          '/DC/Stories 2/dc-cortez.webp',
+          '/DC/Stories 2/dc-nude-1.webp',
+          '/DC/Stories 2/dc-salo.webp',
+          '/DC/Stories 2/dc-cortezzz.webp',
+          '/DC/Stories 2/dc-ordenes.webp',
+          '/DC/Stories 2/dc-skims.webp',
+          '/DC/Stories 2/dc-rh1-1.webp',
+          '/DC/Stories 2/Drooop Boldie-3.png',
+        ],
+      },
+      {
+        type: 'split',
+        label: 'Starting with nothing',
+        heading: 'No store. No inventory. One hypothesis.',
+        body: "The first version of Dropclub didn't have a warehouse, a catalog, or a single product on a shelf. Someone would ask for a sneaker, t-shirt, or item they found online. We'd source it, calculate the real cost to land it in Costa Rica, offer a price, and observe what happened next.\n\nEvery request became an experiment. We could see what people were actually willing to pay for, which brands generated enough desire to justify the premium, and where price resistance appeared. Rather than asking people what they might buy, we watched what they actually did.",
+        image: '/DC/Mocks/mockuuups-iphone-17-pro-mockup-held-over-a-gray-fabric-surface.webp',
+      },
+      {
+        type: 'scroll-gallery',
+        images: [
+          '/DC/Mocks/BenditoMockup-Free-Totebag-02.jpg',
+          '/DC/Mocks/mockuuups-a3-mockup-on-a-concrete-wall-with-gradient-design.webp',
+          '/DC/Mocks/mockuuups-iphone-air-mockup-on-a-terracotta-textured-surface.webp',
+        ],
+        positions: ['center', 'center', 'center'],
+      },
+      {
+        type: 'split',
+        label: 'Learning before scaling',
+        heading: 'Before Dropclub had inventory, it had a workflow.',
+        body: "The zero-inventory model wasn't only testing demand. It forced us to understand what had to happen behind the scenes to deliver a single order: how to source authentically, calculate landed cost, import, and reach the customer. Each transaction shaped the operating model.\n\nAt the same time, Instagram and WhatsApp became research tools. Customers told us what they were searching for, what they couldn't find locally, and how much convenience was worth to them. Every conversation became a data point before any inventory was committed.",
+        image: '/DC/Mocks/mockuuups-free-iphone-17-pro-mockup-in-hand.webp',
+      },
+      {
+        type: 'split',
+        label: 'The behavior',
+        heading: 'The storefront was already Instagram.',
+        body: "Traditional ecommerce assumes people search, browse a catalog, add to a cart, and check out. That isn't how these purchases begin. Someone sees a Rhode case on TikTok. Sends it to a friend. Finds Dropclub on Instagram. Asks if it's available. Pays. Gets it delivered.\n\nThe journey starts with desire, not intent. And the conversations that follow can answer questions a checkout page can't: Is it original? Do you have my size? Can I get it before Friday? We started treating those conversations as data, not friction.",
+        image: '/DC/Mocks/mockuuups-iphone-17-pro-mockup-on-a-black-leather-jacket.webp',
+      },
+      {
+        type: 'split',
+        label: 'From requests to bets',
+        heading: 'Every drop is a hypothesis with a price tag.',
+        body: "Patterns eventually emerged from the early demand signals. That shifted the model from sourcing individual requests toward small, curated inventory bets. Rhode tests demand for viral beauty products. Nude Project tests whether the same behavior extends into premium men's fashion. Sneakers test another category, price point, and purchasing rhythm.\n\nEach drop starts with a hypothesis: who will buy it, why they want it, what they'll pay, and how much capital is worth risking to find out. Sell-through, margin, acquisition cost, and time-to-sale become inputs for the next decision. The question is shifting from what someone asked us to find, toward what they'll want before they ask.",
+        image: '/DC/Mocks/BenditoxParadiso-O-01-iPhone.jpg',
+      },
+      {
+        type: 'split',
+        label: 'Turning taste into a system',
+        heading: 'Taste gets you started. Evidence tells you where to go.',
+        body: "The next version of Dropclub is an intelligence layer for better buying decisions. AI helps process signals across social media, search behavior, creators, and local availability, but it doesn't decide what's worth carrying. That's still a judgment call.\n\nA potential drop gets evaluated across four dimensions: global attention, local scarcity, customer fit, and viable economics. Every purchase generates another signal. What sold? To whom? At what price? How quickly? Those answers make the next buying decision slightly less uncertain.",
+        image: '/DC/dc-analytics.png',
       },
     ],
   },

@@ -22,21 +22,33 @@ function smoothScrollTo(targetY: number, onDone: () => void) {
   };
 
   if (lenis) {
+    // Use Lenis for all devices. On touch devices, touchmove preventDefault
+    // (registered below) blocks native drag-scroll, so Lenis can animate without
+    // momentum interference. lock:true guards against wheel events mid-animation.
     window.dispatchEvent(new Event("milk:snap-start"));
     document.body.classList.add("is-snapping");
-    // Safety net: if onComplete never fires (e.g. native scroll interrupts Lenis
-    // and its animation stalls), unblock isSnapping after duration + buffer.
-    const safetyTimer = setTimeout(fireEnd, 2500);
+    const safetyTimer = setTimeout(() => {
+      // Lenis stalled — force scroll to target before releasing the snap lock.
+      const liveLenis = (window as any).__lenis;
+      if (Math.abs(window.scrollY - targetY) > 10) {
+        if (liveLenis) liveLenis.stop();
+        window.scrollTo({ top: targetY, behavior: "instant" });
+        if (liveLenis) liveLenis.start();
+      }
+      fireEnd();
+    }, 1500);
     lenis.scrollTo(targetY, {
-      duration: 1.1,
+      duration: 0.65,
       easing: easeOutQuart,
       lock: true,
       onComplete: () => { clearTimeout(safetyTimer); fireEnd(); },
     });
   } else {
-    // Fallback if Lenis isn't ready yet
+    // Fallback (no Lenis): native smooth scroll with fixed timeout.
+    window.dispatchEvent(new Event("milk:snap-start"));
+    document.body.classList.add("is-snapping");
     window.scrollTo({ top: targetY, behavior: "smooth" });
-    setTimeout(fireEnd, 1600);
+    setTimeout(() => { fireEnd(); }, 750);
   }
 }
 
@@ -46,6 +58,43 @@ export default function ScrollSnapController() {
   useEffect(() => {
     const snapPages = ['/', '/portfolio'];
     if (!snapPages.includes(pathname) && !pathname.startsWith('/cases/')) return;
+
+    // ── Touch-primary devices (phones, tablets) ───────────────────────────────
+    // Native CSS scroll snap is far more reliable than our JS controller on
+    // touch: the browser handles inertia, momentum, and snap timing natively.
+    // pointer:coarse = touch-primary (iPad touch, phone).
+    // pointer:fine   = mouse/trackpad (desktop, iPad with keyboard) → JS path.
+    if (window.matchMedia('(pointer: coarse)').matches) {
+      if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+      window.scrollTo(0, 0);
+      if (snapPages.includes(pathname)) {
+        // Apply mandatory CSS snap with smooth behavior — gives animated transitions
+        // identical to the desktop Lenis experience without any JS physics fighting.
+        document.documentElement.style.scrollSnapType = 'y proximity';
+        document.documentElement.style.scrollBehavior = 'smooth';
+        document.documentElement.style.overscrollBehaviorY = 'none';
+      }
+      // Handle programmatic snap-to events (nav links, hero buttons) on touch devices.
+      const onSnapTo = (e: Event) => {
+        const detail = (e as CustomEvent).detail;
+        if (typeof detail?.index === 'number') {
+          const sections = Array.from(document.querySelectorAll('.snap-section')) as HTMLElement[];
+          sections[detail.index]?.scrollIntoView({ behavior: 'smooth' });
+          return;
+        }
+        if (detail?.id) {
+          document.getElementById(detail.id)?.scrollIntoView({ behavior: 'smooth' });
+        }
+      };
+      window.addEventListener('milk:snap-to', onSnapTo);
+      // Case pages on touch: free scroll (sections have variable heights).
+      return () => {
+        document.documentElement.style.scrollSnapType = '';
+        document.documentElement.style.scrollBehavior = '';
+        document.documentElement.style.overscrollBehaviorY = '';
+        window.removeEventListener('milk:snap-to', onSnapTo);
+      };
+    }
 
     let isSnapping = false;
     let cooldown = false;
@@ -71,7 +120,7 @@ export default function ScrollSnapController() {
       return closest;
     };
 
-    const SNAP_COOLDOWN = 250;
+    const SNAP_COOLDOWN = 300;
 
     const snapToIndex = (index: number) => {
       accumulatedDelta = 0;
@@ -100,6 +149,7 @@ export default function ScrollSnapController() {
       currentIndex = clamped;
       isSnapping = true;
       cooldown = true;
+      lastSnapTime = Date.now();
       smoothScrollTo(targetY, () => {
         isSnapping = false;
         setTimeout(() => { cooldown = false; }, SNAP_COOLDOWN);
@@ -150,7 +200,7 @@ export default function ScrollSnapController() {
         .some((el) => {
           const r = el.getBoundingClientRect();
           const sectionTop = r.top + window.scrollY;
-          const isTaller = el.offsetHeight > window.innerHeight + 20;
+          const isTaller = el.offsetHeight > window.innerHeight;
           const scrolledIn = window.scrollY > sectionTop + 5;
           if (scrolledIn) {
             // Keep native scroll active until section fully exits viewport,
@@ -167,6 +217,25 @@ export default function ScrollSnapController() {
     // ── Wheel ─────────────────────────────────────────────────────────────────
     let wheelTimeout: ReturnType<typeof setTimeout>;
     let accumulatedDelta = 0;
+
+    // ── Gesture-based snap lock ───────────────────────────────────────────────
+    // After a snap fires, absorb all remaining wheel events until there has been
+    // GESTURE_GAP ms of silence (momentum died). This prevents trackpad momentum
+    // from accumulating and triggering a second unintended snap.
+    // If incoming deltaY is larger than the previous event (momentum only decays),
+    // it signals a new intentional gesture and unlocks immediately.
+    let gestureSnapped = false;
+    let lastWheelDeltaY = 0;
+    let gestureGapTimer: ReturnType<typeof setTimeout>;
+    const GESTURE_GAP = 380;
+    const resetGestureGap = () => {
+      clearTimeout(gestureGapTimer);
+      gestureGapTimer = setTimeout(() => {
+        gestureSnapped = false;
+        lastWheelDeltaY = 0;
+        accumulatedDelta = 0;
+      }, GESTURE_GAP);
+    };
 
     const stepWithinFreeZone = (direction: number) => {
       // Sync currentIndex to the active free-scroll zone before stepping.
@@ -205,6 +274,11 @@ export default function ScrollSnapController() {
 
     const onWheel = (e: WheelEvent) => {
       if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+      // Let all wheel events pass through natively when the cursor is over a
+      // horizontal-scroll container (e.g. BlogSection card carousel). Without
+      // this, mixed-direction trackpad events that have deltaY > deltaX get
+      // intercepted and snap the page away while the user is scrolling sideways.
+      if ((e.target as Element)?.closest('[data-horizontal-scroll]')) return;
       const lenis = (window as any).__lenis;
       // Native-scroll zone: stop Lenis so its inertia doesn't overshoot the
       // section, then let the browser scroll natively.
@@ -230,11 +304,23 @@ export default function ScrollSnapController() {
       // Resuming from native zone — restart Lenis before handling the event.
       lenis?.start();
       e.preventDefault();
-      if (isSnapping || cooldown) return;
+
+      // Detect new active gesture: momentum only decays, so if deltaY is
+      // meaningfully larger than the last event the user started a new swipe.
+      if (gestureSnapped && Math.abs(e.deltaY) > Math.abs(lastWheelDeltaY) * 1.3 && Math.abs(e.deltaY) > 15) {
+        gestureSnapped = false;
+        accumulatedDelta = 0;
+      }
+      lastWheelDeltaY = e.deltaY;
+      resetGestureGap();
+
+      if (isSnapping) return;
+      // One snap per gesture — absorb trackpad momentum until silence or new gesture
+      if (gestureSnapped) return;
 
       accumulatedDelta += e.deltaY;
 
-      if (Math.abs(accumulatedDelta) < 40) {
+      if (Math.abs(accumulatedDelta) < 50) {
         clearTimeout(wheelTimeout);
         wheelTimeout = setTimeout(() => { accumulatedDelta = 0; }, 200);
         return;
@@ -243,6 +329,9 @@ export default function ScrollSnapController() {
       const direction = accumulatedDelta > 0 ? 1 : -1;
       accumulatedDelta = 0;
       clearTimeout(wheelTimeout);
+
+      // Lock: one snap per gesture from here on. Reset only after GESTURE_GAP silence.
+      gestureSnapped = true;
 
       // Inside a free-scroll zone: step one viewport at a time instead of
       // releasing to native scroll, which lets trackpad momentum race through.
@@ -260,6 +349,15 @@ export default function ScrollSnapController() {
 
     // ── Touch ─────────────────────────────────────────────────────────────────
     let touchStartY = 0;
+    // Record the time of any snap so onScrollEnd won't fire a conflicting
+    // re-snap while Lenis is still animating (1.1s) or the browser fires
+    // a late scrollend event after the 250ms cooldown has already cleared.
+    let lastSnapTime = 0;
+    const SNAP_BLOCK = 1100; // longer than Lenis 0.65s + 300ms cooldown
+
+    // Keep for backward-compat — touch path sets both
+    let touchSnapTime = 0;
+    const TOUCH_SNAP_BLOCK = 900; // slightly longer than mobile 0.75s fixed timeout
 
     const onTouchStart = (e: TouchEvent) => {
       touchStartY = e.touches[0].clientY;
@@ -268,28 +366,52 @@ export default function ScrollSnapController() {
     const onTouchEnd = (e: TouchEvent) => {
       if (isSnapping || cooldown) return;
       const delta = touchStartY - e.changedTouches[0].clientY;
-      if (Math.abs(delta) < 40) return;
+      if (Math.abs(delta) < 60) return;
       const direction = delta > 0 ? 1 : -1;
       if (isInNativeScrollZone()) {
-        // Swipe up at the very top of a native-scroll section → escape to previous section.
-        // Mirrors the same logic in onWheel so mobile isn't trapped inside tall sections.
+        const nativeTallEls = Array.from(document.querySelectorAll('[data-native-scroll]')) as HTMLElement[];
         if (direction < 0) {
-          const atTop = (Array.from(document.querySelectorAll('[data-native-scroll]')) as HTMLElement[])
-            .some(el => el.getBoundingClientRect().top >= -4);
-          if (atTop) snapToIndex(currentIndex + direction);
+          // Swipe up at section top → escape to previous section.
+          const atTop = nativeTallEls.some(el => el.getBoundingClientRect().top >= -4);
+          if (atTop) {
+            touchSnapTime = Date.now();
+            snapToIndex(currentIndex + direction);
+          }
+        } else {
+          // Swipe down near section bottom → escape to next section.
+          const atBottom = nativeTallEls.some(el => {
+            const r = el.getBoundingClientRect();
+            return el.offsetHeight > window.innerHeight + 20 && r.bottom <= window.innerHeight + 80;
+          });
+          if (atBottom) {
+            touchSnapTime = Date.now();
+            snapToIndex(currentIndex + 1);
+          }
         }
         return;
       }
       if (isInFreeScrollZone()) {
+        touchSnapTime = Date.now();
         stepWithinFreeZone(direction);
         return;
       }
+      touchSnapTime = Date.now();
       snapToIndex(currentIndex + direction);
     };
 
     // ── scrollend fallback (keyboard / scrollbar / free-scroll exit) ──────────
     const onScrollEnd = () => {
+      // Touch devices exit early above (CSS snap path), so this only runs on desktop.
       if (isSnapping || cooldown || isInFreeScrollZone()) return;
+      // Block scrollend for 1.6s after any snap (wheel, touch, or external).
+      // The browser fires scrollend after Lenis completes (~1.1s), which can
+      // outlast the 250ms cooldown and trigger a second spurious snap.
+      if (Date.now() - lastSnapTime < SNAP_BLOCK) return;
+      if (Date.now() - touchSnapTime < TOUCH_SNAP_BLOCK) return;
+      // If currentIndex already points to a free-scroll section, treat it as
+      // being in the zone — prevents onScrollEnd from snapping past it when
+      // isInFreeScrollZone() misses by a pixel after a Lenis snap.
+      if (getSections()[currentIndex]?.dataset.freeScroll) return;
       if (isInNativeScrollZone()) {
         const sections = getSections();
         const nativeEls = Array.from(document.querySelectorAll('[data-native-scroll]')) as HTMLElement[];
@@ -298,7 +420,8 @@ export default function ScrollSnapController() {
         // seen all content. Snap to the next section.
         const bottomReached = nativeEls.some(el => {
           const r = el.getBoundingClientRect();
-          return r.bottom <= window.innerHeight + 10 && el.offsetHeight > window.innerHeight + 20;
+          return r.bottom <= window.innerHeight + 10
+            && el.offsetHeight > window.innerHeight;
         });
         if (bottomReached) {
           // Guard: if already at the last section, don't snap back to its own top.
@@ -325,16 +448,17 @@ export default function ScrollSnapController() {
         }
         return;
       }
-      // If we've scrolled past the midpoint of the current data-native-scroll section,
-      // always advance forward — prevents snapping back to the section top on scrollend.
       const sections = getSections();
       const current = sections[currentIndex];
       if (current?.dataset.nativeScroll) {
-        const sectionTop = getSectionTop(current);
-        if (window.scrollY > sectionTop + current.offsetHeight * 0.5) {
+        // Only advance when the section bottom is actually near the viewport.
+        // The old 50% threshold caused premature exit from tall sections (e.g. ChaptersSection).
+        const r = current.getBoundingClientRect();
+        if (r.bottom <= window.innerHeight + 40) {
           snapToIndex(currentIndex + 1);
-          return;
         }
+        // Always return — never let getNearestIndex make decisions about native-scroll sections.
+        return;
       }
 
       // (smoothWheel:false — Lenis was never stopped, no need to restart it here)
@@ -357,6 +481,7 @@ export default function ScrollSnapController() {
       window.removeEventListener('scrollend', onScrollEnd);
       window.removeEventListener('milk:snap-to', onSnapTo);
       clearTimeout(wheelTimeout);
+      clearTimeout(gestureGapTimer);
     };
   }, [pathname]);
 

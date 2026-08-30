@@ -4,8 +4,8 @@ import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useMotionValue, useMotionValueEvent, useTransform, animate } from "framer-motion";
 
 const TYPE_TARGET = "Why Milk?";
-const PAN_END = 0.65;
-const OVERLAY_START = 0.65;  // starts immediately when pan ends — no dead scroll gap
+const PAN_END = 0.50;
+const OVERLAY_START = 0.65;  // holds still from 50%→65% so text is readable before overlay
 const OVERLAY_END   = 0.72;  // fully white
 const REVEAL1_START    = 0.72; // "Distilled it." fades in
 const REVEAL1_PEAK     = 0.78; // "Distilled it." fully visible
@@ -97,8 +97,10 @@ export default function TeamSection() {
       trackRef.current.style.transform = "translateX(0px)";
       const frame3Right = frame3Ref.current.getBoundingClientRect().right;
 
-      // Pan stops when frame3's right edge lands at 92vw
-      const max = Math.max(0, frame3Right - vw * 0.92);
+      // Pan stops when the text's right edge lands at 90vw-440px on desktop.
+      // On narrow viewports (mobile) 90vw-440 goes negative, so we clamp the
+      // target text position to 30vw minimum — keeping "doesn't." in frame.
+      const max = Math.max(0, frame3Right - Math.max(vw * 0.90, vw * 0.30 + 440));
       translateMaxRef.current = max;
 
       const v = scrollYProgress.get();
@@ -113,7 +115,23 @@ export default function TeamSection() {
       });
     });
 
-    return () => window.removeEventListener("resize", measure);
+    // Also explicitly load Ambit — it may arrive after fonts.ready (font-display: swap),
+    // causing the fallback font's narrower width to be used for the initial measurement.
+    document.fonts.load("120px Ambit").then(() => {
+      requestAnimationFrame(measure);
+    });
+
+    // Re-measure if frame3 changes size (catches any late font swap)
+    let ro: ResizeObserver | null = null;
+    if (frame3Ref.current) {
+      ro = new ResizeObserver(() => requestAnimationFrame(measure));
+      ro.observe(frame3Ref.current);
+    }
+
+    return () => {
+      window.removeEventListener("resize", measure);
+      ro?.disconnect();
+    };
   }, []);
 
   // Nudge hint — bounces the track slightly right then back, loops until the user scrolls
@@ -196,7 +214,7 @@ export default function TeamSection() {
         >
           {/* Frame 1 — "You might be wondering" + typewriter "Why Milk?" as one line */}
           <div className="shrink-0 whitespace-nowrap">
-            <h2 className="text-heading" style={{ fontFamily: "Ambit" }}>
+            <h2 className="text-heading" style={{ fontFamily: "Ambit", whiteSpace: "nowrap" }}>
               <span ref={frame1Ref}>You might be wondering... </span>
               <span>
                 {TYPE_TARGET.slice(0, typedChars)}
@@ -217,7 +235,7 @@ export default function TeamSection() {
 
           {/* Frame 2 */}
           <div className="shrink-0 whitespace-nowrap text-center">
-            <h2 className="text-heading" style={{ fontFamily: "Ambit" }}>
+            <h2 className="text-heading" style={{ fontFamily: "Ambit", whiteSpace: "nowrap" }}>
               Been inside great teams.
             </h2>
           </div>
@@ -229,7 +247,7 @@ export default function TeamSection() {
 
           {/* Frame 3 */}
           <div ref={frame3Ref} className="shrink-0 whitespace-nowrap" style={{ paddingRight: "440px" }}>
-            <h2 className="text-heading" style={{ fontFamily: "Ambit" }}>
+            <h2 className="text-heading" style={{ fontFamily: "Ambit", whiteSpace: "nowrap" }}>
               Seen what works and what doesn't.
             </h2>
           </div>
@@ -248,7 +266,7 @@ export default function TeamSection() {
             className="absolute inset-0 flex items-center justify-center"
             style={{ opacity: reveal1Op, y: reveal1Y }}
           >
-            <h2 className="text-heading text-center px-8 lg:px-[180px]">
+            <h2 className="text-heading text-center px-8 lg:px-[180px]" style={{ whiteSpace: "normal" }}>
               Distilled it.
             </h2>
           </motion.div>

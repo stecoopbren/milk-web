@@ -9,7 +9,8 @@ import ContactModal from "./ContactModal";
 const links = [
   { label: "About", href: "/#about-us" },
   { label: "Why Milk?", href: "/#who-we-are" },
-  { label: "Method", href: "/#method" },
+  { label: "Formula", href: "/#method" },
+  { label: "Disciplines", href: "/#services" },
   { label: "Work", href: "/#portfolio" },
 ];
 
@@ -408,7 +409,7 @@ export default function Nav() {
                     key={link.label}
                     href={link.href}
                     className="text-title py-2"
-                    style={{ color: isActive ? "#111" : "#999" }}
+                    style={{ color: isActive ? "#111" : "#999", textDecoration: isActive ? "underline" : "none", textUnderlineOffset: "4px" }}
                     initial={{ opacity: 0, x: -12 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.05, duration: 0.3, ease }}

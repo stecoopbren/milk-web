@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const IDLE_MS = 10_000;
+const IDLE_MS = 4_000;
 
 export default function ScrollCue() {
   const [visible, setVisible] = useState(false);
