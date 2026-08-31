@@ -121,8 +121,9 @@ export default function Nav() {
   function handleLogoClick(e: React.MouseEvent<HTMLAnchorElement>) {
     e.preventDefault();
     if (window.location.pathname === "/") return;
-    // Pre-set flags so intro loader doesn't play and Let's Talk doesn't flash
+    // Pre-set flags so intro loader and page loader don't play, and Let's Talk doesn't flash
     sessionStorage.setItem("milk:intro-shown", "1");
+    sessionStorage.setItem("milkLoaded", "1");
     setShowCta(false);
     // Quick white fade, then navigate
     setFadeDuration(0.55);
@@ -146,15 +147,19 @@ export default function Nav() {
       window.dispatchEvent(new CustomEvent("milk:snap-to", { detail: { id: match[1] } }));
       return;
     }
-    // On a case page: fade to white, skip intro loader, then navigate
+    // On a case page: fade to white, skip intro loader and page loader, then navigate
     const sectionId = match[1];
     setFadeDuration(2.2);
     setFadeActive(true);
     setTimeout(() => {
       sessionStorage.setItem("milk:intro-shown", "1");
+      sessionStorage.setItem("milkLoaded", "1");
       setPendingSection(sectionId);
       router.push("/");
-      setTimeout(() => setFadeActive(false), 100);
+      setTimeout(() => {
+        setFadeDuration(1.0);
+        setFadeActive(false);
+      }, 100);
     }, 2200);
   }
 

@@ -387,9 +387,6 @@ body {
   scroll-snap-align: start;
   scroll-snap-stop: always;
 }
-.snap-section[data-free-scroll] {
-  scroll-snap-stop: normal;
-}
 
 /* ─── Card Fan Carousel ──────────────────────────────────────────────────── */
 .fan-layout {

@@ -65,7 +65,7 @@ function DesktopSection() {
       ref={outerRef}
       className="hidden lg:block snap-section"
       data-free-scroll="true"
-      style={{ height: "200vh" }}
+      style={{ height: "200vh", scrollSnapAlign: "none" }}
     >
       <div className="sticky top-0 h-screen flex items-center justify-center px-[180px] text-center overflow-hidden">
         <MultiplayerCursors />
