@@ -101,7 +101,7 @@ export default function PositioningSection() {
 
       {/* Image fan */}
       <motion.div
-        className="relative flex w-full max-w-3xl items-center justify-center -mx-10 lg:mx-0"
+        className="relative flex w-full max-w-3xl items-center justify-center -mx-8 lg:mx-0"
         style={{ position: "relative", zIndex: 1 }}
         variants={fanContainerVariants}
         initial="hidden"

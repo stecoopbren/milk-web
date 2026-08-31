@@ -1669,7 +1669,7 @@ function FanGallerySection({ section }: { section: Extract<CaseSection, { type: 
       ref={sectionRef}
       className="snap-section"
       data-free-scroll="true"
-      style={{ height: "220vh" }}
+      style={{ height: "180vh" }}
     >
       <div
         className="sticky top-0 flex flex-col items-center justify-center bg-[#FAFAFA]"
@@ -1678,7 +1678,7 @@ function FanGallerySection({ section }: { section: Extract<CaseSection, { type: 
         {(section.label || section.heading) && (
           <motion.div
             style={{ opacity: headingOpacity, y: headingY }}
-            className="w-full max-w-[640px] text-center mb-4 px-8 lg:px-0"
+            className="w-full max-w-[640px] text-center mb-6 px-8 lg:px-0"
           >
             {section.label && (
               <p className="text-serif-eyebrow text-[#0C0C12] mb-3">

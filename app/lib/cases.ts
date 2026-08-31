@@ -702,7 +702,6 @@ const cases: CaseData[] = [
         label: 'Turning taste into a system',
         heading: 'Taste gets you started. Evidence tells you where to go.',
         body: "The next version of Dropclub is an intelligence layer for better buying decisions. AI helps process signals across social media, search behavior, creators, and local availability, but it doesn't decide what's worth carrying. That's still a judgment call.\n\nA potential drop gets evaluated across four dimensions: global attention, local scarcity, customer fit, and viable economics. Every purchase generates another signal. What sold? To whom? At what price? How quickly? Those answers make the next buying decision slightly less uncertain.",
-        image: '/DC/dc-analytics.png',
       },
     ],
   },

@@ -387,6 +387,9 @@ body {
   scroll-snap-align: start;
   scroll-snap-stop: always;
 }
+.snap-section[data-free-scroll] {
+  scroll-snap-stop: normal;
+}
 
 /* ─── Card Fan Carousel ──────────────────────────────────────────────────── */
 .fan-layout {
@@ -419,6 +422,16 @@ body {
 @media (max-width: 479px) {
   .fan-layout { height: 16rem; }
   .fan-card { width: 15rem; height: 9.5rem; margin-top: -4.75rem; margin-left: -7.5rem; }
+}
+
+/* Short viewports — keep fan + pagination controls within 100svh */
+@media (max-height: 760px) {
+  .fan-layout { height: 18rem !important; }
+  .fan-card { width: 20rem; height: 12.5rem; margin-top: -6.25rem; margin-left: -10rem; }
+}
+@media (max-height: 660px) {
+  .fan-layout { height: 13rem !important; }
+  .fan-card { width: 15rem; height: 9rem; margin-top: -4.5rem; margin-left: -7.5rem; }
 }
 
 /* ─── Hide scrollbar utility ─────────────────────────────────────────────── */

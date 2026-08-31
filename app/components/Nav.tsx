@@ -79,15 +79,14 @@ export default function Nav() {
 
     const tick = () => {
       const mid = window.innerHeight / 2;
+      let found: string | null = null;
       for (const id of sectionIds) {
         const el = document.getElementById(id);
         if (!el) continue;
         const { top, bottom } = el.getBoundingClientRect();
-        if (top <= mid && bottom >= mid) {
-          if (id !== last) { last = id; setActiveSection(id); }
-          break;
-        }
+        if (top <= mid && bottom >= mid) { found = id; break; }
       }
+      if (found !== last) { last = found; setActiveSection(found); }
       raf = requestAnimationFrame(tick);
     };
 

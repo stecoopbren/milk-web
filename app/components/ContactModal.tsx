@@ -189,6 +189,7 @@ export default function ContactModal({ open, onClose, initialService }: Props) {
   const [revealed, setRevealed]             = useState<Record<number, number>>({});
   const [details, setDetails]               = useState({ name: "", email: "", company: "", phone: "", countryCode: "+506" });
   const [emailError, setEmailError]         = useState("");
+  const [nameError, setNameError]           = useState("");
   const [honeypot, setHoneypot]             = useState("");
   const [sending, setSending]               = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -214,7 +215,7 @@ export default function ContactModal({ open, onClose, initialService }: Props) {
         setStep("reason"); setSelectedReason(""); setAnswers({}); setOtherText("");
         setMessages([]); setInput(""); setChatDone(false); setChips([]); setRevealed({});
         setDetails({ name: "", email: "", company: "", phone: "", countryCode: "+506" });
-        setEmailError(""); setHoneypot("");
+        setEmailError(""); setNameError(""); setHoneypot("");
       }, 400);
       return () => clearTimeout(t);
     }
@@ -384,6 +385,7 @@ export default function ContactModal({ open, onClose, initialService }: Props) {
 
   const handleSend = async () => {
     if (honeypot) return; // bot trap
+    if (!details.name.trim()) { setNameError("Please enter your name."); return; }
     if (!isValidEmail(details.email)) { setEmailError("Please enter a valid email address."); return; }
     setSending(true);
     const phone = details.phone ? `${details.countryCode} ${details.phone}` : "";
@@ -759,14 +761,23 @@ export default function ContactModal({ open, onClose, initialService }: Props) {
                               <label className="font-sans font-medium text-[11px] text-[#888] tracking-[0.5px] uppercase">Your name</label>
                               <input
                                 value={details.name}
-                                onChange={e => setDetails(prev => ({ ...prev, name: e.target.value }))}
+                                onChange={e => { setDetails(prev => ({ ...prev, name: e.target.value })); if (nameError) setNameError(""); }}
                                 placeholder=""
                                 autoComplete="name"
                                 className="font-sans text-[14px] tracking-[-0.2px] rounded-xl px-4 py-3 border bg-white outline-none transition-colors"
-                                style={{ borderColor: "#E2E2E2" }}
-                                onFocus={e => (e.target.style.borderColor = "#111")}
-                                onBlur={e => (e.target.style.borderColor = "#E2E2E2")}
+                                style={{ borderColor: nameError ? "#E53935" : "#E2E2E2" }}
+                                onFocus={e => (e.target.style.borderColor = nameError ? "#E53935" : "#111")}
+                                onBlur={e => {
+                                  if (!details.name.trim()) {
+                                    setNameError("Please enter your name.");
+                                    e.target.style.borderColor = "#E53935";
+                                  } else {
+                                    setNameError("");
+                                    e.target.style.borderColor = "#E2E2E2";
+                                  }
+                                }}
                               />
+                              {nameError && <p className="font-sans text-[12px] text-[#E53935] tracking-[-0.2px]">{nameError}</p>}
                             </div>
 
                             {/* Email */}

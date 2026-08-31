@@ -87,7 +87,7 @@ export default function BioSection() {
             <>
               <motion.div
                 className="absolute top-full lg:hidden"
-                style={{ marginTop: -80, width: "min(95vw, 560px)", left: "50%" }}
+                style={{ marginTop: -64, width: "min(95vw, 560px)", left: "50%" }}
                 initial="hidden"
                 animate={inView ? "visible" : "hidden"}
                 variants={{

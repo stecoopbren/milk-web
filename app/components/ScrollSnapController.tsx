@@ -65,12 +65,13 @@ export default function ScrollSnapController() {
     // pointer:coarse = touch-primary (iPad touch, phone).
     // pointer:fine   = mouse/trackpad (desktop, iPad with keyboard) → JS path.
     if (window.matchMedia('(pointer: coarse)').matches) {
-      if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-      window.scrollTo(0, 0);
       if (snapPages.includes(pathname)) {
-        // Apply mandatory CSS snap with smooth behavior — gives animated transitions
-        // identical to the desktop Lenis experience without any JS physics fighting.
-        document.documentElement.style.scrollSnapType = 'y proximity';
+        // Mandatory snap on homepage/portfolio: browser always snaps to the
+        // nearest snap point when scroll momentum stops. proximity was too
+        // lenient and failed to snap on longer swipes across sections.
+        if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+        window.scrollTo(0, 0);
+        document.documentElement.style.scrollSnapType = 'y mandatory';
         document.documentElement.style.scrollBehavior = 'smooth';
         document.documentElement.style.overscrollBehaviorY = 'none';
       }
