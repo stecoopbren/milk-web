@@ -65,16 +65,48 @@ export default function ScrollSnapController() {
     // pointer:coarse = touch-primary (iPad touch, phone).
     // pointer:fine   = mouse/trackpad (desktop, iPad with keyboard) → JS path.
     if (window.matchMedia('(pointer: coarse)').matches) {
+      // Variables declared here so the cleanup closure can reach them.
+      let nativeSnapEls: HTMLElement[] = [];
+      let updateFreeSnap: (() => void) | null = null;
+
       if (snapPages.includes(pathname)) {
-        // Proximity snap: only snaps when scroll rests near a snap point.
-        // Mandatory was removed because it can't coexist with 250–900vh free-scroll
-        // zones (BioSection, TeamSection) — the browser would skip over them entirely
-        // trying to snap to the nearest snap point outside the zone.
+        // Hybrid snap strategy:
+        // • y mandatory between sections (crisp snapping even with fast swipes)
+        // • y none while inside a genuine free-scroll zone (BioSection 250vh,
+        //   TeamSection 900vh) so the browser can rest mid-zone.
+        //
+        // Also, data-native-scroll sections (PositioningSection, ServicesSection)
+        // carry scrollSnapAlign:none for the desktop JS controller, but on mobile
+        // they ARE 1-screen sections and must be snap points. Override inline.
         if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
         window.scrollTo(0, 0);
-        document.documentElement.style.scrollSnapType = 'y proximity';
+        document.documentElement.style.scrollSnapType = 'y mandatory';
         document.documentElement.style.overscrollBehaviorY = 'none';
+
+        nativeSnapEls = Array.from(
+          document.querySelectorAll('[data-native-scroll].snap-section')
+        ) as HTMLElement[];
+        nativeSnapEls.forEach(el => { el.style.scrollSnapAlign = 'start'; });
+
+        // Free-scroll zones: sections that have scrollSnapAlign:none inline.
+        const freeZoneEls = (Array.from(
+          document.querySelectorAll('[data-free-scroll].snap-section')
+        ) as HTMLElement[]).filter(el => el.style.scrollSnapAlign === 'none');
+
+        updateFreeSnap = () => {
+          const inFreeZone = freeZoneEls.some(el => {
+            if (getComputedStyle(el).display === 'none') return false;
+            const r = el.getBoundingClientRect();
+            // Fully occupying the viewport: top above fold, bottom below fold.
+            // 10px buffer avoids flickering at zone boundaries.
+            return r.top < -10 && r.bottom > window.innerHeight + 10;
+          });
+          document.documentElement.style.scrollSnapType = inFreeZone ? 'y none' : 'y mandatory';
+        };
+
+        window.addEventListener('scroll', updateFreeSnap, { passive: true });
       }
+
       // Handle programmatic snap-to events (nav links, hero buttons) on touch devices.
       const onSnapTo = (e: Event) => {
         const detail = (e as CustomEvent).detail;
@@ -94,6 +126,8 @@ export default function ScrollSnapController() {
         document.documentElement.style.scrollBehavior = '';
         document.documentElement.style.overscrollBehaviorY = '';
         window.removeEventListener('milk:snap-to', onSnapTo);
+        if (updateFreeSnap) window.removeEventListener('scroll', updateFreeSnap);
+        nativeSnapEls.forEach(el => { el.style.scrollSnapAlign = 'none'; });
       };
     }
 
