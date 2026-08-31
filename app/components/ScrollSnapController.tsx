@@ -71,16 +71,15 @@ export default function ScrollSnapController() {
 
       if (snapPages.includes(pathname)) {
         // Hybrid snap strategy:
-        // • y mandatory between sections (crisp snapping even with fast swipes)
+        // • y mandatory between sections (crisp snapping, no fast-swipe skipping)
         // • y none while inside a genuine free-scroll zone (BioSection 250vh,
         //   TeamSection 900vh) so the browser can rest mid-zone.
         //
         // Also, data-native-scroll sections (PositioningSection, ServicesSection)
         // carry scrollSnapAlign:none for the desktop JS controller, but on mobile
-        // they ARE 1-screen sections and must be snap points. Override inline.
+        // they ARE ~1-screen sections and must be snap points. Override inline.
         if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
         window.scrollTo(0, 0);
-        document.documentElement.style.scrollSnapType = 'y mandatory';
         document.documentElement.style.overscrollBehaviorY = 'none';
 
         nativeSnapEls = Array.from(
@@ -105,19 +104,42 @@ export default function ScrollSnapController() {
         };
 
         window.addEventListener('scroll', updateFreeSnap, { passive: true });
+
+        // Defer first snap application by 2 frames so scrollTo(0,0) commits first.
+        // Without this, iOS may inherit the previous page's scroll position and
+        // mandatory snap fires at the wrong position before the reset lands.
+        requestAnimationFrame(() => requestAnimationFrame(() => updateFreeSnap!()));
       }
 
       // Handle programmatic snap-to events (nav links, hero buttons) on touch devices.
       const onSnapTo = (e: Event) => {
         const detail = (e as CustomEvent).detail;
+        let target: HTMLElement | null = null;
         if (typeof detail?.index === 'number') {
-          const sections = Array.from(document.querySelectorAll('.snap-section')) as HTMLElement[];
-          sections[detail.index]?.scrollIntoView({ behavior: 'smooth' });
-          return;
+          target = (Array.from(document.querySelectorAll('.snap-section')) as HTMLElement[])[detail.index] ?? null;
+        } else if (detail?.id) {
+          target = document.getElementById(detail.id);
         }
-        if (detail?.id) {
-          document.getElementById(detail.id)?.scrollIntoView({ behavior: 'smooth' });
-        }
+        if (!target) return;
+
+        // Suspend dynamic snap toggling and disable CSS snap entirely during
+        // programmatic scroll. If updateFreeSnap fires mid-animation it can
+        // switch mandatory/none at the wrong moment and redirect the scroll.
+        if (updateFreeSnap) window.removeEventListener('scroll', updateFreeSnap);
+        document.documentElement.style.scrollSnapType = 'y none';
+
+        const top = target.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({ top, behavior: 'smooth' });
+
+        setTimeout(() => {
+          // Restore scroll listener and set correct snap type for new position.
+          if (updateFreeSnap) {
+            window.addEventListener('scroll', updateFreeSnap, { passive: true });
+            updateFreeSnap();
+          } else {
+            document.documentElement.style.scrollSnapType = 'y mandatory';
+          }
+        }, 900);
       };
       window.addEventListener('milk:snap-to', onSnapTo);
       // Case pages on touch: free scroll (sections have variable heights).

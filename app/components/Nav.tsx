@@ -156,10 +156,7 @@ export default function Nav() {
       sessionStorage.setItem("milkLoaded", "1");
       setPendingSection(sectionId);
       router.push("/");
-      setTimeout(() => {
-        setFadeDuration(1.0);
-        setFadeActive(false);
-      }, 100);
+      setTimeout(() => setFadeActive(false), 100);
     }, 2200);
   }
 
@@ -462,9 +459,8 @@ export default function Nav() {
           <motion.div
             className="fixed inset-0 z-[9999] bg-white pointer-events-auto"
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: fadeDuration, ease: [0.4, 0, 0.2, 1] }}
+            animate={{ opacity: 1, transition: { duration: fadeDuration, ease: [0.4, 0, 0.2, 1] } }}
+            exit={{ opacity: 0, transition: { duration: 0.6, ease: [0.4, 0, 0.2, 1] } }}
           />
         )}
       </AnimatePresence>
