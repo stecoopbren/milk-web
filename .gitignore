@@ -43,3 +43,6 @@ get-spotify-token.mjs
 
 # large local assets
 /source-videos
+public/DC/Videos\ 2/*.MOV
+public/DC/Videos\ 2/*.mov
+*.MOV

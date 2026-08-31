@@ -710,18 +710,18 @@ function ScrollGallerySection({ section }: { section: Extract<CaseSection, { typ
         className="snap-section lg:hidden"
         style={{ padding: "60px 16px 60px" }}
       >
-        <div style={{ width: "100%", height: "55svh", borderRadius: 14, overflow: "hidden", marginBottom: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <img src={img0} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
+        <div style={{ width: "100%", height: "55svh", borderRadius: 14, overflow: "hidden", marginBottom: 10 }}>
+          <img src={img0} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
         </div>
         <div style={{ display: "flex", gap: 10, height: "38svh" }}>
           {img1 && (
-            <div style={{ flex: 1, borderRadius: 14, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <img src={img1} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
+            <div style={{ flex: 1, borderRadius: 14, overflow: "hidden" }}>
+              <img src={img1} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
             </div>
           )}
           {img2 && (
-            <div style={{ flex: 1, borderRadius: 14, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <img src={img2} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
+            <div style={{ flex: 1, borderRadius: 14, overflow: "hidden" }}>
+              <img src={img2} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
             </div>
           )}
         </div>
@@ -1667,15 +1667,14 @@ function FanGallerySection({ section }: { section: Extract<CaseSection, { type: 
   return (
     <div
       ref={sectionRef}
+      className="snap-section"
       data-free-scroll="true"
-      style={{ height: "220vh", scrollSnapAlign: "none" }}
+      style={{ height: "220vh" }}
     >
       <div
-        className="sticky top-0 flex flex-col items-center bg-[#FAFAFA]"
-        style={{ height: "100svh", paddingTop: 84 }}
+        className="sticky top-0 flex flex-col items-center justify-center bg-[#FAFAFA]"
+        style={{ height: "100svh", paddingTop: 84, paddingBottom: 48 }}
       >
-        {/* spacer pushes heading + cards to the lower portion of the viewport */}
-        <div style={{ flex: "1 1 0" }} />
         {(section.label || section.heading) && (
           <motion.div
             style={{ opacity: headingOpacity, y: headingY }}

@@ -18,13 +18,13 @@ const MAX_VISIBLE = 7;
 const HALF = 3;
 
 const FAN_POSITIONS = [
-  { rot: -21, scale: 0.7756, x: -30, y: 7.3, zIndex: 1 },
-  { rot: -14, scale: 0.8498, x: -22, y: 4.0, zIndex: 2 },
-  { rot: -7,  scale: 0.9346, x: -11, y: 1.3, zIndex: 3 },
+  { rot: -21, scale: 0.7756, x: -21, y: 3.6, zIndex: 1 },
+  { rot: -14, scale: 0.8498, x: -14, y: 2.0, zIndex: 2 },
+  { rot: -7,  scale: 0.9346, x: -7,  y: 0.6, zIndex: 3 },
   { rot: 0,   scale: 1.0,    x: 0,   y: 0.0, zIndex: 10 },
-  { rot: 7,   scale: 0.9346, x: 11,  y: 1.3, zIndex: 3 },
-  { rot: 14,  scale: 0.8498, x: 22,  y: 4.0, zIndex: 2 },
-  { rot: 21,  scale: 0.7756, x: 30,  y: 7.3, zIndex: 1 },
+  { rot: 7,   scale: 0.9346, x: 7,   y: 0.6, zIndex: 3 },
+  { rot: 14,  scale: 0.8498, x: 14,  y: 2.0, zIndex: 2 },
+  { rot: 21,  scale: 0.7756, x: 21,  y: 3.6, zIndex: 1 },
 ];
 
 function getResponsiveMultiplier(width: number) {
@@ -37,11 +37,11 @@ function getResponsiveMultiplier(width: number) {
 
 function getHeightMultiplier(width: number) {
   let idealPx: number;
-  if (width < 480) idealPx = 22 * 16;
-  else if (width < 640) idealPx = 26 * 16;
-  else if (width < 768) idealPx = 28 * 16;
-  else if (width < 1024) idealPx = 34 * 16;
-  else idealPx = 38 * 16;
+  if (width < 480) idealPx = 9.5 * 16;
+  else if (width < 640) idealPx = 11.5 * 16;
+  else if (width < 768) idealPx = 13 * 16;
+  else if (width < 1024) idealPx = 16 * 16;
+  else idealPx = 18 * 16;
 
   const available = window.innerHeight * 0.7;
   if (available >= idealPx) return 1;

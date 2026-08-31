@@ -391,34 +391,34 @@ body {
 /* ─── Card Fan Carousel ──────────────────────────────────────────────────── */
 .fan-layout {
   position: relative;
-  height: 48rem;
+  height: 26rem;
 }
 .fan-card {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 21rem;
-  height: 38rem;
-  margin-top: -19rem;
-  margin-left: -10.5rem;
+  width: 28rem;
+  height: 18rem;
+  margin-top: -9rem;
+  margin-left: -14rem;
   border-radius: 16px;
   overflow: hidden;
 }
 @media (max-width: 1023px) {
-  .fan-layout { height: 44rem; }
-  .fan-card { width: 19.125rem; height: 34rem; margin-top: -17rem; margin-left: -9.5625rem; }
+  .fan-layout { height: 24rem; }
+  .fan-card { width: 25rem; height: 16rem; margin-top: -8rem; margin-left: -12.5rem; }
 }
 @media (max-width: 767px) {
-  .fan-layout { height: 38rem; }
-  .fan-card { width: 15.75rem; height: 28rem; margin-top: -14rem; margin-left: -7.875rem; }
+  .fan-layout { height: 20rem; }
+  .fan-card { width: 20rem; height: 13rem; margin-top: -6.5rem; margin-left: -10rem; }
 }
 @media (max-width: 639px) {
-  .fan-layout { height: 36rem; }
-  .fan-card { width: 14.625rem; height: 26rem; margin-top: -13rem; margin-left: -7.3125rem; }
+  .fan-layout { height: 18rem; }
+  .fan-card { width: 18rem; height: 11.5rem; margin-top: -5.75rem; margin-left: -9rem; }
 }
 @media (max-width: 479px) {
-  .fan-layout { height: 32rem; }
-  .fan-card { width: 12.375rem; height: 22rem; margin-top: -11rem; margin-left: -6.1875rem; }
+  .fan-layout { height: 16rem; }
+  .fan-card { width: 15rem; height: 9.5rem; margin-top: -4.75rem; margin-left: -7.5rem; }
 }
 
 /* ─── Hide scrollbar utility ─────────────────────────────────────────────── */
