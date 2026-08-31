@@ -18,15 +18,21 @@ export default function ScrollCue() {
       timer = setTimeout(show, IDLE_MS);
     };
 
-    timer = setTimeout(show, IDLE_MS);
+    const startCue = () => {
+      timer = setTimeout(show, IDLE_MS);
+      window.addEventListener("scroll", reset, { passive: true });
+      window.addEventListener("wheel", reset, { passive: true });
+      window.addEventListener("touchmove", reset, { passive: true });
+      window.addEventListener("keydown", reset, { passive: true });
+    };
 
-    window.addEventListener("scroll", reset, { passive: true });
-    window.addEventListener("wheel", reset, { passive: true });
-    window.addEventListener("touchmove", reset, { passive: true });
-    window.addEventListener("keydown", reset, { passive: true });
+    // Wait for the intro loader to finish before showing the cue.
+    // On non-home pages, the intro fires milk:intro-exit immediately.
+    window.addEventListener("milk:intro-exit", startCue, { once: true });
 
     return () => {
       clearTimeout(timer);
+      window.removeEventListener("milk:intro-exit", startCue);
       window.removeEventListener("scroll", reset);
       window.removeEventListener("wheel", reset);
       window.removeEventListener("touchmove", reset);
