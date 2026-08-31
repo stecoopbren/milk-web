@@ -66,13 +66,13 @@ export default function ScrollSnapController() {
     // pointer:fine   = mouse/trackpad (desktop, iPad with keyboard) → JS path.
     if (window.matchMedia('(pointer: coarse)').matches) {
       if (snapPages.includes(pathname)) {
-        // Mandatory snap on homepage/portfolio: browser always snaps to the
-        // nearest snap point when scroll momentum stops. proximity was too
-        // lenient and failed to snap on longer swipes across sections.
+        // Proximity snap: only snaps when scroll rests near a snap point.
+        // Mandatory was removed because it can't coexist with 250–900vh free-scroll
+        // zones (BioSection, TeamSection) — the browser would skip over them entirely
+        // trying to snap to the nearest snap point outside the zone.
         if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
         window.scrollTo(0, 0);
-        document.documentElement.style.scrollSnapType = 'y mandatory';
-        document.documentElement.style.scrollBehavior = 'smooth';
+        document.documentElement.style.scrollSnapType = 'y proximity';
         document.documentElement.style.overscrollBehaviorY = 'none';
       }
       // Handle programmatic snap-to events (nav links, hero buttons) on touch devices.
