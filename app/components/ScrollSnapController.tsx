@@ -63,6 +63,13 @@ export default function ScrollSnapController() {
     let cooldown = false;
     let currentIndex = 0;
 
+    // Block all navigation until the intro animation has finished.
+    // Without this, swipes during the IntroLoader scroll the page behind
+    // the overlay and reveal the wrong section when the loader dismisses.
+    let ready = pathname !== '/' || !!sessionStorage.getItem('milk:intro-shown');
+    const onIntroExit = () => { ready = true; };
+    window.addEventListener('milk:intro-exit', onIntroExit, { once: true });
+
     const getSections = (): HTMLElement[] =>
       (Array.from(document.querySelectorAll('.snap-section')) as HTMLElement[])
         .filter((el) => getComputedStyle(el).display !== 'none');
@@ -226,15 +233,10 @@ export default function ScrollSnapController() {
       smoothScrollTo(targetY, () => {
         isSnapping = false;
         // If the step carried us out of every free-scroll zone, snap to the
-        // nearest regular section immediately rather than waiting for the user
-        // to scroll again (which would waste one input event).
+        // adjacent section (always ±1 — no getNearestIndex guessing which
+        // can misfire and skip a section like BioSection).
         if (!isInFreeScrollZone()) {
-          const nearest = getNearestIndex();
-          const clamped = Math.max(currentIndex - 1, Math.min(currentIndex + 1, nearest));
-          // If stepping forward and nearest is still the free-scroll zone itself
-          // (currentIndex), force advance to the next section instead of snapping back.
-          const target = (direction > 0 && clamped <= currentIndex) ? currentIndex + 1 : clamped;
-          snapToIndex(target);
+          snapToIndex(direction > 0 ? currentIndex + 1 : currentIndex - 1);
           return;
         }
         setTimeout(() => { cooldown = false; }, SNAP_COOLDOWN);
@@ -333,7 +335,7 @@ export default function ScrollSnapController() {
     };
 
     const onTouchEnd = (e: TouchEvent) => {
-      if (isSnapping || cooldown) return;
+      if (!ready || isSnapping || cooldown) return;
       const delta = touchStartY - e.changedTouches[0].clientY;
       if (Math.abs(delta) < 60) return;
       const direction = delta > 0 ? 1 : -1;
@@ -370,8 +372,7 @@ export default function ScrollSnapController() {
 
     // ── scrollend fallback (keyboard / scrollbar / free-scroll exit) ──────────
     const onScrollEnd = () => {
-      // Touch devices exit early above (CSS snap path), so this only runs on desktop.
-      if (isSnapping || cooldown || isInFreeScrollZone()) return;
+      if (!ready || isSnapping || cooldown || isInFreeScrollZone()) return;
       // Block scrollend for 1.6s after any snap (wheel, touch, or external).
       // The browser fires scrollend after Lenis completes (~1.1s), which can
       // outlast the 250ms cooldown and trigger a second spurious snap.
@@ -458,6 +459,7 @@ export default function ScrollSnapController() {
 
     return () => {
       document.documentElement.style.overscrollBehaviorY = '';
+      window.removeEventListener('milk:intro-exit', onIntroExit);
       window.removeEventListener('wheel', onWheel);
       window.removeEventListener('touchstart', onTouchStart);
       window.removeEventListener('touchmove', onTouchMove);
