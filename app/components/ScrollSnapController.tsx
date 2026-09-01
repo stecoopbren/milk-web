@@ -204,6 +204,9 @@ export default function ScrollSnapController() {
     };
 
     const stepWithinFreeZone = (direction: number) => {
+      // Kill native touch momentum before Lenis takes over (critical on mobile).
+      window.scrollTo({ top: window.scrollY, behavior: 'instant' as ScrollBehavior });
+
       // Sync currentIndex to the active free-scroll zone before stepping.
       // This is necessary when multiple consecutive sections have data-free-scroll
       // (e.g. TickerSection → BioSection → TeamSection): without this sync,
