@@ -332,6 +332,14 @@ export default function ScrollSnapController() {
 
     const onTouchStart = (e: TouchEvent) => {
       touchStartY = e.touches[0].clientY;
+      // Android Chrome starts scroll in the compositor thread as soon as
+      // touchstart fires (if passive). By the time touchmove runs, it's too
+      // late to call preventDefault(). We must prevent here, in touchstart,
+      // with passive:false — but skip interactive elements so taps still work.
+      if (isInNativeScrollZone()) return;
+      if ((e.target as Element)?.closest('[data-horizontal-scroll]')) return;
+      if ((e.target as Element)?.closest('button,a,input,select,textarea,[role="button"],[tabindex]')) return;
+      e.preventDefault();
     };
 
     const onTouchEnd = (e: TouchEvent) => {
@@ -452,7 +460,7 @@ export default function ScrollSnapController() {
     };
 
     window.addEventListener('wheel', onWheel, { passive: false });
-    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchstart', onTouchStart, { passive: false });
     window.addEventListener('touchmove', onTouchMove, { passive: false });
     window.addEventListener('touchend', onTouchEnd, { passive: true });
     window.addEventListener('scrollend', onScrollEnd, { passive: true });
