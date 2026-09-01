@@ -59,102 +59,6 @@ export default function ScrollSnapController() {
     const snapPages = ['/', '/portfolio'];
     if (!snapPages.includes(pathname) && !pathname.startsWith('/cases/')) return;
 
-    // ── Touch-primary devices (phones, tablets) ───────────────────────────────
-    // Native CSS scroll snap is far more reliable than our JS controller on
-    // touch: the browser handles inertia, momentum, and snap timing natively.
-    // pointer:coarse = touch-primary (iPad touch, phone).
-    // pointer:fine   = mouse/trackpad (desktop, iPad with keyboard) → JS path.
-    if (window.matchMedia('(pointer: coarse)').matches) {
-      // Variables declared here so the cleanup closure can reach them.
-      let nativeSnapEls: HTMLElement[] = [];
-      let updateFreeSnap: (() => void) | null = null;
-
-      if (snapPages.includes(pathname)) {
-        // Hybrid snap strategy:
-        // • y mandatory between sections (crisp snapping, no fast-swipe skipping)
-        // • y none while inside a genuine free-scroll zone (BioSection 250vh,
-        //   TeamSection 900vh) so the browser can rest mid-zone.
-        //
-        // Also, data-native-scroll sections (PositioningSection, ServicesSection)
-        // carry scrollSnapAlign:none for the desktop JS controller, but on mobile
-        // they ARE ~1-screen sections and must be snap points. Override inline.
-        if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-        window.scrollTo(0, 0);
-        document.documentElement.style.overscrollBehaviorY = 'none';
-
-        nativeSnapEls = Array.from(
-          document.querySelectorAll('[data-native-scroll].snap-section')
-        ) as HTMLElement[];
-        nativeSnapEls.forEach(el => { el.style.scrollSnapAlign = 'start'; });
-
-        // Free-scroll zones: sections that have scrollSnapAlign:none inline.
-        const freeZoneEls = (Array.from(
-          document.querySelectorAll('[data-free-scroll].snap-section')
-        ) as HTMLElement[]).filter(el => el.style.scrollSnapAlign === 'none');
-
-        updateFreeSnap = () => {
-          const inFreeZone = freeZoneEls.some(el => {
-            if (getComputedStyle(el).display === 'none') return false;
-            const r = el.getBoundingClientRect();
-            // Switch to y:none as soon as the free-scroll zone is within one
-            // viewport of the current scroll position. This prevents mandatory
-            // snap from firing and jumping past the zone before the user enters it.
-            // Deactivates only after the zone's bottom has fully scrolled past.
-            return r.top < window.innerHeight && r.bottom > 0;
-          });
-          document.documentElement.style.scrollSnapType = inFreeZone ? 'y none' : 'y mandatory';
-        };
-
-        window.addEventListener('scroll', updateFreeSnap, { passive: true });
-
-        // Defer first snap application by 2 frames so scrollTo(0,0) commits first.
-        // Without this, iOS may inherit the previous page's scroll position and
-        // mandatory snap fires at the wrong position before the reset lands.
-        requestAnimationFrame(() => requestAnimationFrame(() => updateFreeSnap!()));
-      }
-
-      // Handle programmatic snap-to events (nav links, hero buttons) on touch devices.
-      const onSnapTo = (e: Event) => {
-        const detail = (e as CustomEvent).detail;
-        let target: HTMLElement | null = null;
-        if (typeof detail?.index === 'number') {
-          target = (Array.from(document.querySelectorAll('.snap-section')) as HTMLElement[])[detail.index] ?? null;
-        } else if (detail?.id) {
-          target = document.getElementById(detail.id);
-        }
-        if (!target) return;
-
-        // Suspend dynamic snap toggling and disable CSS snap entirely during
-        // programmatic scroll. If updateFreeSnap fires mid-animation it can
-        // switch mandatory/none at the wrong moment and redirect the scroll.
-        if (updateFreeSnap) window.removeEventListener('scroll', updateFreeSnap);
-        document.documentElement.style.scrollSnapType = 'y none';
-
-        const top = target.getBoundingClientRect().top + window.scrollY;
-        window.scrollTo({ top, behavior: 'smooth' });
-
-        setTimeout(() => {
-          // Restore scroll listener and set correct snap type for new position.
-          if (updateFreeSnap) {
-            window.addEventListener('scroll', updateFreeSnap, { passive: true });
-            updateFreeSnap();
-          } else {
-            document.documentElement.style.scrollSnapType = 'y mandatory';
-          }
-        }, 900);
-      };
-      window.addEventListener('milk:snap-to', onSnapTo);
-      // Case pages on touch: free scroll (sections have variable heights).
-      return () => {
-        document.documentElement.style.scrollSnapType = '';
-        document.documentElement.style.scrollBehavior = '';
-        document.documentElement.style.overscrollBehaviorY = '';
-        window.removeEventListener('milk:snap-to', onSnapTo);
-        if (updateFreeSnap) window.removeEventListener('scroll', updateFreeSnap);
-        nativeSnapEls.forEach(el => { el.style.scrollSnapAlign = 'none'; });
-      };
-    }
-
     let isSnapping = false;
     let cooldown = false;
     let currentIndex = 0;
@@ -182,6 +86,8 @@ export default function ScrollSnapController() {
     const SNAP_COOLDOWN = 300;
 
     const snapToIndex = (index: number) => {
+      // Stop native scroll momentum before Lenis animates (critical on iOS).
+      window.scrollTo({ top: window.scrollY, behavior: 'instant' as ScrollBehavior });
       accumulatedDelta = 0;
       clearTimeout(wheelTimeout);
       const sections = getSections();
@@ -218,6 +124,7 @@ export default function ScrollSnapController() {
     // Disable browser scroll restoration and force top on load
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
+    document.documentElement.style.overscrollBehaviorY = 'none';
     currentIndex = 0;
 
     // External nav can dispatch 'milk:snap-to' with { id: 'section-id' } or { index: number }
@@ -480,7 +387,7 @@ export default function ScrollSnapController() {
         const bottomReached = nativeEls.some(el => {
           const r = el.getBoundingClientRect();
           return r.bottom <= window.innerHeight + 10
-            && el.offsetHeight > window.innerHeight;
+            && el.offsetHeight > window.innerHeight + 20;
         });
         if (bottomReached) {
           // Guard: if already at the last section, don't snap back to its own top.
@@ -534,6 +441,7 @@ export default function ScrollSnapController() {
     window.addEventListener('scrollend', onScrollEnd, { passive: true });
 
     return () => {
+      document.documentElement.style.overscrollBehaviorY = '';
       window.removeEventListener('wheel', onWheel);
       window.removeEventListener('touchstart', onTouchStart);
       window.removeEventListener('touchend', onTouchEnd);
