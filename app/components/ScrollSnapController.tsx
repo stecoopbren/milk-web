@@ -380,12 +380,33 @@ export default function ScrollSnapController() {
 
     // ── scrollend fallback (keyboard / scrollbar / free-scroll exit) ──────────
     const onScrollEnd = () => {
-      if (!ready || isSnapping || cooldown || isInFreeScrollZone()) return;
+      if (!ready || isSnapping || cooldown) return;
       // Block scrollend for 1.6s after any snap (wheel, touch, or external).
       // The browser fires scrollend after Lenis completes (~1.1s), which can
       // outlast the 250ms cooldown and trigger a second spurious snap.
       if (Date.now() - lastSnapTime < SNAP_BLOCK) return;
       if (Date.now() - touchSnapTime < TOUCH_SNAP_BLOCK) return;
+
+      // Free-scroll zone handling: either we belong here, or momentum overshot us into it.
+      if (isInFreeScrollZone()) {
+        const sections = getSections();
+        const freeZoneIdx = sections.findIndex(el => {
+          if (!el.dataset.freeScroll) return false;
+          const r = el.getBoundingClientRect();
+          return r.top <= 10 && r.bottom >= window.innerHeight - 10;
+        });
+        if (freeZoneIdx !== -1) {
+          if (freeZoneIdx > currentIndex + 1) {
+            // Native-scroll momentum (e.g. from PositioningSection) carried us
+            // past the next expected section. Snap back to currentIndex + 1.
+            snapToIndex(currentIndex + 1);
+          } else {
+            currentIndex = freeZoneIdx; // sync without snapping
+          }
+        }
+        return;
+      }
+
       // If currentIndex already points to a free-scroll section, treat it as
       // being in the zone — prevents onScrollEnd from snapping past it when
       // isInFreeScrollZone() misses by a pixel after a Lenis snap.
