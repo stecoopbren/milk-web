@@ -438,8 +438,21 @@ export default function ScrollSnapController() {
       snapToIndex(target);
     };
 
+    // ── Touch-move blocker (mobile momentum prevention) ───────────────────────
+    // iOS momentum scroll fires after touchend and cannot be stopped by
+    // window.scrollTo(). The only reliable fix is to prevent the native scroll
+    // from ever starting — by calling e.preventDefault() on touchmove.
+    // Native-scroll sections (data-native-scroll) and horizontal scroll
+    // containers are exempted so the user can still drag-scroll inside them.
+    const onTouchMove = (e: TouchEvent) => {
+      if (isInNativeScrollZone()) return;
+      if ((e.target as Element)?.closest('[data-horizontal-scroll]')) return;
+      e.preventDefault();
+    };
+
     window.addEventListener('wheel', onWheel, { passive: false });
     window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchmove', onTouchMove, { passive: false });
     window.addEventListener('touchend', onTouchEnd, { passive: true });
     window.addEventListener('scrollend', onScrollEnd, { passive: true });
 
@@ -447,6 +460,7 @@ export default function ScrollSnapController() {
       document.documentElement.style.overscrollBehaviorY = '';
       window.removeEventListener('wheel', onWheel);
       window.removeEventListener('touchstart', onTouchStart);
+      window.removeEventListener('touchmove', onTouchMove);
       window.removeEventListener('touchend', onTouchEnd);
       window.removeEventListener('scrollend', onScrollEnd);
       window.removeEventListener('milk:snap-to', onSnapTo);
