@@ -96,9 +96,11 @@ export default function ScrollSnapController() {
           const inFreeZone = freeZoneEls.some(el => {
             if (getComputedStyle(el).display === 'none') return false;
             const r = el.getBoundingClientRect();
-            // Fully occupying the viewport: top above fold, bottom below fold.
-            // 10px buffer avoids flickering at zone boundaries.
-            return r.top < -10 && r.bottom > window.innerHeight + 10;
+            // Switch to y:none as soon as the free-scroll zone is within one
+            // viewport of the current scroll position. This prevents mandatory
+            // snap from firing and jumping past the zone before the user enters it.
+            // Deactivates only after the zone's bottom has fully scrolled past.
+            return r.top < window.innerHeight && r.bottom > 0;
           });
           document.documentElement.style.scrollSnapType = inFreeZone ? 'y none' : 'y mandatory';
         };
