@@ -366,7 +366,26 @@ export default function ScrollSnapController() {
       // touchstart fires (if passive). By the time touchmove runs, it's too
       // late to call preventDefault(). We must prevent here, in touchstart,
       // with passive:false — but skip interactive elements so taps still work.
-      if (isInNativeScrollZone()) return;
+      if (isInNativeScrollZone()) {
+        // Arm boundary capture here — NOT in onTouchEnd — so it's set even
+        // when onTouchEnd returns early due to cooldown. This is the common case
+        // when the user swipes quickly after arriving at a native-scroll section
+        // (e.g. PositioningSection): onTouchEnd is blocked but the gesture still
+        // generates native scroll momentum that can carry past TeamSection.
+        const sections = getSections();
+        const nextFreeEl = sections.find(el => {
+          if (!el.dataset.freeScroll) return false;
+          return getSectionTop(el) > window.scrollY + 10;
+        });
+        if (nextFreeEl) {
+          captureTargetY = getSectionTop(nextFreeEl);
+          captureTargetIndex = sections.indexOf(nextFreeEl);
+          pendingFreeScrollCapture = true;
+          clearTimeout(freeScrollCaptureTimer);
+          freeScrollCaptureTimer = setTimeout(() => { pendingFreeScrollCapture = false; }, 3000);
+        }
+        return;
+      }
       if ((e.target as Element)?.closest('[data-horizontal-scroll]')) return;
       if ((e.target as Element)?.closest('button,a,input,select,textarea,[role="button"]')) return;
       e.preventDefault();
@@ -387,23 +406,14 @@ export default function ScrollSnapController() {
             snapToIndex(currentIndex + direction);
           }
         } else {
-          // If the next section is a free-scroll zone, arm the boundary watcher
-          // so momentum that carries past the section end is caught in onScroll.
-          const sections = getSections();
-          const nextEl = sections[currentIndex + 1];
-          if (nextEl?.dataset.freeScroll) {
-            captureTargetY = getSectionTop(nextEl);
-            captureTargetIndex = currentIndex + 1;
-            pendingFreeScrollCapture = true;
-            clearTimeout(freeScrollCaptureTimer);
-            freeScrollCaptureTimer = setTimeout(() => { pendingFreeScrollCapture = false; }, 3000);
-          }
           // Swipe down near section bottom → escape to next section.
           const atBottom = nativeTallEls.some(el => {
             const r = el.getBoundingClientRect();
             return el.offsetHeight > window.innerHeight + 20 && r.bottom <= window.innerHeight + 80;
           });
           if (atBottom) {
+            // Controlled snap takes over — disarm the boundary capture so the
+            // scroll listener doesn't double-fire after Lenis completes.
             pendingFreeScrollCapture = false;
             clearTimeout(freeScrollCaptureTimer);
             touchSnapTime = Date.now();
@@ -425,8 +435,11 @@ export default function ScrollSnapController() {
     // Fires during iOS/Android momentum scroll, which cannot be stopped by
     // touchmove.preventDefault() after touchend. window.scrollTo with instant
     // behavior is the only reliable interruption on all mobile platforms.
+    // NOTE: cooldown is intentionally NOT checked here — momentum can cross the
+    // section boundary during the 300ms post-snap cooldown, and we must catch it.
+    // isSnapping guards against firing during Lenis animations.
     const onScroll = () => {
-      if (!pendingFreeScrollCapture || isSnapping || cooldown) return;
+      if (!pendingFreeScrollCapture || isSnapping) return;
       if (window.scrollY >= captureTargetY - 10) {
         pendingFreeScrollCapture = false;
         clearTimeout(freeScrollCaptureTimer);
