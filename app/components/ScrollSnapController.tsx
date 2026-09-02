@@ -189,6 +189,26 @@ export default function ScrollSnapController() {
           return r.top <= 150 && isTaller;
         });
 
+    // ── Shallow native-scroll detection ──────────────────────────────────────
+    // A native-scroll section is "shallow" when its total scroll range
+    // (offsetHeight − innerHeight) is small relative to the viewport. On touch
+    // devices a single fast swipe can generate enough iOS momentum to carry the
+    // page far past the section boundary. For shallow sections we suppress
+    // native scroll entirely and use programmatic snapping instead — the user
+    // sees only the first viewport of content, but reliably lands on the next
+    // section rather than overshooting by several sections.
+    //
+    // PositioningSection (height:auto, minHeight:100vh) is typically shallow on
+    // mobile once browser chrome reduces window.innerHeight. MethodSection
+    // (minHeight:140svh) has a larger range and is NOT considered shallow.
+    const SHALLOW_THRESHOLD = 0.35; // scroll range < 35 % of viewport height
+    const isShallowNativeSection = (): boolean =>
+      (Array.from(document.querySelectorAll('[data-native-scroll]')) as HTMLElement[])
+        .some(el => {
+          if (el.offsetHeight <= window.innerHeight) return false;
+          return (el.offsetHeight - window.innerHeight) < window.innerHeight * SHALLOW_THRESHOLD;
+        });
+
     // ── Wheel ─────────────────────────────────────────────────────────────────
     let wheelTimeout: ReturnType<typeof setTimeout>;
     let accumulatedDelta = 0;
@@ -367,11 +387,18 @@ export default function ScrollSnapController() {
       // late to call preventDefault(). We must prevent here, in touchstart,
       // with passive:false — but skip interactive elements so taps still work.
       if (isInNativeScrollZone()) {
-        // Arm boundary capture here — NOT in onTouchEnd — so it's set even
-        // when onTouchEnd returns early due to cooldown. This is the common case
-        // when the user swipes quickly after arriving at a native-scroll section
-        // (e.g. PositioningSection): onTouchEnd is blocked but the gesture still
-        // generates native scroll momentum that can carry past TeamSection.
+        // Shallow native-scroll sections (small scroll range relative to
+        // viewport) risk iOS momentum carrying the page past multiple sections.
+        // Treat them exactly like normal snap sections: prevent native scroll
+        // so the controller drives navigation via snapToIndex.
+        if (isShallowNativeSection()) {
+          if ((e.target as Element)?.closest('button,a,input,select,textarea,[role="button"]')) return;
+          e.preventDefault();
+          return;
+        }
+        // Deep native-scroll sections: arm boundary capture here — NOT in
+        // onTouchEnd — so it's set even when onTouchEnd returns early due to
+        // cooldown.
         const sections = getSections();
         const nextFreeEl = sections.find(el => {
           if (!el.dataset.freeScroll) return false;
@@ -398,6 +425,13 @@ export default function ScrollSnapController() {
       const direction = delta > 0 ? 1 : -1;
       if (isInNativeScrollZone()) {
         const nativeTallEls = Array.from(document.querySelectorAll('[data-native-scroll]')) as HTMLElement[];
+        // Shallow sections: native scroll was suppressed in touchmove, so just
+        // snap directly to the adjacent section like a normal snap section.
+        if (isShallowNativeSection()) {
+          touchSnapTime = Date.now();
+          snapToIndex(currentIndex + direction);
+          return;
+        }
         if (direction < 0) {
           // Swipe up at section top → escape to previous section.
           const atTop = nativeTallEls.some(el => el.getBoundingClientRect().top >= -4);
@@ -431,24 +465,47 @@ export default function ScrollSnapController() {
       snapToIndex(currentIndex + direction);
     };
 
-    // ── Boundary capture (scroll event, 60fps) ────────────────────────────────
-    // Fires during iOS/Android momentum scroll, which cannot be stopped by
-    // touchmove.preventDefault() after touchend. window.scrollTo with instant
-    // behavior is the only reliable interruption on all mobile platforms.
-    // NOTE: cooldown is intentionally NOT checked here — momentum can cross the
-    // section boundary during the 300ms post-snap cooldown, and we must catch it.
-    // isSnapping guards against firing during Lenis animations.
+    // ── Scroll invariant + boundary capture (60fps) ──────────────────────────
+    // Two guards in one handler:
+    //
+    // 1. Boundary capture — if pendingFreeScrollCapture is armed and we've crossed
+    //    the target, call snapToIndex (not raw window.scrollTo) so Lenis properly
+    //    stops momentum, animates to the target, and updates all state.
+    //    Cooldown is NOT checked so this fires even during the post-snap window.
+    //
+    // 2. Position invariant — regardless of capture flag, if we find ourselves
+    //    inside a free-scroll section that currentIndex says we haven't reached
+    //    yet, momentum carried us here unexpectedly. Snap to correct it.
+    //    This catches cases where touchstart was never reached or the capture
+    //    flag was lost (e.g. rapid multi-swipe, page reload, intro timing).
     const onScroll = () => {
-      if (!pendingFreeScrollCapture || isSnapping) return;
-      if (window.scrollY >= captureTargetY - 10) {
+      if (isSnapping) return;
+
+      // 1. Boundary capture
+      if (pendingFreeScrollCapture && window.scrollY >= captureTargetY - 10) {
         pendingFreeScrollCapture = false;
         clearTimeout(freeScrollCaptureTimer);
-        // Hard-stop at the free-scroll section start — interrupts momentum.
-        window.scrollTo({ top: captureTargetY, behavior: 'instant' as ScrollBehavior });
-        currentIndex = captureTargetIndex;
-        cooldown = true;
         touchSnapTime = Date.now();
-        setTimeout(() => { cooldown = false; }, SNAP_COOLDOWN);
+        snapToIndex(captureTargetIndex);
+        return;
+      }
+
+      if (cooldown) return;
+
+      // 2. Position invariant: if we're in a free-scroll zone that currentIndex
+      //    hasn't reached yet, snap to close the gap (one section at a time so
+      //    we don't skip intermediate sections).
+      const sections = getSections();
+      const activeFreeIdx = sections.findIndex(el => {
+        if (!el.dataset.freeScroll) return false;
+        const sTop = getSectionTop(el);
+        const sEnd = sTop + el.offsetHeight - window.innerHeight;
+        return window.scrollY >= sTop - 10 && window.scrollY <= sEnd + 10;
+      });
+      if (activeFreeIdx !== -1 && currentIndex < activeFreeIdx) {
+        const targetIdx = Math.min(currentIndex + 1, activeFreeIdx);
+        touchSnapTime = Date.now();
+        snapToIndex(targetIdx);
       }
     };
 
@@ -519,7 +576,11 @@ export default function ScrollSnapController() {
           return r.top >= 0 && r.top <= 150 && el.offsetHeight > window.innerHeight;
         });
         if (overscrolledSection) {
-          const idx = sections.findIndex(el => el === overscrolledSection);
+          // data-native-scroll may be on an inner element (e.g. MethodSection
+          // puts it on an inner div, not the outer snap-section). Walk up to
+          // find the snap-section that actually lives in the sections array.
+          const snapEl = (overscrolledSection.closest('.snap-section') as HTMLElement) ?? overscrolledSection;
+          const idx = sections.findIndex(el => el === snapEl);
           if (idx !== -1) {
             const target = idx > currentIndex + 1 ? currentIndex + 1 : idx;
             if (target !== currentIndex) snapToIndex(target);
@@ -555,7 +616,30 @@ export default function ScrollSnapController() {
     // Native-scroll sections (data-native-scroll) and horizontal scroll
     // containers are exempted so the user can still drag-scroll inside them.
     const onTouchMove = (e: TouchEvent) => {
-      if (isInNativeScrollZone()) return;
+      if (isInNativeScrollZone()) {
+        // Shallow sections: prevent native scroll entirely (same as normal
+        // snap sections). Prevents iOS from accumulating any momentum.
+        if (isShallowNativeSection()) {
+          e.preventDefault();
+          return;
+        }
+        // Deep sections: block downward scroll once the section bottom is near
+        // the viewport, draining iOS velocity before touchend so momentum
+        // doesn't carry the page past the section boundary.
+        const swipingDown = e.touches[0].clientY < touchStartY;
+        if (swipingDown) {
+          const nativeEls = Array.from(document.querySelectorAll('[data-native-scroll]')) as HTMLElement[];
+          const atBottom = nativeEls.some(el => {
+            const r = el.getBoundingClientRect();
+            return el.offsetHeight > window.innerHeight + 20 && r.bottom <= window.innerHeight + 20;
+          });
+          if (atBottom) {
+            e.preventDefault();
+            return;
+          }
+        }
+        return;
+      }
       if ((e.target as Element)?.closest('[data-horizontal-scroll]')) return;
       e.preventDefault();
     };
