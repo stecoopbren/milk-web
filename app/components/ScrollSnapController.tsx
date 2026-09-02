@@ -150,13 +150,15 @@ export default function ScrollSnapController() {
 
     // ── Free-scroll detection ─────────────────────────────────────────────────
     // A free-scroll zone element straddles the viewport: its top is above/at the
-    // viewport top AND its bottom is below/at the viewport bottom.
-    // display:none elements return rect.bottom = 0 and correctly fail.
+    // Check via scroll position vs section bounds — NOT r.bottom, which fails for
+    // short free-scroll sections like BioSection (250vh = 2.5 viewports): at the
+    // 2nd page r.bottom = 0.5*vh < innerHeight-10, so the old check exited prematurely.
     const isInFreeScrollZone = (): boolean =>
       (Array.from(document.querySelectorAll('[data-free-scroll]')) as HTMLElement[])
         .some((el) => {
-          const r = el.getBoundingClientRect();
-          return r.top <= 10 && r.bottom >= window.innerHeight - 10;
+          const sTop = getSectionTop(el);
+          const sEnd = sTop + el.offsetHeight - window.innerHeight;
+          return window.scrollY >= sTop - 10 && window.scrollY <= sEnd + 10;
         });
 
     // ── Native-scroll detection ───────────────────────────────────────────────
@@ -222,8 +224,9 @@ export default function ScrollSnapController() {
       const sections = getSections();
       const activeZoneIdx = sections.findIndex((el) => {
         if (!el.dataset.freeScroll) return false;
-        const r = el.getBoundingClientRect();
-        return r.top <= 10 && r.bottom >= window.innerHeight - 10;
+        const sTop = getSectionTop(el);
+        const sEnd = sTop + el.offsetHeight - window.innerHeight;
+        return window.scrollY >= sTop - 10 && window.scrollY <= sEnd + 10;
       });
       if (activeZoneIdx !== -1) currentIndex = activeZoneIdx;
 
@@ -392,8 +395,9 @@ export default function ScrollSnapController() {
         const sections = getSections();
         const freeZoneIdx = sections.findIndex(el => {
           if (!el.dataset.freeScroll) return false;
-          const r = el.getBoundingClientRect();
-          return r.top <= 10 && r.bottom >= window.innerHeight - 10;
+          const sTop = getSectionTop(el);
+          const sEnd = sTop + el.offsetHeight - window.innerHeight;
+          return window.scrollY >= sTop - 10 && window.scrollY <= sEnd + 10;
         });
         if (freeZoneIdx !== -1) {
           if (freeZoneIdx > currentIndex + 1) {
