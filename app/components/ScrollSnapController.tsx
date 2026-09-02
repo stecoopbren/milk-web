@@ -232,7 +232,22 @@ export default function ScrollSnapController() {
 
       isSnapping = true;
       cooldown = true;
-      const targetY = Math.round(window.scrollY + direction * window.innerHeight);
+      let targetY = Math.round(window.scrollY + direction * window.innerHeight);
+
+      // Clamp forward steps to the free-zone end to avoid overshooting past a
+      // short section (e.g. BioSection = 250vh has 1.5vh of scroll room).
+      // Without clamping, a full-viewport step from page 2 overshoots sEnd by
+      // 0.5vh, isInFreeScrollZone() returns false, and we snap to the next
+      // section prematurely — skipping the final frame of the animation.
+      // Skip clamping when already at/near sEnd so the next swipe can exit.
+      if (activeZoneIdx !== -1 && direction > 0) {
+        const activeEl = sections[activeZoneIdx];
+        const sEnd = getSectionTop(activeEl) + activeEl.offsetHeight - window.innerHeight;
+        if (targetY > sEnd && window.scrollY < sEnd - 10) {
+          targetY = Math.round(sEnd);
+        }
+      }
+
       smoothScrollTo(targetY, () => {
         isSnapping = false;
         // If the step carried us out of every free-scroll zone, snap to the
