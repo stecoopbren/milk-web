@@ -419,6 +419,11 @@ export default function ScrollSnapController() {
             // Native-scroll momentum (e.g. from PositioningSection) carried us
             // past the next expected section. Snap back to currentIndex + 1.
             snapToIndex(currentIndex + 1);
+          } else if (freeZoneIdx === currentIndex + 1) {
+            // Momentum from a native-scroll section carried us into the next
+            // free-scroll zone without a controlled snap. Snap to the section
+            // start so the user experiences it from the beginning.
+            snapToIndex(freeZoneIdx);
           } else {
             currentIndex = freeZoneIdx; // sync without snapping
           }
