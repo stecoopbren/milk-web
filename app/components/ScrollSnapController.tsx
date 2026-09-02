@@ -356,7 +356,7 @@ export default function ScrollSnapController() {
       // with passive:false — but skip interactive elements so taps still work.
       if (isInNativeScrollZone()) return;
       if ((e.target as Element)?.closest('[data-horizontal-scroll]')) return;
-      if ((e.target as Element)?.closest('button,a,input,select,textarea,[role="button"],[tabindex]')) return;
+      if ((e.target as Element)?.closest('button,a,input,select,textarea,[role="button"]')) return;
       e.preventDefault();
     };
 

@@ -388,6 +388,16 @@ body {
   scroll-snap-stop: always;
 }
 
+/* Prevent native touch scroll in free-scroll sections (TeamSection 900vh,
+   BioSection 250vh). touch-action: none is enforced in the compositor thread
+   before any JS listener fires, so Android Chrome cannot start a composited
+   scroll even when touchstart.preventDefault() is bypassed (e.g. a touch on a
+   [tabindex] element that our JS excludes from prevention). Without this, one
+   native swipe can carry the page across multiple section-heights.           */
+[data-free-scroll] {
+  touch-action: none;
+}
+
 /* ─── Card Fan Carousel ──────────────────────────────────────────────────── */
 .fan-layout {
   position: relative;
