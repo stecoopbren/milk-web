@@ -182,7 +182,7 @@ export default function ScrollSnapController() {
             // but only for sections that are genuinely taller than the viewport.
             // Prevents Lenis overshoot from permanently releasing control on
             // sections whose content fits within the viewport.
-            return isTaller && r.bottom > 0;
+            return isTaller && r.bottom > 5; // >0 triggers on sub-pixel artifacts at exact boundary
           }
           // At or near section top: activate only when the section is genuinely
           // taller than the viewport (has content to scroll through).
