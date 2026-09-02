@@ -348,6 +348,18 @@ export default function ScrollSnapController() {
     let touchSnapTime = 0;
     const TOUCH_SNAP_BLOCK = 900; // slightly longer than mobile 0.75s fixed timeout
 
+    // Boundary capture: when the user lifts their finger in a native-scroll zone
+    // while swiping toward a free-scroll section, iOS/Android momentum can carry
+    // the page past the section boundary before we can act. We arm this watcher
+    // in onTouchEnd and check it in the scroll event (60fps) so we catch the
+    // crossing the instant it happens and hard-stop with window.scrollTo (the
+    // only reliable way to interrupt iOS momentum mid-flight, including on iOS 16
+    // where scrollend is not supported at all).
+    let pendingFreeScrollCapture = false;
+    let captureTargetY = 0;
+    let captureTargetIndex = 0;
+    let freeScrollCaptureTimer: ReturnType<typeof setTimeout>;
+
     const onTouchStart = (e: TouchEvent) => {
       touchStartY = e.touches[0].clientY;
       // Android Chrome starts scroll in the compositor thread as soon as
@@ -375,12 +387,25 @@ export default function ScrollSnapController() {
             snapToIndex(currentIndex + direction);
           }
         } else {
+          // If the next section is a free-scroll zone, arm the boundary watcher
+          // so momentum that carries past the section end is caught in onScroll.
+          const sections = getSections();
+          const nextEl = sections[currentIndex + 1];
+          if (nextEl?.dataset.freeScroll) {
+            captureTargetY = getSectionTop(nextEl);
+            captureTargetIndex = currentIndex + 1;
+            pendingFreeScrollCapture = true;
+            clearTimeout(freeScrollCaptureTimer);
+            freeScrollCaptureTimer = setTimeout(() => { pendingFreeScrollCapture = false; }, 3000);
+          }
           // Swipe down near section bottom → escape to next section.
           const atBottom = nativeTallEls.some(el => {
             const r = el.getBoundingClientRect();
             return el.offsetHeight > window.innerHeight + 20 && r.bottom <= window.innerHeight + 80;
           });
           if (atBottom) {
+            pendingFreeScrollCapture = false;
+            clearTimeout(freeScrollCaptureTimer);
             touchSnapTime = Date.now();
             snapToIndex(currentIndex + 1);
           }
@@ -394,6 +419,24 @@ export default function ScrollSnapController() {
       }
       touchSnapTime = Date.now();
       snapToIndex(currentIndex + direction);
+    };
+
+    // ── Boundary capture (scroll event, 60fps) ────────────────────────────────
+    // Fires during iOS/Android momentum scroll, which cannot be stopped by
+    // touchmove.preventDefault() after touchend. window.scrollTo with instant
+    // behavior is the only reliable interruption on all mobile platforms.
+    const onScroll = () => {
+      if (!pendingFreeScrollCapture || isSnapping || cooldown) return;
+      if (window.scrollY >= captureTargetY - 10) {
+        pendingFreeScrollCapture = false;
+        clearTimeout(freeScrollCaptureTimer);
+        // Hard-stop at the free-scroll section start — interrupts momentum.
+        window.scrollTo({ top: captureTargetY, behavior: 'instant' as ScrollBehavior });
+        currentIndex = captureTargetIndex;
+        cooldown = true;
+        touchSnapTime = Date.now();
+        setTimeout(() => { cooldown = false; }, SNAP_COOLDOWN);
+      }
     };
 
     // ── scrollend fallback (keyboard / scrollbar / free-scroll exit) ──────────
@@ -508,6 +551,7 @@ export default function ScrollSnapController() {
     window.addEventListener('touchstart', onTouchStart, { passive: false });
     window.addEventListener('touchmove', onTouchMove, { passive: false });
     window.addEventListener('touchend', onTouchEnd, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('scrollend', onScrollEnd, { passive: true });
 
     return () => {
@@ -517,10 +561,12 @@ export default function ScrollSnapController() {
       window.removeEventListener('touchstart', onTouchStart);
       window.removeEventListener('touchmove', onTouchMove);
       window.removeEventListener('touchend', onTouchEnd);
+      window.removeEventListener('scroll', onScroll);
       window.removeEventListener('scrollend', onScrollEnd);
       window.removeEventListener('milk:snap-to', onSnapTo);
       clearTimeout(wheelTimeout);
       clearTimeout(gestureGapTimer);
+      clearTimeout(freeScrollCaptureTimer);
     };
   }, [pathname]);
 
