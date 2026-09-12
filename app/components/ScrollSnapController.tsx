@@ -170,9 +170,9 @@ export default function ScrollSnapController() {
     //   • Already scrolled into section: stay active until section exits the
     //     viewport entirely — prevents premature snap when the section bottom
     //     comes into view mid-scroll (e.g. after expanding a deep accordion).
-    const isInNativeScrollZone = (): boolean =>
+    const getCurrentNativeScrollEl = (): HTMLElement | null =>
       (Array.from(document.querySelectorAll('[data-native-scroll]')) as HTMLElement[])
-        .some((el) => {
+        .find((el) => {
           const r = el.getBoundingClientRect();
           const sectionTop = r.top + window.scrollY;
           const isTaller = el.offsetHeight > window.innerHeight;
@@ -180,34 +180,36 @@ export default function ScrollSnapController() {
           if (scrolledIn) {
             // Keep native scroll active until section fully exits viewport,
             // but only for sections that are genuinely taller than the viewport.
-            // Prevents Lenis overshoot from permanently releasing control on
-            // sections whose content fits within the viewport.
             return isTaller && r.bottom > 5; // >0 triggers on sub-pixel artifacts at exact boundary
           }
           // At or near section top: activate only when the section is genuinely
           // taller than the viewport (has content to scroll through).
           return r.top <= 150 && isTaller;
-        });
+        }) ?? null;
+
+    const isInNativeScrollZone = (): boolean => getCurrentNativeScrollEl() !== null;
 
     // ── Shallow native-scroll detection ──────────────────────────────────────
     // A native-scroll section is "shallow" when its total scroll range
     // (offsetHeight − innerHeight) is small relative to the viewport. On touch
     // devices a single fast swipe can generate enough iOS momentum to carry the
     // page far past the section boundary. For shallow sections we suppress
-    // native scroll entirely and use programmatic snapping instead — the user
-    // sees only the first viewport of content, but reliably lands on the next
-    // section rather than overshooting by several sections.
+    // native scroll entirely and use programmatic snapping instead.
+    //
+    // IMPORTANT: only checks the CURRENT native-scroll section, not all of them.
+    // Checking all sections caused cross-contamination: ServicesSection (36% range)
+    // being shallow made MethodSection (40% range) also behave as shallow, blocking
+    // all native scroll in MethodSection and snapping on any swipe.
     //
     // PositioningSection (height:auto, minHeight:100vh) is typically shallow on
-    // mobile once browser chrome reduces window.innerHeight. MethodSection
-    // (minHeight:140svh) has a larger range and is NOT considered shallow.
-    const SHALLOW_THRESHOLD = 0.35; // scroll range < 35 % of viewport height
-    const isShallowNativeSection = (): boolean =>
-      (Array.from(document.querySelectorAll('[data-native-scroll]')) as HTMLElement[])
-        .some(el => {
-          if (el.offsetHeight <= window.innerHeight) return false;
-          return (el.offsetHeight - window.innerHeight) < window.innerHeight * SHALLOW_THRESHOLD;
-        });
+    // mobile once browser chrome reduces window.innerHeight.
+    const SHALLOW_THRESHOLD = 0.03; // scroll range < 35 % of viewport height
+    const isShallowNativeSection = (): boolean => {
+      const el = getCurrentNativeScrollEl();
+      if (!el) return false;
+      if (el.offsetHeight <= window.innerHeight) return false;
+      return (el.offsetHeight - window.innerHeight) < window.innerHeight * SHALLOW_THRESHOLD;
+    };
 
     // ── Wheel ─────────────────────────────────────────────────────────────────
     let wheelTimeout: ReturnType<typeof setTimeout>;
@@ -233,6 +235,11 @@ export default function ScrollSnapController() {
     };
 
     const stepWithinFreeZone = (direction: number) => {
+      // Block residual momentum from the snap that brought us into this zone.
+      // gestureGapTimer (380ms) can reset gestureSnapped before Lenis finishes
+      // (650ms), leaving a window where trailing trackpad events auto-step.
+      if (Date.now() - lastSnapTime < SNAP_BLOCK) return;
+
       // Kill native touch momentum before Lenis takes over (critical on mobile).
       window.scrollTo({ top: window.scrollY, behavior: 'instant' as ScrollBehavior });
 
@@ -263,7 +270,15 @@ export default function ScrollSnapController() {
       if (activeZoneIdx !== -1 && direction > 0) {
         const activeEl = sections[activeZoneIdx];
         const sEnd = getSectionTop(activeEl) + activeEl.offsetHeight - window.innerHeight;
-        if (targetY > sEnd && window.scrollY < sEnd - 10) {
+        // Already at/near section end — exit to next section via a controlled snap
+        // rather than a raw step, which would overshoot into the next free-scroll zone
+        // and bypass the snapToIndex machinery (causing silent jumps e.g. TeamSection → BioSection).
+        if (window.scrollY >= sEnd - 10) {
+          snapToIndex(currentIndex + 1);
+          return;
+        }
+        // Clamp forward steps to section end
+        if (targetY > sEnd) {
           targetY = Math.round(sEnd);
         }
       }
@@ -299,15 +314,21 @@ export default function ScrollSnapController() {
           return;
         }
         const direction = e.deltaY > 0 ? 1 : -1;
-        // Upward: snap to previous section when at the section top.
-        // Downward: let native scroll run freely; scrollend handles the exit snap
-        // so trackpad momentum doesn't trigger it too early.
+        const nativeEl = getCurrentNativeScrollEl();
         if (direction < 0) {
-          const atTop = (Array.from(document.querySelectorAll('[data-native-scroll]')) as HTMLElement[])
-            .some(el => el.getBoundingClientRect().top >= -4);
+          // Upward: snap to previous section when at the section top.
+          const atTop = (nativeEl?.getBoundingClientRect().top ?? -Infinity) >= -4;
           if (atTop) snapToIndex(currentIndex + direction);
+        } else if (nativeEl) {
+          // Downward: snap to next section once section bottom is in reach,
+          // preventing trackpad momentum from overshooting into the next section.
+          const r = nativeEl.getBoundingClientRect();
+          if (nativeEl.offsetHeight > window.innerHeight + 20 && r.bottom <= window.innerHeight + 4) {
+            snapToIndex(currentIndex + 1);
+            return;
+          }
         }
-        // Not at top boundary (or scrolling down): allow native scroll.
+        // Not at boundary: allow native scroll.
         return;
       }
       // Resuming from native zone — restart Lenis before handling the event.
@@ -358,6 +379,7 @@ export default function ScrollSnapController() {
 
     // ── Touch ─────────────────────────────────────────────────────────────────
     let touchStartY = 0;
+    let touchEndScrollY = 0; // scrollY when the user lifted their finger
     // Record the time of any snap so onScrollEnd won't fire a conflicting
     // re-snap while Lenis is still animating (1.1s) or the browser fires
     // a late scrollend event after the 250ms cooldown has already cleared.
@@ -419,12 +441,13 @@ export default function ScrollSnapController() {
     };
 
     const onTouchEnd = (e: TouchEvent) => {
+      touchEndScrollY = window.scrollY; // capture before any early returns
       if (!ready || isSnapping || cooldown) return;
       const delta = touchStartY - e.changedTouches[0].clientY;
       if (Math.abs(delta) < 60) return;
       const direction = delta > 0 ? 1 : -1;
       if (isInNativeScrollZone()) {
-        const nativeTallEls = Array.from(document.querySelectorAll('[data-native-scroll]')) as HTMLElement[];
+        const nativeEl = getCurrentNativeScrollEl()!;
         // Shallow sections: native scroll was suppressed in touchmove, so just
         // snap directly to the adjacent section like a normal snap section.
         if (isShallowNativeSection()) {
@@ -434,20 +457,17 @@ export default function ScrollSnapController() {
         }
         if (direction < 0) {
           // Swipe up at section top → escape to previous section.
-          const atTop = nativeTallEls.some(el => el.getBoundingClientRect().top >= -4);
+          const atTop = nativeEl.getBoundingClientRect().top >= -4;
           if (atTop) {
             touchSnapTime = Date.now();
             snapToIndex(currentIndex + direction);
           }
         } else {
-          // Swipe down near section bottom → escape to next section.
-          const atBottom = nativeTallEls.some(el => {
-            const r = el.getBoundingClientRect();
-            return el.offsetHeight > window.innerHeight + 20 && r.bottom <= window.innerHeight + 80;
-          });
+          // Swipe down at section bottom → escape to next section.
+          const r = nativeEl.getBoundingClientRect();
+          const atBottom = nativeEl.offsetHeight > window.innerHeight + 20
+            && r.bottom <= window.innerHeight + 15;
           if (atBottom) {
-            // Controlled snap takes over — disarm the boundary capture so the
-            // scroll listener doesn't double-fire after Lenis completes.
             pendingFreeScrollCapture = false;
             clearTimeout(freeScrollCaptureTimer);
             touchSnapTime = Date.now();
@@ -550,19 +570,35 @@ export default function ScrollSnapController() {
       if (getSections()[currentIndex]?.dataset.freeScroll) return;
       if (isInNativeScrollZone()) {
         const sections = getSections();
-        const nativeEls = Array.from(document.querySelectorAll('[data-native-scroll]')) as HTMLElement[];
+        // Use only the currently active native-scroll element — querying all
+        // [data-native-scroll] elements would match sections that are above/below
+        // the viewport (e.g. PositioningSection's r.bottom is negative when on
+        // ServicesSection, which satisfies r.bottom ≤ viewport + N).
+        const activeNativeEl = getCurrentNativeScrollEl();
 
-        // Forward exit: section bottom is at or past the viewport bottom — user has
-        // seen all content. Snap to the next section.
-        const bottomReached = nativeEls.some(el => {
-          const r = el.getBoundingClientRect();
+        // Forward exit: section bottom is at or past the viewport bottom.
+        const bottomReachedEl = activeNativeEl && (() => {
+          const r = activeNativeEl.getBoundingClientRect();
           return r.bottom <= window.innerHeight + 10
-            && el.offsetHeight > window.innerHeight + 20;
-        });
-        if (bottomReached) {
-          // Guard: if already at the last section, don't snap back to its own top.
-          if (currentIndex < sections.length - 1) {
-            snapToIndex(currentIndex + 1);
+            && activeNativeEl.offsetHeight > window.innerHeight + 20
+            ? activeNativeEl : null;
+        })();
+        if (bottomReachedEl) {
+          // Never advance from scrollend — iOS momentum can overshoot from anywhere
+          // in the section. Always snap to section end. The user must make a
+          // deliberate swipe at the bottom (onTouchEnd atBottom) to advance.
+          const snapEl = (bottomReachedEl.closest('.snap-section') as HTMLElement) ?? bottomReachedEl;
+          const sectionAbsTop = getSectionTop(snapEl);
+          const scrollRange = bottomReachedEl.offsetHeight - window.innerHeight;
+          if (scrollRange > 0) {
+            const sectionEnd = sectionAbsTop + scrollRange;
+            isSnapping = true;
+            cooldown = true;
+            lastSnapTime = Date.now();
+            smoothScrollTo(sectionEnd, () => {
+              isSnapping = false;
+              setTimeout(() => { cooldown = false; }, SNAP_COOLDOWN);
+            });
           }
           return;
         }
@@ -571,10 +607,11 @@ export default function ScrollSnapController() {
         // section, skipping a non-native section above. Snap to the first skipped one.
         // Only fires when the section top is at/above the viewport (r.top >= 0) to
         // prevent snapping back to the top when the user has already scrolled into it.
-        const overscrolledSection = nativeEls.find(el => {
-          const r = el.getBoundingClientRect();
-          return r.top >= 0 && r.top <= 150 && el.offsetHeight > window.innerHeight;
-        });
+        const overscrolledSection = activeNativeEl && (() => {
+          const r = activeNativeEl.getBoundingClientRect();
+          return r.top >= 0 && r.top <= 150 && activeNativeEl.offsetHeight > window.innerHeight
+            ? activeNativeEl : null;
+        })();
         if (overscrolledSection) {
           // data-native-scroll may be on an inner element (e.g. MethodSection
           // puts it on an inner div, not the outer snap-section). Walk up to
@@ -591,11 +628,22 @@ export default function ScrollSnapController() {
       const sections = getSections();
       const current = sections[currentIndex];
       if (current?.dataset.nativeScroll) {
-        // Only advance when the section bottom is actually near the viewport.
-        // The old 50% threshold caused premature exit from tall sections (e.g. ChaptersSection).
+        // Never advance from scrollend — snap to section end if momentum overshot.
+        // Advance happens only via onTouchEnd atBottom (deliberate swipe at bottom).
         const r = current.getBoundingClientRect();
         if (r.bottom <= window.innerHeight + 40) {
-          snapToIndex(currentIndex + 1);
+          const sectionAbsTop = getSectionTop(current);
+          const scrollRange = current.offsetHeight - window.innerHeight;
+          if (scrollRange > 0) {
+            const sectionEnd = sectionAbsTop + scrollRange;
+            isSnapping = true;
+            cooldown = true;
+            lastSnapTime = Date.now();
+            smoothScrollTo(sectionEnd, () => {
+              isSnapping = false;
+              setTimeout(() => { cooldown = false; }, SNAP_COOLDOWN);
+            });
+          }
         }
         // Always return — never let getNearestIndex make decisions about native-scroll sections.
         return;
@@ -628,19 +676,21 @@ export default function ScrollSnapController() {
         // doesn't carry the page past the section boundary.
         const swipingDown = e.touches[0].clientY < touchStartY;
         if (swipingDown) {
-          const nativeEls = Array.from(document.querySelectorAll('[data-native-scroll]')) as HTMLElement[];
-          const atBottom = nativeEls.some(el => {
-            const r = el.getBoundingClientRect();
-            return el.offsetHeight > window.innerHeight + 20 && r.bottom <= window.innerHeight + 20;
-          });
-          if (atBottom) {
-            e.preventDefault();
-            return;
+          const nativeEl = getCurrentNativeScrollEl();
+          if (nativeEl) {
+            const r = nativeEl.getBoundingClientRect();
+            const atBottom = nativeEl.offsetHeight > window.innerHeight + 20
+              && r.bottom <= window.innerHeight + 5;
+            if (atBottom) {
+              e.preventDefault();
+              return;
+            }
           }
         }
         return;
       }
       if ((e.target as Element)?.closest('[data-horizontal-scroll]')) return;
+      if ((e.target as Element)?.closest('input,textarea')) return;
       e.preventDefault();
     };
 

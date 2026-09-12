@@ -65,10 +65,11 @@ function CaseHeroImageStrip({ images, inView }: { images: string[]; inView: bool
   const SPEED = 1.125;
   const MAX_ANGLE = 44; // degrees at screen edges
 
-  // Triple the array so the strip overflows both viewport sides seamlessly
+  // Cap unique images to 8 to limit initial network load, then triple for seamless loop
   const isVideoSrc = (s: string) => /\.(mp4|webm|mov)$/i.test(s);
-  const loopImages = [...images, ...images, ...images];
-  const resetWidth = images.length * (CARD_W + GAP);
+  const capped = images.slice(0, 8);
+  const loopImages = [...capped, ...capped, ...capped];
+  const resetWidth = capped.length * (CARD_W + GAP);
   const totalWidth  = loopImages.length * (CARD_W + GAP);
 
   useEffect(() => {
@@ -99,7 +100,7 @@ function CaseHeroImageStrip({ images, inView }: { images: string[]; inView: bool
 
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [inView, images.length, resetWidth, totalWidth]);
+  }, [inView, capped.length, resetWidth, totalWidth]);
 
   return (
     <>
@@ -596,7 +597,7 @@ function CarouselSection({ section }: { section: Extract<CaseSection, { type: "c
           transition={{ duration: 0.9, ease, delay: 0.1 }}
         >
           <motion.div
-            className="relative overflow-hidden rounded-2xl aspect-[4/3] lg:aspect-[16/9] bg-[#0C0C12]"
+            className="relative overflow-hidden rounded-xl aspect-[4/3] lg:aspect-[16/9] bg-[#0C0C12]"
             data-dark="true"
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
@@ -710,17 +711,17 @@ function ScrollGallerySection({ section }: { section: Extract<CaseSection, { typ
         className="snap-section lg:hidden"
         style={{ padding: "60px 16px 60px" }}
       >
-        <div style={{ width: "100%", height: "55svh", borderRadius: 14, overflow: "hidden", marginBottom: 10 }}>
+        <div style={{ width: "100%", height: "55svh", borderRadius: 12, overflow: "hidden", marginBottom: 10 }}>
           <img src={img0} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
         </div>
         <div style={{ display: "flex", gap: 10, height: "38svh" }}>
           {img1 && (
-            <div style={{ flex: 1, borderRadius: 14, overflow: "hidden" }}>
+            <div style={{ flex: 1, borderRadius: 12, overflow: "hidden" }}>
               <img src={img1} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
             </div>
           )}
           {img2 && (
-            <div style={{ flex: 1, borderRadius: 14, overflow: "hidden" }}>
+            <div style={{ flex: 1, borderRadius: 12, overflow: "hidden" }}>
               <img src={img2} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
             </div>
           )}
@@ -738,19 +739,19 @@ function ScrollGallerySection({ section }: { section: Extract<CaseSection, { typ
           <div className="absolute inset-0 flex items-center justify-center">
 
             {/* Left image → stays, then converges */}
-            <motion.div style={{ x: leftX, y: leftY, opacity: underOpacity, scale: introScale, width: "36vw", maxHeight: "44vh" }} className={`${baseClass} z-10 rounded`}>
+            <motion.div style={{ x: leftX, y: leftY, opacity: underOpacity, scale: introScale, width: "36vw", maxHeight: "44vh" }} className={`${baseClass} z-10 rounded-xl`}>
               <img src={img1} alt="" loading="lazy" style={imgStyle(pos1)} />
             </motion.div>
 
             {/* Right image → drifts up, then converges */}
-            <motion.div style={{ x: rightX, y: rightY, opacity: underOpacity, scale: introScale, width: "36vw", maxHeight: "44vh" }} className={`${baseClass} z-20 rounded`}>
+            <motion.div style={{ x: rightX, y: rightY, opacity: underOpacity, scale: introScale, width: "36vw", maxHeight: "44vh" }} className={`${baseClass} z-20 rounded-xl`}>
               <img src={img2} alt="" loading="lazy" style={imgStyle(pos2)} />
             </motion.div>
 
             {/* Hero → near center, then expands to full screen */}
             <motion.div
               style={{ x: heroX, y: heroY, width: heroWidth, height: heroHeight, opacity: heroOpacity, scale: introScale }}
-              className={`${baseClass} z-30 rounded`}
+              className={`${baseClass} z-30 rounded-xl`}
             >
               <img src={img0} alt="" loading="lazy" style={imgStyle(pos0)} />
             </motion.div>
@@ -1672,7 +1673,7 @@ function FanGallerySection({ section }: { section: Extract<CaseSection, { type: 
       style={{ height: "180vh" }}
     >
       <div
-        className="sticky top-0 flex flex-col items-center justify-center bg-[#FAFAFA]"
+        className="sticky top-0 flex flex-col items-center justify-center bg-[#FAFAFA] overflow-hidden"
         style={{ height: "100svh", paddingTop: 84, paddingBottom: 48 }}
       >
         {(section.label || section.heading) && (
@@ -1741,6 +1742,139 @@ function CaseSectionBlock({ section }: { section: CaseSection }) {
   }
 }
 
+// ─── PasswordGate ─────────────────────────────────────────────────────────────
+
+const SESSION_KEY = "milk_gxm_unlocked";
+const GXM_PASSWORD = "skimmed";
+
+function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
+  const [value, setValue] = useState("");
+  const [shake, setShake] = useState(false);
+  const [wrong, setWrong] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => { inputRef.current?.focus(); }, []);
+
+  const attempt = () => {
+    if (value.trim().toLowerCase() === GXM_PASSWORD) {
+      sessionStorage.setItem(SESSION_KEY, "1");
+      onUnlock();
+    } else {
+      setShake(true);
+      setWrong(true);
+      setValue("");
+      setTimeout(() => setShake(false), 500);
+      inputRef.current?.focus();
+    }
+  };
+
+  const handleKey = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") attempt();
+    if (wrong) setWrong(false);
+  };
+
+  return (
+    <motion.div
+      className="fixed inset-0 flex flex-col items-center justify-center bg-[#FAFAFA] z-[9999] px-8"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5, ease }}
+    >
+      <motion.div
+        className="flex flex-col items-center text-center gap-6 w-full max-w-[360px]"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease, delay: 0.1 }}
+      >
+        <p className="text-serif-eyebrow text-[#0C0C12]">Confidential</p>
+
+        <h1
+          style={{
+            fontFamily: "Ambit",
+            fontWeight: 700,
+            fontSize: "clamp(28px, 4vw, 40px)",
+            letterSpacing: "-0.05em",
+            lineHeight: 1.0,
+            color: "#0C0C12",
+          }}
+        >
+          This one's not<br />for everyone.
+        </h1>
+
+        <p className="text-body text-[#565656] max-w-[280px]">
+          You know the word.
+        </p>
+
+        <motion.div
+          className="w-full flex flex-col gap-3 mt-2"
+          animate={shake ? { x: [0, -8, 8, -6, 6, -3, 3, 0] } : {}}
+          transition={{ duration: 0.45 }}
+        >
+          <div className="relative w-full">
+            <input
+              ref={inputRef}
+              type="password"
+              value={value}
+              onChange={e => { setValue(e.target.value); if (wrong) setWrong(false); }}
+              onKeyDown={handleKey}
+              placeholder={value.length === 0 ? "password" : ""}
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck={false}
+              className="w-full text-center font-sans text-[15px] bg-transparent border rounded-full px-5 py-3 outline-none placeholder-[#C0C0C0] transition-colors duration-200"
+              style={{
+                borderColor: wrong ? "#E63929" : "#E0E0E0",
+                color: "transparent",
+                WebkitTextFillColor: "transparent",
+                caretColor: "#0C0C12",
+              }}
+            />
+            {value.length > 0 && (
+              <div className="absolute inset-0 flex items-center justify-center gap-[5px] pointer-events-none">
+                <AnimatePresence initial={false}>
+                  {Array.from({ length: Math.min(value.length, 20) }).map((_, i) => (
+                    <motion.div
+                      key={i}
+                      className="w-[5px] h-[5px] rounded-full bg-[#0C0C12] shrink-0"
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 28, mass: 0.5 }}
+                    />
+                  ))}
+                </AnimatePresence>
+              </div>
+            )}
+          </div>
+          <motion.button
+            onClick={attempt}
+            className="w-full font-sans font-medium text-[14px] tracking-[-0.28px] text-white rounded-full py-3"
+            style={{ background: "#0C0C12" }}
+            whileHover={{ opacity: 0.82 }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ duration: 0.15 }}
+          >
+            Unlock
+          </motion.button>
+          <AnimatePresence>
+            {wrong && (
+              <motion.p
+                className="text-center font-sans text-[13px] text-[#E63929] tracking-[-0.25px]"
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.25 }}
+              >
+                That&apos;s not it.
+              </motion.p>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 // ─── Root export ─────────────────────────────────────────────────────────────
 
 const GXM_OVERVIEW_SLUG = "gxm";
@@ -1751,9 +1885,17 @@ const GXM_ALL_SLUGS = [GXM_OVERVIEW_SLUG, GXM_PART1_SLUG, GXM_PART2_SLUG, GXM_PA
 
 export default function CaseTemplate({ caseData }: { caseData: CaseData }) {
   const [entered, setEntered] = useState(false);
+  const [unlocked, setUnlocked] = useState(false);
   useEffect(() => { setEntered(true); }, []);
 
   const isGXMOverview = caseData.slug === GXM_OVERVIEW_SLUG;
+
+  // Check sessionStorage on mount so the gate doesn't flash on back-navigation
+  useEffect(() => {
+    if (isGXMOverview && sessionStorage.getItem(SESSION_KEY) === "1") {
+      setUnlocked(true);
+    }
+  }, [isGXMOverview]);
   const isGXMPart = caseData.slug === GXM_PART1_SLUG || caseData.slug === GXM_PART2_SLUG || caseData.slug === GXM_PART3_SLUG;
 
   let relatedEyebrow = "Keep Stalking";
@@ -1778,6 +1920,11 @@ export default function CaseTemplate({ caseData }: { caseData: CaseData }) {
 
   return (
     <article>
+      {/* Password gate — GXM overview only */}
+      {isGXMOverview && !unlocked && (
+        <PasswordGate onUnlock={() => setUnlocked(true)} />
+      )}
+
       {/* White page-entry fade — prevents the black flash from IntroLoader and gives a clean entrance */}
       <motion.div
         className="fixed inset-0 bg-white pointer-events-none"
@@ -1813,15 +1960,11 @@ export default function CaseTemplate({ caseData }: { caseData: CaseData }) {
                 <ArrowUpRight />
               </a>
             </div>
-            <div className="snap-section" style={{ minHeight: "100svh" }}>
-              <ProjectsSection initialIndex={1} />
-            </div>
+            <ProjectsSection initialIndex={1} />
           </>
         )}
         {!isGXMOverview && !isGXMPart && (
-          <div className="snap-section" style={{ minHeight: "100svh" }}>
-            <ProjectsSection initialIndex={0} />
-          </div>
+          <ProjectsSection initialIndex={0} />
         )}
       </div>
     </article>
