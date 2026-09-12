@@ -1154,7 +1154,7 @@ function KeepStalkingCarousel({ currentSlug }: { currentSlug: string }) {
       {/* Mobile: vertical stack */}
       <div
         className="snap-section lg:hidden"
-        data-free-scroll="true"
+        data-native-scroll="true"
         style={{ paddingTop: 108, paddingBottom: 60 }}
       >
         <div className="px-8 pb-8">
@@ -1752,6 +1752,7 @@ function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
   const [shake, setShake] = useState(false);
   const [wrong, setWrong] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   useEffect(() => { inputRef.current?.focus(); }, []);
 
@@ -1856,6 +1857,13 @@ function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
           >
             Unlock
           </motion.button>
+          <button
+            onClick={() => router.back()}
+            className="w-full font-sans font-medium text-[14px] tracking-[-0.28px] text-[#565656] hover:text-[#0C0C12] transition-colors duration-200 py-1 inline-flex items-center justify-center gap-1.5"
+          >
+            <ArrowLeft />
+            Back
+          </button>
           <AnimatePresence>
             {wrong && (
               <motion.p
