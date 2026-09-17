@@ -1857,9 +1857,10 @@ function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
           >
             Unlock
           </motion.button>
+          <div style={{ height: 12 }} />
           <button
             onClick={() => router.back()}
-            className="w-full font-sans font-medium text-[14px] tracking-[-0.28px] text-[#565656] hover:text-[#0C0C12] transition-colors duration-200 py-1 inline-flex items-center justify-center gap-1.5"
+            className="w-full font-sans font-medium text-[14px] tracking-[-0.28px] text-[#2E2E2E] hover:text-[#0C0C12] rounded-full py-3 border border-[#2E2E2E]/15 hover:border-[#2E2E2E]/40 transition-colors duration-200 inline-flex items-center justify-center gap-1.5"
           >
             <ArrowLeft />
             Back
