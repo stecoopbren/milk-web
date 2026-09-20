@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { DM_Mono } from "next/font/google";
 import "./globals.css";
 import ScrollSnapController from "./components/ScrollSnapController";
@@ -27,7 +28,7 @@ export const metadata: Metadata = {
     template: "%s | Milk Design Studio",
   },
   description:
-    "Milk is a design studio helping founders and teams turn big ideas into world-class businesses. Strategy, product design, branding, and AI enablement.",
+    "Steven Cooper's practice for strategy, product design, and brand. Helping founders and operators find the real problem before committing to a solution.",
   keywords: [
     "milk design studio",
     "milk.design",
@@ -75,27 +76,48 @@ export const metadata: Metadata = {
   icons: { icon: "/FavIcon.png" },
 };
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "ProfessionalService",
-  name: "Milk Design Studio",
-  url: BASE_URL,
-  logo: `${BASE_URL}/MilkLogo-Black.png`,
-  description:
-    "Design studio specialising in strategy, product design, branding, and AI enablement for founders and growing teams.",
-  founder: { "@type": "Person", name: "Steven Cooper" },
-  serviceType: [
-    "Product Design",
-    "Brand Strategy",
-    "Service Design",
-    "Design Ops",
-    "AI Enablement",
-    "Design Systems",
-    "Market & User Research",
-    "Business Model Design",
-  ],
-  sameAs: [BASE_URL],
-};
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    name: "Milk Design Studio",
+    url: BASE_URL,
+    logo: `${BASE_URL}/MilkLogo-Black.png`,
+    description:
+      "Steven Cooper's independent practice at the intersection of strategy, product, and brand. Working with founders and operators who want to build the right thing.",
+    founder: { "@type": "Person", name: "Steven Cooper" },
+    serviceType: [
+      "Product Design",
+      "Brand Strategy",
+      "Service Design",
+      "Design Ops",
+      "AI Enablement",
+      "Design Systems",
+      "Market & User Research",
+      "Business Model Design",
+    ],
+    sameAs: [
+      "https://www.instagram.com/milkdotdesign/",
+    ],
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: "Steven Cooper",
+    jobTitle: "Founder & Design Lead",
+    url: `${BASE_URL}/about`,
+    worksFor: {
+      "@type": "Organization",
+      name: "Milk Design Studio",
+      url: BASE_URL,
+    },
+    sameAs: [
+      "https://www.linkedin.com/in/steven-cooper-brenes/",
+      "https://www.instagram.com/milkdotdesign/",
+      "https://medium.com/@stevencooper_75268",
+    ],
+  },
+];
 
 export default function RootLayout({
   children,
@@ -123,7 +145,8 @@ export default function RootLayout({
           <ScrollCue />
           <BackToTop />
           {children}
-        </ClientWrapper>
+        <Analytics />
+</ClientWrapper>
       </body>
     </html>
   );
