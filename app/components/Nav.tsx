@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { track } from "@vercel/analytics";
 import { motion, AnimatePresence, useScroll, useTransform, useMotionTemplate } from "framer-motion";
 import Image from "next/image";
 import ContactModal from "./ContactModal";
@@ -331,7 +332,7 @@ export default function Nav() {
               {showCta && (
                 <motion.button
                   key="cta"
-                  onClick={() => setModalOpen(true)}
+                  onClick={() => { track("contact_modal_opened", { source: "nav" }); setModalOpen(true); }}
                   className="hidden lg:inline-flex font-sans font-medium text-[15px] text-white tracking-[-0.45px] rounded-full shrink-0"
                   style={{
                     background: "#1a1a1a",
@@ -442,7 +443,7 @@ export default function Nav() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: (links.length + socialLinks.length) * 0.05, duration: 0.3, ease }}
-                  onClick={() => { setMenuOpen(false); setModalOpen(true); }}
+                  onClick={() => { setMenuOpen(false); track("contact_modal_opened", { source: "nav_mobile" }); setModalOpen(true); }}
                 >
                   Let&apos;s Talk
                 </motion.button>

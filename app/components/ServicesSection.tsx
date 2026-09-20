@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { track } from "@vercel/analytics";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -111,9 +112,9 @@ export default function ServicesSection() {
   return (
     <div
       id="services"
-      className="snap-section relative pt-[100px] pb-[80px] lg:pb-[260px]"
+      className="snap-section relative pt-[100px] pb-[180px] lg:pb-[260px] min-h-[150svh] lg:min-h-[calc(100svh+1px)]"
       data-native-scroll="true"
-      style={{ scrollSnapAlign: "none", minHeight: "calc(100svh + 1px)" }}
+      style={{ scrollSnapAlign: "none" }}
     >
       <div className="px-8 lg:px-[180px]">
 
@@ -205,7 +206,7 @@ export default function ServicesSection() {
                               {serviceCtas[service]}
                             </p>
                             <motion.button
-                              onClick={() => window.dispatchEvent(new CustomEvent("milk:open-contact", { detail: { service } }))}
+                              onClick={() => { track("contact_modal_opened", { source: "services", service }); window.dispatchEvent(new CustomEvent("milk:open-contact", { detail: { service } })); }}
                               className="inline-flex items-center justify-center font-sans font-medium text-[13px] text-white tracking-[-0.3px] rounded-full w-fit"
                               style={{ background: "#1a1a1a", padding: "9px 18px", boxShadow: "0 2px 12px rgba(0,0,0,0.18)" }}
                               whileHover={{ opacity: 0.82 }}

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { track } from "@vercel/analytics";
 import Image from "next/image";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -387,6 +388,7 @@ export default function ContactModal({ open, onClose, initialService }: Props) {
     if (honeypot) return; // bot trap
     if (!details.name.trim()) { setNameError("Please enter your name."); return; }
     if (!isValidEmail(details.email)) { setEmailError("Please enter a valid email address."); return; }
+    track("contact_submitted", { reason: reason?.title ?? "unknown" });
     setSending(true);
     const phone = details.phone ? `${details.countryCode} ${details.phone}` : "";
     await fetch("/api/contact/send", {

@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
+import { track } from "@vercel/analytics";
 import Lottie from "lottie-react";
 import { RevealLine } from "./animations";
 import SectionReveal from "./SectionReveal";
@@ -178,11 +179,11 @@ function MobileCarouselCard({
   if (step.isCta) {
     return (
       <div className="w-full h-full bg-white border border-black/[0.07] rounded-2xl flex flex-col items-center justify-between p-6 text-center">
-        <Lottie animationData={anim} loop style={{ width: "100%", height: 180 }} />
+        <Lottie animationData={anim} loop style={{ width: "100%", height: 150 }} />
         <div className="flex flex-col items-center gap-4">
           <h3 className="text-subheading text-[#0C0C12]">{step.title}</h3>
           <button
-            onClick={(e) => { e.stopPropagation(); window.dispatchEvent(new CustomEvent("milk:open-contact")); }}
+            onClick={(e) => { e.stopPropagation(); track("contact_modal_opened", { source: "method" }); window.dispatchEvent(new CustomEvent("milk:open-contact")); }}
             className="bg-[#0C0C12] text-white rounded-full px-6 py-2.5 font-sans font-medium text-[14px] tracking-[-0.3px]"
           >
             Let&apos;s talk
@@ -314,7 +315,7 @@ export default function MethodSection() {
         ref={mobileRef}
         className="lg:hidden flex flex-col items-start justify-start w-full px-6"
         data-native-scroll="true"
-        style={{ minHeight: "140svh", paddingTop: "108px", paddingBottom: "40px" }}
+        style={{ paddingTop: "108px", paddingBottom: "40px" }}
       >
         {/* Header */}
         <div className="flex flex-col gap-2 w-full text-center items-center">
@@ -347,7 +348,7 @@ export default function MethodSection() {
         </div>
 
         {/* One-card carousel */}
-        <div className="relative w-full mt-6 overflow-hidden" style={{ height: "360px" }}>
+        <div className="relative w-full mt-6 overflow-hidden" style={{ height: "310px" }}>
           <AnimatePresence custom={mobileDir} mode="popLayout">
             <motion.div
               key={mobileActive}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { track } from "@vercel/analytics";
 import Lottie from "lottie-react";
 import SectionReveal from "./SectionReveal";
 
@@ -16,6 +17,7 @@ export default function CTASection() {
   }, []);
 
   function openContact() {
+    track("contact_modal_opened", { source: "cta" });
     window.dispatchEvent(new CustomEvent("milk:open-contact"));
   }
 

@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { track } from "@vercel/analytics";
 
 function TypewriterWord({ word, longest, animated }: { word: string; longest: string; animated: boolean }) {
   const [display, setDisplay] = useState("");
@@ -212,7 +213,7 @@ export default function HeroSection() {
           transition={{ duration: 2.0, ease, delay: 0.85 }}
         >
           <motion.button
-            onClick={() => window.dispatchEvent(new CustomEvent("milk:open-contact"))}
+            onClick={() => { track("contact_modal_opened", { source: "hero" }); window.dispatchEvent(new CustomEvent("milk:open-contact")); }}
             className="inline-flex items-center justify-center gap-2 rounded-full font-sans font-medium text-[15px] text-white tracking-[-0.45px] w-[148px] transition-opacity hover:opacity-80"
             style={{ background: "#111", padding: "12px 20px" }}
             whileHover={{ scale: 1.02 }}
