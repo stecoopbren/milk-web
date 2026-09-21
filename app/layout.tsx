@@ -145,8 +145,8 @@ export default function RootLayout({
           <ScrollCue />
           <BackToTop />
           {children}
-        <Analytics />
-</ClientWrapper>
+          <Analytics />
+        </ClientWrapper>
       </body>
     </html>
   );
