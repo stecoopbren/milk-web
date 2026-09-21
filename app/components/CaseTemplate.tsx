@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { track } from "@vercel/analytics";
 import { motion, AnimatePresence, useInView, useScroll, useTransform, useMotionValue, type MotionValue } from "framer-motion";
 import { RevealLine } from "./animations";
 import Link from "next/link";
@@ -1895,7 +1896,10 @@ const GXM_ALL_SLUGS = [GXM_OVERVIEW_SLUG, GXM_PART1_SLUG, GXM_PART2_SLUG, GXM_PA
 export default function CaseTemplate({ caseData }: { caseData: CaseData }) {
   const [entered, setEntered] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
-  useEffect(() => { setEntered(true); }, []);
+  useEffect(() => {
+    setEntered(true);
+    track("case_study_opened", { slug: caseData.slug, client: caseData.client, title: caseData.title.replace(/\n/g, " ") });
+  }, []);
 
   const isGXMOverview = caseData.slug === GXM_OVERVIEW_SLUG;
 
