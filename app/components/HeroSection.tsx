@@ -3,72 +3,6 @@
 import { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { track } from "@vercel/analytics";
-
-function TypewriterWord({ word, longest, animated }: { word: string; longest: string; animated: boolean }) {
-  const [display, setDisplay] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
-  const prevWord = useRef(word);
-  const initialTyped = useRef(false);
-
-  // Type the first word in when the hero reveals
-  useEffect(() => {
-    if (!animated || initialTyped.current) return;
-    initialTyped.current = true;
-    setIsTyping(true);
-    let typed = "";
-    const id = setInterval(() => {
-      typed = word.slice(0, typed.length + 1);
-      setDisplay(typed);
-      if (typed === word) { clearInterval(id); setIsTyping(false); }
-    }, 90);
-    return () => clearInterval(id);
-  }, [animated]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Erase old word, type new word on subsequent cycles
-  useEffect(() => {
-    if (!initialTyped.current) return;
-    if (prevWord.current === word) return;
-
-    const oldWord = prevWord.current;
-    prevWord.current = word;
-    let current = oldWord;
-    setIsTyping(true);
-
-    const eraseId = setInterval(() => {
-      current = current.slice(0, -1);
-      setDisplay(current);
-      if (current.length === 0) {
-        clearInterval(eraseId);
-        let typed = "";
-        const typeId = setInterval(() => {
-          typed = word.slice(0, typed.length + 1);
-          setDisplay(typed);
-          if (typed === word) { clearInterval(typeId); setIsTyping(false); }
-        }, 90);
-      }
-    }, 70);
-
-    return () => clearInterval(eraseId);
-  }, [word]);
-
-  return (
-    <span style={{ display: "inline-block", position: "relative" }}>
-      {/* Ghost spacer — always holds the width of the longest word so the line never reflows */}
-      <span style={{ visibility: "hidden", userSelect: "none", pointerEvents: "none" }}>{longest}</span>
-      {/* Visible typewriter text + cursor, centered within the spacer */}
-      <span style={{ position: "absolute", left: 0, right: 0, top: 0, textAlign: "center", whiteSpace: "nowrap" }}>
-        {display}
-        {animated && (
-          <motion.span
-            animate={isTyping ? { opacity: 1 } : { opacity: [1, 0, 1] }}
-            transition={isTyping ? {} : { duration: 0.9, repeat: Infinity, ease: "linear", times: [0, 0.5, 1] }}
-            style={{ display: "inline-block", marginLeft: "0.04em", fontWeight: "inherit" }}
-          >|</motion.span>
-        )}
-      </span>
-    </span>
-  );
-}
 import SectionReveal from "./SectionReveal";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -145,13 +79,6 @@ export default function HeroSection() {
     return () => window.removeEventListener("milk:intro-exit", onIntroExit);
   }, []);
 
-  const cycleWords = ["Business.", "Services.", "Products."];
-  const [wordIndex, setWordIndex] = useState(0);
-  useEffect(() => {
-    if (!animated) return;
-    const id = setInterval(() => setWordIndex(i => (i + 1) % cycleWords.length), 3500);
-    return () => clearInterval(id);
-  }, [animated]);
 
 
 
@@ -170,25 +97,15 @@ export default function HeroSection() {
       >
 
         {/* Headline */}
-        <div className="flex flex-col items-center w-full text-center gap-[24px]">
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={animated ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
-          >
-            <span className="text-[#2E2E2E]" style={{ fontFamily: "Ambit", fontWeight: 700, fontSize: "clamp(29px, 3.5vw, 68px)", letterSpacing: "-0.05em", lineHeight: 1.15, display: "block" }}>
-              Turning big ideas into
-            </span>
-          </motion.div>
-
+        <div className="flex flex-col items-center w-full text-center">
           <motion.div
             initial={{ opacity: 0, y: 18 }}
             animate={animated ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.52 }}
+            transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
           >
             <h1 className="text-display text-[#2E2E2E] text-center text-[64px] lg:text-[152px]" style={{ fontFamily: "Ambit" }}>
-              World-Class<br />
-              <TypewriterWord word={cycleWords[wordIndex]} longest="Services." animated={animated} />
+              Turning uncertainty<br />
+              into direction.
             </h1>
           </motion.div>
         </div>
