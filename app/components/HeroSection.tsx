@@ -104,8 +104,8 @@ export default function HeroSection() {
             transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
           >
             <h1 className="text-display text-[#2E2E2E] text-center text-[64px] lg:text-[152px]" style={{ fontFamily: "Ambit" }}>
-              Turning uncertainty<br />
-              into direction.
+              Stop guessing.<br />
+              Start proving.
             </h1>
           </motion.div>
         </div>
@@ -118,8 +118,8 @@ export default function HeroSection() {
           animate={animated ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 1.8, ease, delay: 0.65 }}
         >
-          <span className="lg:hidden">Great design starts<br />with the right questions.</span>
-          <span className="hidden lg:inline">Great design starts with the right questions.</span>
+          <span className="lg:hidden">I help teams turn uncertainty<br />into measurable progress.</span>
+          <span className="hidden lg:inline">I help teams turn uncertainty into measurable progress.</span>
         </motion.p>
 
         {/* CTA Buttons */}
