@@ -258,7 +258,7 @@ export default function SocialCards({ cards }: SocialCardsProps) {
         <div ref={containerRef} className="fan-layout flex relative justify-center items-center w-full">
           {cards.map((card, index) => {
             const image = (
-              <div className="relative w-full h-full overflow-hidden rounded-2xl">
+              <div className="relative w-full h-full overflow-hidden rounded-xl">
                 {card.videoUrl ? (
                   <video
                     src={card.videoUrl}

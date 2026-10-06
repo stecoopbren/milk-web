@@ -1,21 +1,21 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About",
-  description: "Milk is a strategic design studio led by Steven Cooper. We work at the intersection of strategy, product, and brand to help ambitious companies find clarity before they build.",
+  title: "About Steven Cooper",
+  description: "Steven Cooper works at the intersection of strategy, product, and brand. Helping ambitious founders and operators find clarity before they commit to a direction.",
   alternates: { canonical: "https://www.milk.design/about" },
   openGraph: {
     type: "website",
     url: "https://www.milk.design/about",
-    title: "About — Milk Design Studio",
-    description: "Milk is a strategic design studio led by Steven Cooper. We work at the intersection of strategy, product, and brand to help ambitious companies find clarity before they build.",
-    images: [{ url: "https://www.milk.design/og-image.png", width: 1200, height: 630, alt: "Milk Design Studio" }],
+    title: "About Steven Cooper — Milk Design Studio",
+    description: "Steven Cooper works at the intersection of strategy, product, and brand. Helping ambitious founders and operators find clarity before they commit to a direction.",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Milk Design Studio" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "About — Milk Design Studio",
-    description: "Milk is a strategic design studio led by Steven Cooper. We work at the intersection of strategy, product, and brand to help ambitious companies find clarity before they build.",
-    images: ["https://www.milk.design/og-image.png"],
+    title: "About Steven Cooper — Milk Design Studio",
+    description: "Steven Cooper works at the intersection of strategy, product, and brand. Helping ambitious founders and operators find clarity before they commit to a direction.",
+    images: ["/opengraph-image"],
   },
 };
 

@@ -25,6 +25,17 @@ function lerp(a: number, b: number, t: number) {
 
 export default function TeamSection() {
   const outerRef  = useRef<HTMLDivElement>(null);
+
+  // On mobile, switch to native-scroll with a shorter height so the user
+  // can naturally swipe through the section. On desktop, keep data-free-scroll
+  // at 900vh so the trackpad drives smooth horizontal pan animation.
+  const [isDesktop, setIsDesktop] = useState(true);
+  useEffect(() => {
+    const check = () => setIsDesktop(window.innerWidth >= 1024);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
   const trackRef  = useRef<HTMLDivElement>(null);
   const frame1Ref = useRef<HTMLSpanElement>(null);
   const frame3Ref = useRef<HTMLDivElement>(null);
@@ -201,8 +212,9 @@ export default function TeamSection() {
       id="who-we-are"
       ref={outerRef}
       className="snap-section relative"
-      data-free-scroll="true"
-      style={{ height: "900vh", scrollSnapAlign: "none" }}
+      data-free-scroll={isDesktop ? "true" : undefined}
+      data-native-scroll={!isDesktop ? "true" : undefined}
+      style={{ height: isDesktop ? "900vh" : "500vh", scrollSnapAlign: "none" }}
     >
       <div className="sticky top-0 overflow-hidden" style={{ height: "100svh" }}>
 

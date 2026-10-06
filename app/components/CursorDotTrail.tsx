@@ -58,7 +58,7 @@ export default function CursorDotTrail() {
 
   return (
     <>
-      <style>{`@media (pointer: fine) { *, *::before, *::after { cursor: none !important; } }`}</style>
+      <style>{`@media (pointer: fine) { *:not(input):not(textarea), *:not(input):not(textarea)::before, *:not(input):not(textarea)::after { cursor: none !important; } }`}</style>
 
       {/* Dot — snaps to cursor exactly */}
       <motion.div

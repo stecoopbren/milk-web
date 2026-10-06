@@ -9,6 +9,7 @@ const caseSlugs = [
   "gxm-building-alignment-before-software",
   "gxm-validate-before-you-build",
   "gxm-design-system-brand-foundations",
+  "dropclub",
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

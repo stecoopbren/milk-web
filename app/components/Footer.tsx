@@ -6,10 +6,11 @@ const navColumns = [
   {
     label: "Navigate",
     links: [
-      { label: "About",     href: "/#who-we-are" },
-      { label: "Method",    href: "/#method" },
-      { label: "Work",      href: "/#portfolio" },
-      { label: "Portfolio", href: "/portfolio" },
+      { label: "About",       href: "/#about-us" },
+      { label: "Why Milk?",   href: "/#who-we-are" },
+      { label: "Formula",     href: "/#method" },
+      { label: "Disciplines", href: "/#services" },
+      { label: "Work",        href: "/#portfolio" },
     ],
   },
   {
@@ -29,6 +30,7 @@ const navColumns = [
       { label: "Chagüite",              href: "/cases/regenerative-community" },
       { label: "Casa Siwä",             href: "/cases/casa-siwa" },
       { label: "Digital Transformation", href: "/cases/gxm" },
+      { label: "Dropclub",              href: "/cases/dropclub" },
     ],
   },
 ];

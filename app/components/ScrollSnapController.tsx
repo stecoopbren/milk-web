@@ -203,7 +203,7 @@ export default function ScrollSnapController() {
     //
     // PositioningSection (height:auto, minHeight:100vh) is typically shallow on
     // mobile once browser chrome reduces window.innerHeight.
-    const SHALLOW_THRESHOLD = 0.03; // scroll range < 35 % of viewport height
+    const SHALLOW_THRESHOLD = 0.35; // scroll range < 35 % of viewport height
     const isShallowNativeSection = (): boolean => {
       const el = getCurrentNativeScrollEl();
       if (!el) return false;
@@ -400,6 +400,7 @@ export default function ScrollSnapController() {
     let pendingFreeScrollCapture = false;
     let captureTargetY = 0;
     let captureTargetIndex = 0;
+    let captureSourceEnd = 0; // max scrollY of the native section that armed the capture
     let freeScrollCaptureTimer: ReturnType<typeof setTimeout>;
 
     const onTouchStart = (e: TouchEvent) => {
@@ -429,6 +430,7 @@ export default function ScrollSnapController() {
         if (nextFreeEl) {
           captureTargetY = getSectionTop(nextFreeEl);
           captureTargetIndex = sections.indexOf(nextFreeEl);
+          captureSourceEnd = captureTargetY - window.innerHeight; // native section's max scrollY
           pendingFreeScrollCapture = true;
           clearTimeout(freeScrollCaptureTimer);
           freeScrollCaptureTimer = setTimeout(() => { pendingFreeScrollCapture = false; }, 3000);
@@ -501,7 +503,19 @@ export default function ScrollSnapController() {
     const onScroll = () => {
       if (isSnapping) return;
 
-      // 1. Boundary capture
+      // 1. Hard-stop: if iOS momentum carries us past the native section's end,
+      //    clamp there instead of letting it blow into the free-scroll zone.
+      //    The user lands at the final frame (e.g. "Now I bring it to yours")
+      //    and must make a deliberate swipe to exit.
+      if (pendingFreeScrollCapture && captureSourceEnd > 0 && window.scrollY > captureSourceEnd + 5) {
+        pendingFreeScrollCapture = false;
+        clearTimeout(freeScrollCaptureTimer);
+        window.scrollTo({ top: captureSourceEnd, behavior: 'instant' });
+        touchSnapTime = Date.now();
+        return;
+      }
+
+      // 2. Boundary capture (fallback for any case the hard-stop above missed)
       if (pendingFreeScrollCapture && window.scrollY >= captureTargetY - 10) {
         pendingFreeScrollCapture = false;
         clearTimeout(freeScrollCaptureTimer);
