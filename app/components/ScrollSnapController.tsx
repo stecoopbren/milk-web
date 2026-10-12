@@ -259,9 +259,7 @@ export default function ScrollSnapController() {
 
       isSnapping = true;
       cooldown = true;
-      // Steps must also start the SNAP_BLOCK window checked above. Otherwise
-      // jitter in one swipe's momentum tail passes the "new gesture" check and
-      // fires a second step (~700ms later), skipping a frame in TeamSection.
+      // Start SNAP_BLOCK so momentum jitter can't fire a second step.
       lastSnapTime = Date.now();
       let targetY = Math.round(window.scrollY + direction * window.innerHeight);
 
@@ -287,11 +285,7 @@ export default function ScrollSnapController() {
         }
       }
 
-      // Mirror of the forward case: at/near section start, exit to the previous
-      // section via a controlled snap. A raw step would land mid-way in the
-      // section above (e.g. PositioningSection's bottom), and the "left every
-      // free zone" check below would then fire a second snap, so one swipe
-      // played two animations.
+      // At section start, exit up with one snap (a raw step caused two).
       if (activeZoneIdx !== -1 && direction < 0) {
         const sTop = getSectionTop(sections[activeZoneIdx]);
         if (window.scrollY <= sTop + 10) {
@@ -328,10 +322,7 @@ export default function ScrollSnapController() {
       // Native-scroll zone: stop Lenis so its inertia doesn't overshoot the
       // section, then let the browser scroll natively.
       if (isInNativeScrollZone()) {
-        // Keep the one-snap-per-gesture lock alive here too. Without it, the
-        // momentum tail of the swipe that snapped us into this section hits the
-        // boundary check below and fires a second snap, skipping the section
-        // (e.g. one swipe up from TeamSection went past PositioningSection to Hero).
+        // One snap per gesture here too, so momentum can't skip this section.
         if (gestureSnapped && Math.abs(e.deltaY) > Math.abs(lastWheelDeltaY) * 1.3 && Math.abs(e.deltaY) > 15) {
           gestureSnapped = false;
         }
@@ -355,10 +346,8 @@ export default function ScrollSnapController() {
             return;
           }
         } else if (nativeEl) {
-          // Downward: snap to next section once this event would reach the
-          // section bottom. Checking the post-scroll position (r.bottom - deltaY)
-          // matters: a large momentum delta otherwise scrolls natively past the
-          // end, and onScrollEnd then yanks the page back up to the section end.
+          // Downward: snap if this event would reach the bottom, so momentum
+          // can't overshoot and get pulled back by onScrollEnd.
           const r = nativeEl.getBoundingClientRect();
           if (nativeEl.offsetHeight > window.innerHeight + 20 && r.bottom - e.deltaY <= window.innerHeight + 4) {
             e.preventDefault();
