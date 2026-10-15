@@ -223,20 +223,27 @@ export default function ScrollSnapController() {
     // it signals a new intentional gesture and unlocks immediately.
     let gestureSnapped = false;
     let lastWheelDeltaY = 0;
-    let gestureGapTimer: ReturnType<typeof setTimeout>;
+    let lastWheelTs = 0;
     const GESTURE_GAP = 380;
-    const resetGestureGap = () => {
-      clearTimeout(gestureGapTimer);
-      gestureGapTimer = setTimeout(() => {
+    // Ignored while snapping: a swipe's own ramp-up deltas grow and would
+    // falsely unlock, letting its momentum tail fire a second snap.
+    const isNewGesture = (deltaY: number): boolean =>
+      gestureSnapped && !isSnapping && !cooldown
+      && Math.abs(deltaY) > Math.abs(lastWheelDeltaY) * 1.3 && Math.abs(deltaY) > 15;
+    // Silence is measured from event timestamps, not a timer: a main-thread
+    // stall would fire a timer while momentum events are still queued.
+    const checkGestureGap = (e: WheelEvent) => {
+      if (e.timeStamp - lastWheelTs > GESTURE_GAP) {
         gestureSnapped = false;
         lastWheelDeltaY = 0;
         accumulatedDelta = 0;
-      }, GESTURE_GAP);
+      }
+      lastWheelTs = e.timeStamp;
     };
 
     const stepWithinFreeZone = (direction: number) => {
       // Block residual momentum from the snap that brought us into this zone.
-      // gestureGapTimer (380ms) can reset gestureSnapped before Lenis finishes
+      // The 380ms gesture gap can reset gestureSnapped before Lenis finishes
       // (650ms), leaving a window where trailing trackpad events auto-step.
       if (Date.now() - lastSnapTime < SNAP_BLOCK) return;
 
@@ -259,6 +266,8 @@ export default function ScrollSnapController() {
 
       isSnapping = true;
       cooldown = true;
+      // Start SNAP_BLOCK so momentum jitter can't fire a second step.
+      lastSnapTime = Date.now();
       let targetY = Math.round(window.scrollY + direction * window.innerHeight);
 
       // Clamp forward steps to the free-zone end to avoid overshooting past a
@@ -280,6 +289,19 @@ export default function ScrollSnapController() {
         // Clamp forward steps to section end
         if (targetY > sEnd) {
           targetY = Math.round(sEnd);
+        }
+      }
+
+      // At section start, exit up with one snap (a raw step caused two).
+      if (activeZoneIdx !== -1 && direction < 0) {
+        const sTop = getSectionTop(sections[activeZoneIdx]);
+        if (window.scrollY <= sTop + 10) {
+          snapToIndex(currentIndex - 1);
+          return;
+        }
+        // Clamp backward steps to section start
+        if (targetY < sTop) {
+          targetY = Math.round(sTop);
         }
       }
 
@@ -307,9 +329,15 @@ export default function ScrollSnapController() {
       // Native-scroll zone: stop Lenis so its inertia doesn't overshoot the
       // section, then let the browser scroll natively.
       if (isInNativeScrollZone()) {
+        // One snap per gesture here too, so momentum can't skip this section.
+        checkGestureGap(e);
+        if (isNewGesture(e.deltaY)) gestureSnapped = false;
+        lastWheelDeltaY = e.deltaY;
         // While a snap animation is in progress, block native scroll so it doesn't
         // fight the Lenis scrollTo and prevent its onComplete from firing (the freeze).
-        if (isSnapping || cooldown) {
+        // Gesture lock absorbs the strong momentum right after a snap, then
+        // only stops edge snaps so gentle scrolling inside stays free.
+        if (isSnapping || cooldown || (gestureSnapped && Date.now() - lastSnapTime < SNAP_BLOCK)) {
           e.preventDefault();
           return;
         }
@@ -318,12 +346,21 @@ export default function ScrollSnapController() {
         if (direction < 0) {
           // Upward: snap to previous section when at the section top.
           const atTop = (nativeEl?.getBoundingClientRect().top ?? -Infinity) >= -4;
-          if (atTop) snapToIndex(currentIndex + direction);
+          if (atTop) {
+            e.preventDefault();
+            if (gestureSnapped) return;
+            gestureSnapped = true;
+            snapToIndex(currentIndex + direction);
+            return;
+          }
         } else if (nativeEl) {
-          // Downward: snap to next section once section bottom is in reach,
-          // preventing trackpad momentum from overshooting into the next section.
+          // Downward: snap if this event would reach the bottom, so momentum
+          // can't overshoot and get pulled back by onScrollEnd.
           const r = nativeEl.getBoundingClientRect();
-          if (nativeEl.offsetHeight > window.innerHeight + 20 && r.bottom <= window.innerHeight + 4) {
+          if (nativeEl.offsetHeight > window.innerHeight + 20 && r.bottom - e.deltaY <= window.innerHeight + 4) {
+            e.preventDefault();
+            if (gestureSnapped) return;
+            gestureSnapped = true;
             snapToIndex(currentIndex + 1);
             return;
           }
@@ -337,12 +374,12 @@ export default function ScrollSnapController() {
 
       // Detect new active gesture: momentum only decays, so if deltaY is
       // meaningfully larger than the last event the user started a new swipe.
-      if (gestureSnapped && Math.abs(e.deltaY) > Math.abs(lastWheelDeltaY) * 1.3 && Math.abs(e.deltaY) > 15) {
+      checkGestureGap(e);
+      if (isNewGesture(e.deltaY)) {
         gestureSnapped = false;
         accumulatedDelta = 0;
       }
       lastWheelDeltaY = e.deltaY;
-      resetGestureGap();
 
       if (isSnapping) return;
       // One snap per gesture — absorb trackpad momentum until silence or new gesture
@@ -726,7 +763,6 @@ export default function ScrollSnapController() {
       window.removeEventListener('scrollend', onScrollEnd);
       window.removeEventListener('milk:snap-to', onSnapTo);
       clearTimeout(wheelTimeout);
-      clearTimeout(gestureGapTimer);
       clearTimeout(freeScrollCaptureTimer);
     };
   }, [pathname]);
