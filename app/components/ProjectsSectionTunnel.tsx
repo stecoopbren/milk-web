@@ -11,6 +11,7 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import {
   motion,
   useMotionValue,
@@ -141,7 +142,15 @@ export function ProjectCard({
           className="absolute inset-0 overflow-hidden rounded-2xl"
           style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}
         >
-          <img src={project.img} alt={project.title} className="h-full w-full object-cover" />
+          <Image
+            width={0}
+            height={0}
+            sizes="100vw"
+            loading="eager"
+            src={project.img}
+            alt={project.title}
+            className="h-full w-full object-cover"
+          />
           <div className="absolute inset-0 bg-black/35" />
           <div className="absolute top-0 right-0 left-0 flex items-center justify-between p-6">
             <span className="font-mono text-[13px] tracking-[-0.39px] text-white/70">
@@ -249,7 +258,11 @@ function TunnelCard({
           position: "relative",
         }}
       >
-        <img
+        <Image
+          width={0}
+          height={0}
+          sizes="100vw"
+          loading="eager"
           src={project.img}
           alt={project.title}
           style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
@@ -487,7 +500,11 @@ function MobileCard({ project }: { project: Project }) {
         textDecoration: "none",
       }}
     >
-      <img
+      <Image
+        width={0}
+        height={0}
+        sizes="100vw"
+        loading="eager"
         src={project.img}
         alt={project.title}
         style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}

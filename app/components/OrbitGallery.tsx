@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useLayoutEffect } from "react";
+import Image from "next/image";
 import { motion, useTransform, useMotionValueEvent, type MotionValue } from "framer-motion";
 
 function lerp(a: number, b: number, t: number) {
@@ -64,6 +65,7 @@ function OrbitCard({
   useMotionValueEvent(facing, "change", updateWidth);
   useLayoutEffect(() => {
     updateWidth(facing.get());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -97,7 +99,10 @@ function OrbitCard({
           window.location.href = item.href;
         }}
       >
-        <img
+        <Image
+          width={0}
+          height={0}
+          sizes="(max-width: 768px) 100vw, 50vw"
           src={item.image}
           alt={item.title}
           loading="lazy"

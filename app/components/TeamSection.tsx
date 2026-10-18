@@ -150,7 +150,7 @@ export default function TeamSection() {
       window.removeEventListener("resize", measure);
       ro?.disconnect();
     };
-  }, []);
+  }, [scrollYProgress, x]);
 
   // Nudge hint — bounces the track slightly right then back, loops until the user scrolls
   useEffect(() => {

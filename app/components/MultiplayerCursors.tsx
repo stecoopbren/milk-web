@@ -200,6 +200,8 @@ function FloatingCursor({ def }: { def: CursorDef }) {
 
   useEffect(() => {
     mounted.current = true;
+    const timeouts = timeoutsRef.current;
+    const intervals = intervalsRef.current;
 
     const addTimeout = (fn: () => void, ms: number) => {
       const t = setTimeout(fn, ms);
@@ -279,8 +281,8 @@ function FloatingCursor({ def }: { def: CursorDef }) {
 
     return () => {
       mounted.current = false;
-      timeoutsRef.current.forEach(clearTimeout);
-      intervalsRef.current.forEach(clearInterval);
+      timeouts.forEach(clearTimeout);
+      intervals.forEach(clearInterval);
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

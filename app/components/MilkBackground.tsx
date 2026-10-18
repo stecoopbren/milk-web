@@ -220,7 +220,7 @@ export default function MilkBackground({ contained = false }: { contained?: bool
       window.removeEventListener("scroll", onScroll);
       gyroCleanup();
     };
-  }, []);
+  }, [contained]);
 
   return (
     <canvas

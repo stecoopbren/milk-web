@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import CinematicBoard, {
   type BoardShot,
@@ -192,7 +193,15 @@ export function ProjectCard({
       className="block w-full overflow-hidden rounded-2xl"
       style={{ aspectRatio: "3/4" }}
     >
-      <img src={project.img} alt={project.title} className="h-full w-full object-cover" />
+      <Image
+        width={0}
+        height={0}
+        sizes="100vw"
+        loading="eager"
+        src={project.img}
+        alt={project.title}
+        className="h-full w-full object-cover"
+      />
     </a>
   );
 }
@@ -294,7 +303,11 @@ function SlideContent({
           />
         </div>
       ) : (
-        <img
+        <Image
+          width={0}
+          height={0}
+          sizes="100vw"
+          loading="eager"
           src={item.staticImage ?? item.image}
           alt={item.title}
           style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
@@ -540,7 +553,11 @@ function CoverflowCarousel({ initialIndex = 0 }: { initialIndex?: number }) {
                     : "0 8px 40px rgba(0,0,0,0.15)",
                 }}
               >
-                <img
+                <Image
+                  width={0}
+                  height={0}
+                  sizes="100vw"
+                  loading="eager"
                   src={item.staticImage ?? item.image}
                   alt={item.title}
                   style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}

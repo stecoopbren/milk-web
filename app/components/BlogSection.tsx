@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import Image from "next/image";
 import { motion, useInView } from "framer-motion";
 import type { MediumPost } from "@/app/api/medium/route";
 
@@ -106,7 +107,11 @@ function PostCard({ post, index }: { post: MediumPost; index: number }) {
       {/* Thumbnail */}
       <div className="flex-shrink-0 overflow-hidden bg-[#F2F2F2]" style={{ height: 223 }}>
         {post.thumbnail ? (
-          <img
+          <Image
+            width={0}
+            height={0}
+            sizes="(max-width: 768px) 100vw, 50vw"
+            unoptimized={!/^https:\/\/([a-z0-9-]+\.)*medium\.com\//.test(post.thumbnail)}
             src={post.thumbnail}
             alt={post.title}
             loading="lazy"

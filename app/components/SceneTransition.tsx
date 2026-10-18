@@ -26,7 +26,7 @@ export default function SceneTransition() {
       window.removeEventListener("milk:snap-start", onStart);
       window.removeEventListener("milk:snap-end", onEnd);
     };
-  }, []);
+  }, [controls]);
 
   return (
     <motion.div
