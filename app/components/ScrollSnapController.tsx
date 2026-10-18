@@ -442,7 +442,6 @@ export default function ScrollSnapController() {
 
     // ── Touch ─────────────────────────────────────────────────────────────────
     let touchStartY = 0;
-    let touchEndScrollY = 0; // scrollY when the user lifted their finger
     // Record the time of any snap so onScrollEnd won't fire a conflicting
     // re-snap while Lenis is still animating (1.1s) or the browser fires
     // a late scrollend event after the 250ms cooldown has already cleared.
@@ -509,7 +508,6 @@ export default function ScrollSnapController() {
     };
 
     const onTouchEnd = (e: TouchEvent) => {
-      touchEndScrollY = window.scrollY; // capture before any early returns
       if (!ready || isSnapping || cooldown) return;
       const delta = touchStartY - e.changedTouches[0].clientY;
       if (Math.abs(delta) < 60) return;

@@ -224,7 +224,7 @@ function playOropendula() {
       osc.stop(t + 0.065);
       lfo.stop(t + 0.065);
     });
-  } catch (_) {
+  } catch {
     /* AudioContext unavailable */
   }
 }

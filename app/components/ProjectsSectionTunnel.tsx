@@ -10,7 +10,7 @@
  * To restore: swap the import in page.tsx back to this file.
  */
 
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   motion,
   useMotionValue,

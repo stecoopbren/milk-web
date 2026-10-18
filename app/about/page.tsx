@@ -231,7 +231,7 @@ function CraftSection() {
 
         {/* Right: numbered principles */}
         <div className="flex flex-col justify-end border-t border-black/[0.08] px-8 pt-10 pb-12 lg:w-[42%] lg:border-t-0 lg:border-l lg:border-black/[0.08] lg:px-12 lg:pt-0 lg:pb-20">
-          {principles.map((item, i) => (
+          {principles.map((item) => (
             <div key={item.n} className="flex items-start gap-5 border-t border-black/[0.07] py-6">
               <span className="mt-[3px] shrink-0 font-mono text-[12px] tracking-[-0.48px] text-[#B0B0B0]">
                 {item.n}

@@ -18,30 +18,6 @@ const services = [
   "Branding",
 ];
 
-const serviceColors = [
-  "#ABDDF0",
-  "#F08961",
-  "#E63929",
-  "#2BBFB0",
-  "#F7D54C",
-  "#F1A5D2",
-  "#A78BFA",
-  "#54952E",
-  "#3D89C7",
-];
-
-const serviceTitles: Record<string, string> = {
-  "Design Ops": "My team is good. So why does everything take so long?",
-  "Business Model Design": "Everyone loves the idea. I'm just not sure the numbers work.",
-  "Service Design": "The product works. The experience around it doesn't.",
-  "Process Design": "Smart people, slow output. That's where we are right now.",
-  "Market & User Research": "We keep building the wrong things for the right reasons.",
-  "Product Design": "I know what I want to build. I just can't make it real.",
-  "Design Systems": "Every launch looks like a different company made it.",
-  "AI Enablement": "Everyone's doing AI. I want to do it in a way that actually matters.",
-  Branding: "We have great meetings. Nobody remembers us afterward.",
-};
-
 const serviceDescriptions: Record<string, { tagline: string; body: string }> = {
   "Design Ops": {
     tagline: "Making your design team fast, focused, and worth every dollar you put into it.",
@@ -94,27 +70,6 @@ const serviceCtas: Record<string, string> = {
   "Design Systems": "Every launch looks like a different company made it. Can we fix that?",
   "AI Enablement": "Everyone's doing AI. Can you help us do it in a way that actually matters?",
   Branding: "People like us when they meet us. Can you help us figure out why they forget us?",
-};
-
-const serviceQuotes: Record<string, string> = {
-  "Design Ops":
-    "Speed in a design team is almost never about the designers. It's about the hundred small decisions nobody made about how the work actually moves.",
-  "Business Model Design":
-    "That uncertainty isn't a weakness. It's the most honest thing you've said. Most founders skip that question entirely and find out the hard way.",
-  "Service Design":
-    "The app is never the whole experience. It's just the part that's easiest to point at.",
-  "Process Design":
-    "I've never walked into a team where the talent was the problem. It's always the system the talent is trying to work inside of.",
-  "Market & User Research":
-    "Good intentions and wrong assumptions cost exactly the same amount. Research is just the discipline of finding out earlier.",
-  "Product Design":
-    "The vision is never the problem. It's the translation. Every step between your head and the product is a decision, and most of them get made by default.",
-  "Design Systems":
-    "Inconsistency isn't a design problem. It's a coordination problem. The system is just the agreement everyone needed to have anyway.",
-  "AI Enablement":
-    "The teams that will win with AI aren't the ones moving fastest. They're the ones who stopped to ask what they were actually trying to do.",
-  Branding:
-    "Being likeable in a room is not the same as being memorable after you've left it. That gap is exactly where brand lives.",
 };
 
 export default function ServicesSection() {

@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef } from "react";
-import { useInView } from "framer-motion";
 import Lottie from "lottie-react";
 import { ScrollColorText } from "./animations";
 import SectionReveal from "./SectionReveal";
@@ -9,7 +8,6 @@ import guideAnimation from "../../public/Formula/Guide.json";
 
 export default function StatementSection() {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
     <SectionReveal id="about-us" className="px-8 lg:px-[180px]">

@@ -130,14 +130,12 @@ export default function HeroSection() {
         const centerX = cRect.left + cRect.width / 2;
 
         let minDist = Infinity;
-        let best: HTMLSpanElement | null = null;
 
         for (const el of logoEls.current) {
           const r = el.getBoundingClientRect();
           const dist = Math.abs(r.left + r.width / 2 - centerX);
           if (dist < minDist) {
             minDist = dist;
-            best = el;
           }
         }
 

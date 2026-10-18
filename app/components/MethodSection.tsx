@@ -230,7 +230,6 @@ function MobileCarouselCard({ step, num, flipped }: { step: Step; num: string; f
 }
 
 const CARD_W = 260;
-const CARD_H = 344;
 
 function useWindowSize() {
   const [size, setSize] = useState({ w: 0, h: 0 });
