@@ -46,13 +46,10 @@ export default function IntroLoader() {
 
   // ── Guard: non-home or already seen ───────────────────────────────────────
   useEffect(() => {
-    if (pathname !== "/") {
+    if (pathname !== "/" || introHasShown || sessionStorage.getItem("milk:intro-shown")) {
       setTimeout(() => window.dispatchEvent(new CustomEvent("milk:intro-exit")), 50);
-      setDone(true);
-      return;
-    }
-    if (introHasShown || sessionStorage.getItem("milk:intro-shown")) {
-      setTimeout(() => window.dispatchEvent(new CustomEvent("milk:intro-exit")), 50);
+      // sessionStorage is client-only, so this must run after mount.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDone(true);
       return;
     }

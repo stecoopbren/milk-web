@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect, useCallback, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { track } from "@vercel/analytics";
 import {
@@ -1198,11 +1198,11 @@ function KeepStalkingCarousel({ currentSlug }: { currentSlug: string }) {
   const total = items.length;
   const [active, setActive] = useState(0);
   const [slideIndex, setSlideIndex] = useState(0);
-  const go = (dir: number) => setActive((prev) => (((prev + dir) % total) + total) % total);
-
-  useEffect(() => {
+  const select = (i: number) => {
+    setActive(i);
     setSlideIndex(0);
-  }, [active]);
+  };
+  const go = (dir: number) => select((((active + dir) % total) + total) % total);
 
   useEffect(() => {
     const activeItem = items[active];
@@ -1263,7 +1263,7 @@ function KeepStalkingCarousel({ currentSlug }: { currentSlug: string }) {
                     zIndex: 10 - abs,
                   }}
                   transition={{ duration: 0.55, ease }}
-                  onClick={() => !isActive && setActive(i)}
+                  onClick={() => !isActive && select(i)}
                 >
                   <motion.a
                     href={isActive ? item.href : undefined}
@@ -1422,7 +1422,7 @@ function KeepStalkingCarousel({ currentSlug }: { currentSlug: string }) {
               {items.map((_, i) => (
                 <button
                   key={i}
-                  onClick={() => setActive(i)}
+                  onClick={() => select(i)}
                   className={`rounded-full transition-all duration-300 ${i === active ? "h-[6px] w-5 bg-[#0C0C12]" : "h-[6px] w-[6px] bg-[#C0C0C0]"}`}
                   aria-label={`Go to project ${i + 1}`}
                 />
@@ -2280,6 +2280,7 @@ function CaseSectionBlock({ section }: { section: CaseSection }) {
 // ─── PasswordGate ─────────────────────────────────────────────────────────────
 
 const SESSION_KEY = "milk_gxm_unlocked";
+const noopSubscribe = () => () => {};
 const GXM_PASSWORD = "skimmed";
 
 function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
@@ -2336,7 +2337,7 @@ function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
             color: "#0C0C12",
           }}
         >
-          This one's not
+          This one&apos;s not
           <br />
           for everyone.
         </h1>
@@ -2433,10 +2434,13 @@ const GXM_PART3_SLUG = "gxm-design-system-brand-foundations";
 const GXM_ALL_SLUGS = [GXM_OVERVIEW_SLUG, GXM_PART1_SLUG, GXM_PART2_SLUG, GXM_PART3_SLUG];
 
 export default function CaseTemplate({ caseData }: { caseData: CaseData }) {
-  const [entered, setEntered] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
+  const storedUnlock = useSyncExternalStore(
+    noopSubscribe,
+    () => sessionStorage.getItem(SESSION_KEY) === "1",
+    () => false,
+  );
   useEffect(() => {
-    setEntered(true);
     track("case_study_opened", {
       slug: caseData.slug,
       client: caseData.client,
@@ -2446,12 +2450,6 @@ export default function CaseTemplate({ caseData }: { caseData: CaseData }) {
 
   const isGXMOverview = caseData.slug === GXM_OVERVIEW_SLUG;
 
-  // Check sessionStorage on mount so the gate doesn't flash on back-navigation
-  useEffect(() => {
-    if (isGXMOverview && sessionStorage.getItem(SESSION_KEY) === "1") {
-      setUnlocked(true);
-    }
-  }, [isGXMOverview]);
   const isGXMPart =
     caseData.slug === GXM_PART1_SLUG ||
     caseData.slug === GXM_PART2_SLUG ||
@@ -2481,14 +2479,16 @@ export default function CaseTemplate({ caseData }: { caseData: CaseData }) {
   return (
     <article>
       {/* Password gate — GXM overview only */}
-      {isGXMOverview && !unlocked && <PasswordGate onUnlock={() => setUnlocked(true)} />}
+      {isGXMOverview && !unlocked && !storedUnlock && (
+        <PasswordGate onUnlock={() => setUnlocked(true)} />
+      )}
 
       {/* White page-entry fade — prevents the black flash from IntroLoader and gives a clean entrance */}
       <motion.div
         className="pointer-events-none fixed inset-0 bg-white"
         style={{ zIndex: 9998 }}
         initial={{ opacity: 1 }}
-        animate={{ opacity: entered ? 0 : 1 }}
+        animate={{ opacity: 0 }}
         transition={{ duration: 0.7, ease }}
       />
       <CaseHero caseData={caseData} />

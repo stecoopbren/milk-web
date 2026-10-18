@@ -33,8 +33,11 @@ export default function BackToTop() {
 
   useEffect(() => {
     window.addEventListener("scroll", update, { passive: true });
-    update();
-    return () => window.removeEventListener("scroll", update);
+    const raf = requestAnimationFrame(update);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", update);
+    };
   }, [update]);
 
   const strokeOffset = CIRC * (1 - progress);

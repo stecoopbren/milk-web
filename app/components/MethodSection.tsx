@@ -249,8 +249,8 @@ export default function MethodSection() {
   const textBlockRef = useRef<HTMLDivElement>(null);
   const inView = useInView(desktopRef, { once: false, margin: "-80px" });
   const mobileInView = useInView(mobileRef, { once: true, margin: "-80px" });
-  const hasEntered = useRef(false);
-  if (inView) hasEntered.current = true;
+  const [hasEntered, setHasEntered] = useState(false);
+  if (inView && !hasEntered) setHasEntered(true);
   const [cardFlips, setCardFlips] = useState(steps.map(() => false));
   const flipCard = (i: number) => setCardFlips((f) => f.map((v, idx) => (idx === i ? !v : v)));
   const allFlipped = cardFlips.every(Boolean);
@@ -481,7 +481,7 @@ export default function MethodSection() {
               animate={
                 inView
                   ? { opacity: 1, x: 0, y: 0, rotate: arc[i].rotate }
-                  : hasEntered.current
+                  : hasEntered
                     ? {
                         opacity: 0,
                         x: throwFrom[i].x,

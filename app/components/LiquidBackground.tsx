@@ -1,16 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useSyncExternalStore } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import LiquidWave from "./LiquidWave";
 
 const BASE = "#FFFFFF";
 
+function subscribeResize(cb: () => void) {
+  window.addEventListener("resize", cb);
+  return () => window.removeEventListener("resize", cb);
+}
+
 export default function LiquidBackground() {
-  const [vh, setVh] = useState(900);
-  useEffect(() => {
-    setVh(window.innerHeight);
-  }, []);
+  const vh = useSyncExternalStore(
+    subscribeResize,
+    () => window.innerHeight,
+    () => 900,
+  );
 
   const { scrollY } = useScroll();
 

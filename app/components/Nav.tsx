@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { track } from "@vercel/analytics";
 import { motion, AnimatePresence, useScroll, useTransform, useMotionTemplate } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 import ContactModal from "./ContactModal";
 
 const links = [
@@ -250,7 +251,7 @@ export default function Nav() {
                   }}
                 />
                 {/* Logo */}
-                <a href="/" onClick={handleLogoClick} className="mr-2 shrink-0">
+                <Link href="/" onClick={handleLogoClick} className="mr-2 shrink-0">
                   <Image
                     src="/MilkLogo-Black.png"
                     alt="Milk"
@@ -259,7 +260,7 @@ export default function Nav() {
                     priority
                     style={{ width: 60, height: "auto" }}
                   />
-                </a>
+                </Link>
 
                 {/* Desktop links */}
                 <nav className="mx-4 hidden items-center lg:flex" style={{ gap: 28 }}>

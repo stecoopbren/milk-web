@@ -14,7 +14,7 @@ function TypewriterWord({
   animated: boolean;
 }) {
   const [display, setDisplay] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
+  const isTyping = animated && display !== word;
   const prevWord = useRef(word);
   const initialTyped = useRef(false);
 
@@ -22,14 +22,12 @@ function TypewriterWord({
   useEffect(() => {
     if (!animated || initialTyped.current) return;
     initialTyped.current = true;
-    setIsTyping(true);
     let typed = "";
     const id = setInterval(() => {
       typed = word.slice(0, typed.length + 1);
       setDisplay(typed);
       if (typed === word) {
         clearInterval(id);
-        setIsTyping(false);
       }
     }, 90);
     return () => clearInterval(id);
@@ -43,7 +41,6 @@ function TypewriterWord({
     const oldWord = prevWord.current;
     prevWord.current = word;
     let current = oldWord;
-    setIsTyping(true);
 
     const eraseId = setInterval(() => {
       current = current.slice(0, -1);
@@ -56,7 +53,6 @@ function TypewriterWord({
           setDisplay(typed);
           if (typed === word) {
             clearInterval(typeId);
-            setIsTyping(false);
           }
         }, 90);
       }

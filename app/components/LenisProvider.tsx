@@ -15,7 +15,7 @@ export default function LenisProvider() {
       syncTouch: false,
     });
 
-    (window as any).__lenis = lenis;
+    window.__lenis = lenis;
 
     let rafId: number;
     function raf(time: number) {
@@ -27,7 +27,7 @@ export default function LenisProvider() {
     return () => {
       cancelAnimationFrame(rafId);
       lenis.destroy();
-      delete (window as any).__lenis;
+      delete window.__lenis;
     };
   }, []);
 

@@ -301,7 +301,7 @@ export default function TeamSection() {
             style={{ paddingRight: "440px" }}
           >
             <h2 className="text-heading" style={{ fontFamily: "Ambit", whiteSpace: "nowrap" }}>
-              Seen what works and what doesn't.
+              Seen what works and what doesn&apos;t.
             </h2>
           </div>
         </motion.div>

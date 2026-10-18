@@ -8,7 +8,7 @@ function easeOutQuart(t: number): number {
 }
 
 function smoothScrollTo(targetY: number, onDone: () => void) {
-  const lenis = (window as any).__lenis;
+  const lenis = window.__lenis;
   const distance = Math.abs(targetY - window.scrollY);
   if (distance < 4) {
     onDone();
@@ -32,7 +32,7 @@ function smoothScrollTo(targetY: number, onDone: () => void) {
     document.body.classList.add("is-snapping");
     const safetyTimer = setTimeout(() => {
       // Lenis stalled — force scroll to target before releasing the snap lock.
-      const liveLenis = (window as any).__lenis;
+      const liveLenis = window.__lenis;
       if (Math.abs(window.scrollY - targetY) > 10) {
         if (liveLenis) liveLenis.stop();
         window.scrollTo({ top: targetY, behavior: "instant" });
@@ -346,7 +346,7 @@ export default function ScrollSnapController() {
       // this, mixed-direction trackpad events that have deltaY > deltaX get
       // intercepted and snap the page away while the user is scrolling sideways.
       if ((e.target as Element)?.closest("[data-horizontal-scroll]")) return;
-      const lenis = (window as any).__lenis;
+      const lenis = window.__lenis;
       // Native-scroll zone: stop Lenis so its inertia doesn't overshoot the
       // section, then let the browser scroll natively.
       if (isInNativeScrollZone()) {

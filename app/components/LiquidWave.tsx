@@ -2,6 +2,10 @@
 
 import { useEffect, useRef } from "react";
 
+type DOEWithPermission = typeof DeviceOrientationEvent & {
+  requestPermission?: () => Promise<PermissionState>;
+};
+
 // ── Props ─────────────────────────────────────────────────────────────────────
 interface Props {
   waveIntensity?: number; // 0–1, disturbance strength
@@ -351,8 +355,7 @@ export default function LiquidWave({
       if (gyroReady) return;
       gyroReady = true;
       // iOS 13+ requires explicit permission
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const DOE = DeviceOrientationEvent as any;
+      const DOE = DeviceOrientationEvent as DOEWithPermission;
       if (typeof DOE.requestPermission === "function") {
         DOE.requestPermission()
           .then((res: string) => {
@@ -373,7 +376,7 @@ export default function LiquidWave({
 
     // Non-iOS: no permission dialog, add deviceorientation directly so gyro
     // works without requiring the user to touch the screen first.
-    const DOEForCheck = DeviceOrientationEvent as any;
+    const DOEForCheck = DeviceOrientationEvent as DOEWithPermission;
     if (typeof DOEForCheck.requestPermission !== "function") {
       // Android / desktop — listener already added inside startGyro's else branch,
       // but startGyro won't fire without a touch. Call it immediately instead.

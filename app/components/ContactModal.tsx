@@ -1217,10 +1217,10 @@ export default function ContactModal({ open, onClose, initialService }: Props) {
                           transition={{ delay: 0.35, duration: 0.4, ease }}
                         >
                           <h3 className="font-sans text-[26px] font-medium tracking-[-1.3px] text-[#111]">
-                            You're in good hands.
+                            You&apos;re in good hands.
                           </h3>
                           <p className="mx-auto max-w-[280px] font-sans text-[14px] leading-[1.65] tracking-[-0.2px] text-[#888]">
-                            I got your message. I'll read through everything and reach out
+                            I got your message. I&apos;ll read through everything and reach out
                             personally, usually within a day or two.
                           </p>
                         </motion.div>
