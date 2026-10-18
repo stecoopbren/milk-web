@@ -10,24 +10,29 @@
   --font-mix: "Season Mix", sans-serif;
 
   /* Brand colors */
-  --color-bg:           #FFFFFF;
-  --color-bg-dark:      #111111;
-  --color-text-primary: #2E2E2E;
+  --color-bg: #ffffff;
+  --color-bg-dark: #111111;
+  --color-text-primary: #2e2e2e;
   --color-text-secondary: #565656;
-  --color-text-tertiary:  #282828;
-  --color-text-darkest:   #0C0C12;
-  --color-text-dark-primary:   #EFEFEF;
-  --color-text-dark-secondary: #D1D1D1;
-  --color-text-muted:   #D0D1D7;
-  --color-accent:       #FF3377;
-  --color-white:        #FFFFFF;
-
+  --color-text-tertiary: #282828;
+  --color-text-darkest: #0c0c12;
+  --color-text-dark-primary: #efefef;
+  --color-text-dark-secondary: #d1d1d1;
+  --color-text-muted: #d0d1d7;
+  --color-accent: #ff3377;
+  --color-white: #ffffff;
 }
 
 @keyframes gradient-sweep {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .service-gradient-text {
@@ -44,8 +49,9 @@
   font-family: "Ambit";
   font-style: normal;
   font-weight: 400;
-  src: url("/Font/Ambit/Ambit-Regular.otf") format("opentype"),
-       url("/Font/Ambit/Ambit-Regular.ttf") format("truetype");
+  src:
+    url("/Font/Ambit/Ambit-Regular.otf") format("opentype"),
+    url("/Font/Ambit/Ambit-Regular.ttf") format("truetype");
 }
 
 @font-face {
@@ -93,8 +99,14 @@
 
 /* ─── Cursor blink ───────────────────────────────────────────────────────── */
 @keyframes blink {
-  0%, 49% { opacity: 1; }
-  50%, 100% { opacity: 0; }
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
 }
 .cursor-blink {
   animation: blink 0.9s step-start infinite;
@@ -102,8 +114,12 @@
 
 /* ─── Marquee ────────────────────────────────────────────────────────────── */
 @keyframes marquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 .marquee-track {
   animation: marquee 30s linear infinite;
@@ -128,10 +144,12 @@ body {
   font-family: var(--font-sans);
   font-weight: 400;
   background-color: transparent;
-  color: #2E2E2E;
+  color: #2e2e2e;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  cursor: url('/cursor-cow.svg') 4 2, auto;
+  cursor:
+    url("/cursor-cow.svg") 4 2,
+    auto;
   overflow-x: clip;
 }
 
@@ -269,16 +287,12 @@ body {
 /* ─── Liquid Glass ───────────────────────────────────────────────────────── */
 .glass {
   position: relative;
-  background: linear-gradient(
-    160deg,
-    rgba(255, 255, 255, 0.26) 0%,
-    rgba(255, 255, 255, 0.08) 100%
-  );
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.26) 0%, rgba(255, 255, 255, 0.08) 100%);
   backdrop-filter: blur(40px) saturate(180%) brightness(106%);
   -webkit-backdrop-filter: blur(40px) saturate(180%) brightness(106%);
   border: 1px solid rgba(255, 255, 255, 0.55);
   box-shadow:
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.80),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.8),
     inset 0 -1px 0 rgba(255, 255, 255, 0.18),
     inset 1px 0 0 rgba(255, 255, 255, 0.18),
     inset -1px 0 0 rgba(255, 255, 255, 0.18),
@@ -288,27 +302,25 @@ body {
 
 /* ─── Animated liquid-glass border ──────────────────────────────────────── */
 @property --border-angle {
-  syntax: '<angle>';
+  syntax: "<angle>";
   inherits: false;
   initial-value: 0deg;
 }
 
 @keyframes border-spin {
-  to { --border-angle: 360deg; }
+  to {
+    --border-angle: 360deg;
+  }
 }
 
 .glass-border-animated {
   position: relative;
   isolation: isolate;
-  background: linear-gradient(
-    160deg,
-    rgba(255, 255, 255, 0.24) 0%,
-    rgba(255, 255, 255, 0.07) 100%
-  );
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.07) 100%);
   backdrop-filter: blur(40px) saturate(180%) brightness(106%);
   -webkit-backdrop-filter: blur(40px) saturate(180%) brightness(106%);
   box-shadow:
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.80),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.8),
     inset 0 -1px 0 rgba(255, 255, 255, 0.18),
     0 12px 48px rgba(0, 0, 0, 0.07),
     0 2px 8px rgba(0, 0, 0, 0.04);
@@ -316,23 +328,23 @@ body {
 
 /* Rotating light-streak border */
 .glass-border-animated::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
   background: conic-gradient(
     from var(--border-angle),
-    transparent     0deg,
-    transparent    30deg,
-    rgba(255,255,255,0.70) 50deg,
-    rgba(255,255,255,1.00) 65deg,
-    rgba(255,255,255,0.70) 80deg,
-    transparent   110deg,
-    transparent   200deg,
-    rgba(255,255,255,0.18) 240deg,
-    transparent   275deg,
-    rgba(255,255,255,0.55) 330deg,
-    transparent   360deg
+    transparent 0deg,
+    transparent 30deg,
+    rgba(255, 255, 255, 0.7) 50deg,
+    rgba(255, 255, 255, 1) 65deg,
+    rgba(255, 255, 255, 0.7) 80deg,
+    transparent 110deg,
+    transparent 200deg,
+    rgba(255, 255, 255, 0.18) 240deg,
+    transparent 275deg,
+    rgba(255, 255, 255, 0.55) 330deg,
+    transparent 360deg
   );
   -webkit-mask:
     linear-gradient(#fff 0 0) content-box,
@@ -350,7 +362,7 @@ body {
 
 /* Top specular streak — the "liquid" sheen */
 .glass-border-animated::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
@@ -375,9 +387,15 @@ body {
 
 /* ─── Mobile-only typography overrides (desktop untouched) ──────────────── */
 @media (max-width: 1023px) {
-  .text-case-title     { font-size: 48px; }
-  .text-section-heading { font-size: 32px; }
-  .text-serif-eyebrow  { font-size: 24px; }
+  .text-case-title {
+    font-size: 48px;
+  }
+  .text-section-heading {
+    font-size: 32px;
+  }
+  .text-serif-eyebrow {
+    font-size: 24px;
+  }
 }
 
 /* ─── Scroll snap sections ───────────────────────────────────────────────── */
@@ -415,30 +433,72 @@ body {
   overflow: hidden;
 }
 @media (max-width: 1023px) {
-  .fan-layout { height: 24rem; }
-  .fan-card { width: 25rem; height: 16rem; margin-top: -8rem; margin-left: -12.5rem; }
+  .fan-layout {
+    height: 24rem;
+  }
+  .fan-card {
+    width: 25rem;
+    height: 16rem;
+    margin-top: -8rem;
+    margin-left: -12.5rem;
+  }
 }
 @media (max-width: 767px) {
-  .fan-layout { height: 20rem; }
-  .fan-card { width: 20rem; height: 13rem; margin-top: -6.5rem; margin-left: -10rem; }
+  .fan-layout {
+    height: 20rem;
+  }
+  .fan-card {
+    width: 20rem;
+    height: 13rem;
+    margin-top: -6.5rem;
+    margin-left: -10rem;
+  }
 }
 @media (max-width: 639px) {
-  .fan-layout { height: 18rem; }
-  .fan-card { width: 18rem; height: 11.5rem; margin-top: -5.75rem; margin-left: -9rem; }
+  .fan-layout {
+    height: 18rem;
+  }
+  .fan-card {
+    width: 18rem;
+    height: 11.5rem;
+    margin-top: -5.75rem;
+    margin-left: -9rem;
+  }
 }
 @media (max-width: 479px) {
-  .fan-layout { height: 16rem; }
-  .fan-card { width: 15rem; height: 9.5rem; margin-top: -4.75rem; margin-left: -7.5rem; }
+  .fan-layout {
+    height: 16rem;
+  }
+  .fan-card {
+    width: 15rem;
+    height: 9.5rem;
+    margin-top: -4.75rem;
+    margin-left: -7.5rem;
+  }
 }
 
 /* Short viewports — keep fan + pagination controls within 100svh */
 @media (max-height: 760px) {
-  .fan-layout { height: 18rem !important; }
-  .fan-card { width: 20rem; height: 12.5rem; margin-top: -6.25rem; margin-left: -10rem; }
+  .fan-layout {
+    height: 18rem !important;
+  }
+  .fan-card {
+    width: 20rem;
+    height: 12.5rem;
+    margin-top: -6.25rem;
+    margin-left: -10rem;
+  }
 }
 @media (max-height: 660px) {
-  .fan-layout { height: 13rem !important; }
-  .fan-card { width: 15rem; height: 9rem; margin-top: -4.5rem; margin-left: -7.5rem; }
+  .fan-layout {
+    height: 13rem !important;
+  }
+  .fan-card {
+    width: 15rem;
+    height: 9rem;
+    margin-top: -4.5rem;
+    margin-left: -7.5rem;
+  }
 }
 
 /* ─── Hide scrollbar utility ─────────────────────────────────────────────── */
@@ -464,18 +524,25 @@ body {
 }
 
 @keyframes parallax-shift {
-  from { transform: translateY(-200px); }
-  to   { transform: translateY(200px); }
+  from {
+    transform: translateY(-200px);
+  }
+  to {
+    transform: translateY(200px);
+  }
 }
 
 @keyframes section-exit {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Progressive enhancement — only runs on browsers supporting scroll timelines */
 @supports (animation-timeline: view()) {
-
   /* ── Reveal as element enters the viewport ── */
   .view-reveal {
     animation: scroll-reveal 1s cubic-bezier(0.22, 1, 0.36, 1) both;

@@ -1,9 +1,9 @@
-import { getCaseBySlug, getAllCases } from '@/app/lib/cases';
-import Nav from '@/app/components/Nav';
-import Footer from '@/app/components/Footer';
-import CaseTemplate from '@/app/components/CaseTemplate';
-import { notFound } from 'next/navigation';
-import type { Metadata } from 'next';
+import { getCaseBySlug, getAllCases } from "@/app/lib/cases";
+import Nav from "@/app/components/Nav";
+import Footer from "@/app/components/Footer";
+import CaseTemplate from "@/app/components/CaseTemplate";
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 
 export function generateStaticParams() {
   return getAllCases().map((c) => ({ slug: c.slug }));
@@ -49,11 +49,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function CasePage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function CasePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const caseData = getCaseBySlug(slug);
   if (!caseData) notFound();
