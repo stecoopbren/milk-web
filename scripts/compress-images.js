@@ -35,10 +35,6 @@ function formatMB(bytes) {
   return (bytes / 1024 / 1024).toFixed(1) + " MB";
 }
 
-function formatKB(bytes) {
-  return (bytes / 1024).toFixed(0) + " KB";
-}
-
 function walk(dir, results = []) {
   for (const entry of fs.readdirSync(dir)) {
     if (SKIP_DIRS.has(entry)) continue;

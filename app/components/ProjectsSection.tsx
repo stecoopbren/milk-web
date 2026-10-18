@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import CinematicBoard, {
   type BoardShot,
   type CursorDef,
@@ -9,7 +9,6 @@ import CinematicBoard, {
   DEFAULT_CURSORS,
 } from "./CinematicBoard";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, Autoplay } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -197,8 +196,6 @@ export function ProjectCard({
     </a>
   );
 }
-
-const ease = [0.22, 1, 0.36, 1] as const;
 
 function ChevronLeft() {
   return (
@@ -517,7 +514,8 @@ function CoverflowCarousel({ initialIndex = 0 }: { initialIndex?: number }) {
                     : (e) => {
                         e.preventDefault();
                         if (isVisible) {
-                          isRight ? goNext() : goPrev();
+                          if (isRight) goNext();
+                          else goPrev();
                         }
                       }
                 }

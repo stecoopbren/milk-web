@@ -6,11 +6,6 @@ import MultiplayerCursors from "./MultiplayerCursors";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-const textStyle = {
-  fontSize: "clamp(48px, 7vw, 88px)" as const,
-  letterSpacing: "-0.055em",
-};
-
 // ── ScrollWord: color transitions from gray → dark as scroll progresses ───────
 function ScrollWord({
   word,
@@ -29,26 +24,6 @@ function ScrollWord({
   const end = phaseStart + ((index + 1) / total) * (phaseEnd - phaseStart);
   const color = useTransform(progress, [start, end], ["#C0C0C0", "#0C0C12"]);
   return <motion.span style={{ color, display: "inline" }}>{word}</motion.span>;
-}
-
-// ── FireIcon: static inline, sits between scroll-revealed words ───────────────
-function FireIcon() {
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src="/fire-icon.svg"
-      alt=""
-      aria-hidden
-      style={{
-        display: "inline-block",
-        verticalAlign: "middle",
-        height: "0.8em",
-        width: "auto",
-        marginInline: "0.1em",
-        opacity: 1,
-      }}
-    />
-  );
 }
 
 // ── Desktop: 200vh sticky section with scroll-reveal ─────────────────────────

@@ -229,7 +229,6 @@ export default function OrbitGallery({
   cardW?: number;
   cardH?: number;
 }) {
-  const N = items.length;
   const h = cardH ?? Math.round(cardW * (16 / 10)); // tall portrait
   const ringRef = useRef<HTMLDivElement>(null);
 
