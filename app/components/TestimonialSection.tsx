@@ -1,7 +1,15 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { motion, AnimatePresence, useInView, useMotionValue, animate, useTransform, type MotionValue } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useInView,
+  useMotionValue,
+  animate,
+  useTransform,
+  type MotionValue,
+} from "framer-motion";
 import SectionReveal from "./SectionReveal";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -49,13 +57,7 @@ function Word({
   );
 }
 
-function ScrollHighlightQuote({
-  text,
-  progress,
-}: {
-  text: string;
-  progress: MotionValue<number>;
-}) {
+function ScrollHighlightQuote({ text, progress }: { text: string; progress: MotionValue<number> }) {
   const words = text.split(" ");
   return (
     <>
@@ -84,7 +86,9 @@ export default function TestimonialSection() {
   useEffect(() => {
     if (!inView) return;
     const controls = animate(progress, 1, { duration: 2.5, ease: "linear" });
-    return () => { controls.stop(); };
+    return () => {
+      controls.stop();
+    };
   }, [inView]);
 
   const go = (dir: 1 | -1) => {
@@ -100,92 +104,114 @@ export default function TestimonialSection() {
   return (
     <SectionReveal id="testimonial" className="px-8 lg:px-[180px]">
       <div ref={contentRef} className="w-full pt-16 lg:pt-24">
-        <div className="flex flex-col gap-8 w-full max-w-5xl mx-auto items-center text-center">
-            {/* Label */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={inView ? { opacity: 1 } : {}}
-              transition={{ duration: 0.6, ease, delay: 0.1 }}
-            >
-              <p className="text-serif-eyebrow text-[#0C0C12]">
-                What people say
-              </p>
-            </motion.div>
-            {/* Carousel — fade + blur transition */}
-            <div className="relative">
-              <AnimatePresence mode="wait">
-                {testimonials.map((t, i) => i === index && (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, filter: "blur(6px)" }}
-                    animate={{ opacity: 1, filter: "blur(0px)" }}
-                    exit={{ opacity: 0, filter: "blur(6px)" }}
-                    transition={{ duration: 0.4, ease }}
-                    className="flex flex-col gap-10"
-                  >
-                    <blockquote
-                      className="leading-[1.15]"
-                      style={{ fontFamily: "Ambit", fontWeight: 400, fontSize: "clamp(20px, 2.5vw, 32px)", letterSpacing: "-0.4px", lineHeight: 1.25 }}
+        <div className="mx-auto flex w-full max-w-5xl flex-col items-center gap-8 text-center">
+          {/* Label */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={inView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.6, ease, delay: 0.1 }}
+          >
+            <p className="text-serif-eyebrow text-[#0C0C12]">What people say</p>
+          </motion.div>
+          {/* Carousel — fade + blur transition */}
+          <div className="relative">
+            <AnimatePresence mode="wait">
+              {testimonials.map(
+                (t, i) =>
+                  i === index && (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, filter: "blur(6px)" }}
+                      animate={{ opacity: 1, filter: "blur(0px)" }}
+                      exit={{ opacity: 0, filter: "blur(6px)" }}
+                      transition={{ duration: 0.4, ease }}
+                      className="flex flex-col gap-10"
                     >
-                      <ScrollHighlightQuote
-                        text={`\u201C${t.quote}\u201D`}
-                        progress={progress}
-                      />
-                    </blockquote>
+                      <blockquote
+                        className="leading-[1.15]"
+                        style={{
+                          fontFamily: "Ambit",
+                          fontWeight: 400,
+                          fontSize: "clamp(20px, 2.5vw, 32px)",
+                          letterSpacing: "-0.4px",
+                          lineHeight: 1.25,
+                        }}
+                      >
+                        <ScrollHighlightQuote text={`\u201C${t.quote}\u201D`} progress={progress} />
+                      </blockquote>
 
-                    <div className="flex flex-col items-center gap-3">
-                      <img
-                        src={t.avatar}
-                        alt={t.name}
-                        className="w-10 h-10 rounded-full object-cover shrink-0"
-                      />
-                      <div className="flex flex-col gap-0.5 items-center">
-                        <p className="text-ui text-[#0C0C12]">{t.name}</p>
-                        <p className="text-ui text-[#B0B0B0]">{t.title}</p>
+                      <div className="flex flex-col items-center gap-3">
+                        <img
+                          src={t.avatar}
+                          alt={t.name}
+                          className="h-10 w-10 shrink-0 rounded-full object-cover"
+                        />
+                        <div className="flex flex-col items-center gap-0.5">
+                          <p className="text-ui text-[#0C0C12]">{t.name}</p>
+                          <p className="text-ui text-[#B0B0B0]">{t.title}</p>
+                        </div>
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
+                    </motion.div>
+                  ),
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Controller */}
+          <div className="mt-2 flex items-center justify-center gap-4">
+            <button
+              onClick={() => go(-1)}
+              aria-label="Previous testimonial"
+              className="inline-flex cursor-pointer items-center justify-center rounded-full border border-[#2E2E2E]/15 p-2.5 text-[#2E2E2E] transition-colors hover:border-[#2E2E2E]/40"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+
+            <div className="flex items-center gap-2">
+              {testimonials.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => goTo(i)}
+                  aria-label={`Go to testimonial ${i + 1}`}
+                  className={`rounded-full transition-all duration-300 ${
+                    i === index ? "h-[6px] w-5 bg-[#0C0C12]" : "h-[6px] w-[6px] bg-[#C0C0C0]"
+                  }`}
+                />
+              ))}
             </div>
 
-            {/* Controller */}
-            <div className="flex items-center justify-center gap-4 mt-2">
-              <button
-                onClick={() => go(-1)}
-                aria-label="Previous testimonial"
-                className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors cursor-pointer"
+            <button
+              onClick={() => go(1)}
+              aria-label="Next testimonial"
+              className="inline-flex cursor-pointer items-center justify-center rounded-full border border-[#2E2E2E]/15 p-2.5 text-[#2E2E2E] transition-colors hover:border-[#2E2E2E]/40"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M15 18l-6-6 6-6" />
-                </svg>
-              </button>
-
-              <div className="flex gap-2 items-center">
-                {testimonials.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => goTo(i)}
-                    aria-label={`Go to testimonial ${i + 1}`}
-                    className={`rounded-full transition-all duration-300 ${
-                      i === index ? "w-5 h-[6px] bg-[#0C0C12]" : "w-[6px] h-[6px] bg-[#C0C0C0]"
-                    }`}
-                  />
-                ))}
-              </div>
-
-              <button
-                onClick={() => go(1)}
-                aria-label="Next testimonial"
-                className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors cursor-pointer"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M9 18l6-6-6-6" />
-                </svg>
-              </button>
-            </div>
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
           </div>
         </div>
+      </div>
     </SectionReveal>
   );
 }

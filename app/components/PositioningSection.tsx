@@ -6,9 +6,39 @@ import LiquidWave from "./LiquidWave";
 // initX: how far toward center the side cards start (positive = from right, negative = from left)
 // initRotate: side cards start flat (0°) and rotate into their final angle
 const fanSlots = [
-  { rotate: -6, initX: 72,  initRotate: 0, ty: 24, widthPct: 38, mr: -32, ml: 0,   zIndex: 10, delay: 0.55 },
-  { rotate:  0, initX: 0,   initRotate: 0, ty: -8, widthPct: 42, mr: 0,   ml: 0,   zIndex: 20, delay: 0.2  },
-  { rotate:  6, initX: -72, initRotate: 0, ty: 24, widthPct: 38, mr: 0,   ml: -32, zIndex: 10, delay: 0.7  },
+  {
+    rotate: -6,
+    initX: 72,
+    initRotate: 0,
+    ty: 24,
+    widthPct: 38,
+    mr: -32,
+    ml: 0,
+    zIndex: 10,
+    delay: 0.55,
+  },
+  {
+    rotate: 0,
+    initX: 0,
+    initRotate: 0,
+    ty: -8,
+    widthPct: 42,
+    mr: 0,
+    ml: 0,
+    zIndex: 20,
+    delay: 0.2,
+  },
+  {
+    rotate: 6,
+    initX: -72,
+    initRotate: 0,
+    ty: 24,
+    widthPct: 38,
+    mr: 0,
+    ml: -32,
+    zIndex: 10,
+    delay: 0.7,
+  },
 ];
 
 const photos = [
@@ -58,7 +88,14 @@ export default function PositioningSection() {
       id="about-us"
       className="snap-section relative flex flex-col items-center justify-start gap-12 px-8 lg:px-[180px]"
       data-native-scroll="true"
-      style={{ minHeight: "100vh", height: "auto", paddingTop: 132, paddingBottom: 60, position: "relative", background: "#FAFAFA" }}
+      style={{
+        minHeight: "100vh",
+        height: "auto",
+        paddingTop: 132,
+        paddingBottom: 60,
+        position: "relative",
+        background: "#FAFAFA",
+      }}
     >
       {/* Liquid background — continuously animated so waves stay visible */}
       <div style={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}>
@@ -81,19 +118,28 @@ export default function PositioningSection() {
         </h2>
 
         <p className="text-body text-[#565656]" style={{ maxWidth: 500 }}>
-          Hi, I&apos;m Steven 👋🏼 For 10+ years, I&apos;ve worked across strategy,
-          product, research, and design, helping teams figure out what matters,
-          and turn that direction into something real. Now, that&apos;s Milk.
+          Hi, I&apos;m Steven 👋🏼 For 10+ years, I&apos;ve worked across strategy, product, research,
+          and design, helping teams figure out what matters, and turn that direction into something
+          real. Now, that&apos;s Milk.
         </p>
 
         <a
           href="https://medium.com/@stevencooper_75268/why-design-matters-05df943703eb?sharedUserId=stevencooper_75268"
           target="_blank"
           rel="noopener noreferrer"
-          className="bg-[#0C0C12] rounded-full px-6 py-2.5 font-sans text-[14px] font-medium text-white inline-flex items-center gap-2 hover:bg-[#2E2E2E] transition-colors tracking-[-0.28px]"
+          className="inline-flex items-center gap-2 rounded-full bg-[#0C0C12] px-6 py-2.5 font-sans text-[14px] font-medium tracking-[-0.28px] text-white transition-colors hover:bg-[#2E2E2E]"
         >
           Why Design Matters?
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.75"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M3 13L13 3M13 3H6M13 3v7" />
           </svg>
         </a>
@@ -101,7 +147,7 @@ export default function PositioningSection() {
 
       {/* Image fan */}
       <motion.div
-        className="relative flex w-full max-w-3xl items-center justify-center -mx-8 lg:mx-0"
+        className="relative -mx-8 flex w-full max-w-3xl items-center justify-center lg:mx-0"
         style={{ position: "relative", zIndex: 1 }}
         variants={fanContainerVariants}
         initial="hidden"
@@ -129,7 +175,7 @@ export default function PositioningSection() {
               <img
                 src={photo.src}
                 alt={photo.alt}
-                className="w-full h-full object-cover"
+                className="h-full w-full object-cover"
                 decoding="async"
               />
             </motion.div>

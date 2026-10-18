@@ -21,26 +21,21 @@ export default function PortfolioHero() {
   };
 
   return (
-    <div className="snap-section min-h-screen flex flex-col">
+    <div className="snap-section flex min-h-screen flex-col">
       {/* Hero header */}
       <div
         ref={ref}
-        className="flex flex-col items-center text-center gap-4 pt-[180px] pb-16 px-8 lg:px-[180px]"
+        className="flex flex-col items-center gap-4 px-8 pt-[180px] pb-16 text-center lg:px-[180px]"
         style={{
-          background:
-            "linear-gradient(to bottom, rgba(224,224,224,0.2) 0%, rgba(0,0,0,0) 100%)",
+          background: "linear-gradient(to bottom, rgba(224,224,224,0.2) 0%, rgba(0,0,0,0) 100%)",
         }}
       >
-        <RevealLine
-          className="text-ui text-[#2E2E2E]"
-          delay={0.1}
-          inView={inView}
-        >
+        <RevealLine className="text-ui text-[#2E2E2E]" delay={0.1} inView={inView}>
           Our Portfolio
         </RevealLine>
 
         <h1
-          className="font-sans font-medium text-[#2E2E2E] tracking-[-3.36px] leading-[0.85]"
+          className="font-sans leading-[0.85] font-medium tracking-[-3.36px] text-[#2E2E2E]"
           style={{ fontSize: "clamp(36px, 5.5vw, 56px)" }}
         >
           <RevealLine delay={0.22} inView={inView}>
@@ -52,7 +47,7 @@ export default function PortfolioHero() {
         </h1>
 
         <motion.p
-          className="font-sans text-[#565656] text-[16px] tracking-[-0.32px] leading-[1.2] max-w-[480px]"
+          className="max-w-[480px] font-sans text-[16px] leading-[1.2] tracking-[-0.32px] text-[#565656]"
           initial={{ opacity: 0, y: 16 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, ease, delay: 0.45 }}
@@ -62,7 +57,7 @@ export default function PortfolioHero() {
       </div>
 
       {/* Mobile: carousel */}
-      <div className="lg:hidden flex flex-col items-center gap-6 px-8 pb-16">
+      <div className="flex flex-col items-center gap-6 px-8 pb-16 lg:hidden">
         <div className="relative w-full max-w-[302px] overflow-hidden">
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div
@@ -83,7 +78,7 @@ export default function PortfolioHero() {
           </AnimatePresence>
         </div>
 
-        <div className="flex items-center justify-between w-full max-w-[302px]">
+        <div className="flex w-full max-w-[302px] items-center justify-between">
           <p className="text-ui text-[#2E2E2E]">
             0{active + 1}/0{projects.length}
           </p>
@@ -91,7 +86,7 @@ export default function PortfolioHero() {
             <button
               onClick={() => go(Math.max(0, active - 1))}
               disabled={active === 0}
-              className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] disabled:opacity-30 hover:border-[#2E2E2E]/40 transition-colors"
+              className="inline-flex items-center justify-center rounded-full border border-[#2E2E2E]/15 p-2.5 text-[#2E2E2E] transition-colors hover:border-[#2E2E2E]/40 disabled:opacity-30"
               aria-label="Previous"
             >
               <ChevronLeft />
@@ -99,7 +94,7 @@ export default function PortfolioHero() {
             <button
               onClick={() => go(Math.min(projects.length - 1, active + 1))}
               disabled={active === projects.length - 1}
-              className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] disabled:opacity-30 hover:border-[#2E2E2E]/40 transition-colors"
+              className="inline-flex items-center justify-center rounded-full border border-[#2E2E2E]/15 p-2.5 text-[#2E2E2E] transition-colors hover:border-[#2E2E2E]/40 disabled:opacity-30"
               aria-label="Next"
             >
               <ChevronRight />
@@ -109,8 +104,8 @@ export default function PortfolioHero() {
       </div>
 
       {/* Desktop: 3-column grid */}
-      <div className="hidden lg:flex flex-col items-center gap-8 px-[180px] pb-24">
-        <div className="grid grid-cols-3 gap-6 w-full max-w-[1062px]">
+      <div className="hidden flex-col items-center gap-8 px-[180px] pb-24 lg:flex">
+        <div className="grid w-full max-w-[1062px] grid-cols-3 gap-6">
           {projects.map((p, i) => (
             <motion.div
               key={p.id}
@@ -125,10 +120,8 @@ export default function PortfolioHero() {
         </div>
 
         {/* Project count */}
-        <div className="flex items-center w-full max-w-[1062px]">
-          <p className="text-ui text-[#2E2E2E]">
-            {projects.length} projects
-          </p>
+        <div className="flex w-full max-w-[1062px] items-center">
+          <p className="text-ui text-[#2E2E2E]">{projects.length} projects</p>
         </div>
       </div>
     </div>

@@ -23,7 +23,8 @@ export function RevealLine({
   const selfInView = useInView(ref, { once: true, margin: "-60px" });
   const [ready, setReady] = useState(false);
   useEffect(() => {
-    document.fonts.load("600 1em tt-commons-pro")
+    document.fonts
+      .load("600 1em tt-commons-pro")
       .then(() => setReady(true))
       .catch(() => setReady(true));
   }, []);
@@ -33,7 +34,10 @@ export function RevealLine({
     <span
       ref={ref}
       className="block"
-      style={{ clipPath: "inset(-0.45em -999px -0.25em -999px)", visibility: ready ? "visible" : "hidden" }}
+      style={{
+        clipPath: "inset(-0.45em -999px -0.25em -999px)",
+        visibility: ready ? "visible" : "hidden",
+      }}
     >
       <motion.span
         className="block"
@@ -51,13 +55,7 @@ export function RevealLine({
 // Words start grey (#C0C0C0) and stagger to black (#0C0C12) when the element
 // enters the viewport. Resets each time so it replays on every scroll visit.
 
-export function ScrollColorText({
-  text,
-  className = "",
-}: {
-  text: string;
-  className?: string;
-}) {
+export function ScrollColorText({ text, className = "" }: { text: string; className?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: false, margin: "-10%" });
   const words = text.split(" ");
@@ -67,7 +65,7 @@ export function ScrollColorText({
       {words.map((word, i) => (
         <motion.span
           key={i}
-          className="inline-block mr-[0.22em] last:mr-0"
+          className="mr-[0.22em] inline-block last:mr-0"
           animate={{ color: inView ? "#0C0C12" : "#C0C0C0" }}
           transition={{ duration: 0.5, delay: i * 0.04, ease }}
         >
@@ -98,13 +96,9 @@ export function BlurReveal({ text, className = "", delay = 0 }: BlurRevealProps)
       {words.map((word, i) => (
         <motion.span
           key={i}
-          className="inline-block mr-[0.25em]"
+          className="mr-[0.25em] inline-block"
           initial={{ opacity: 0, filter: "blur(6px)", y: 6 }}
-          animate={
-            inView
-              ? { opacity: 1, filter: "blur(0px)", y: 0 }
-              : {}
-          }
+          animate={inView ? { opacity: 1, filter: "blur(0px)", y: 0 } : {}}
           transition={{
             duration: 0.6,
             ease,
