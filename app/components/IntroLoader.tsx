@@ -25,7 +25,9 @@ const ease = [0.22, 1, 0.36, 1] as const;
 export default function IntroLoader() {
   const pathname = usePathname();
   const isHome = pathname === "/";
-  const [phase, setPhase] = useState<"logo-intro" | "words" | "vanish" | "logo-reveal" | "outro">("logo-intro");
+  const [phase, setPhase] = useState<"logo-intro" | "words" | "vanish" | "logo-reveal" | "outro">(
+    "logo-intro",
+  );
   const [wordIndex, setWordIndex] = useState(0);
   const [done, setDone] = useState(() => !isHome);
   const outroFiredRef = useRef(false);
@@ -93,7 +95,7 @@ export default function IntroLoader() {
 
   return (
     <motion.div
-      className="fixed inset-0 z-[9999] overflow-hidden flex flex-col items-center"
+      className="fixed inset-0 z-[9999] flex flex-col items-center overflow-hidden"
       initial={{ opacity: 1 }}
       animate={{ opacity: phase === "outro" ? 0 : 1 }}
       transition={{ duration: 1.0, ease }}
@@ -102,9 +104,7 @@ export default function IntroLoader() {
         outroFiredRef.current = false;
         setDone(true);
         requestAnimationFrame(() =>
-          requestAnimationFrame(() =>
-            window.dispatchEvent(new CustomEvent("milk:intro-exit"))
-          )
+          requestAnimationFrame(() => window.dispatchEvent(new CustomEvent("milk:intro-exit"))),
         );
       }}
     >
@@ -129,8 +129,10 @@ export default function IntroLoader() {
       </AnimatePresence>
 
       {/* Center content */}
-      <div className="flex-1 flex items-center justify-center w-full relative" style={{ zIndex: 20 }}>
-
+      <div
+        className="relative flex w-full flex-1 items-center justify-center"
+        style={{ zIndex: 20 }}
+      >
         {/* White logo on dark */}
         <AnimatePresence>
           {phase === "logo-intro" && (
@@ -141,7 +143,11 @@ export default function IntroLoader() {
               transition={{ duration: 0.6, ease }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/MilkLogo-White.png" alt="Milk" style={{ width: "clamp(70px, 8vw, 130px)", display: "block" }} />
+              <img
+                src="/MilkLogo-White.png"
+                alt="Milk"
+                style={{ width: "clamp(70px, 8vw, 130px)", display: "block" }}
+              />
             </motion.div>
           )}
         </AnimatePresence>
@@ -152,7 +158,13 @@ export default function IntroLoader() {
             <motion.p
               key={wordIndex}
               className="absolute text-[#0C0C12]"
-              style={{ fontFamily: "Ambit", fontWeight: 700, fontSize: "clamp(40px, 7vw, 80px)", letterSpacing: "-2.5px", lineHeight: 1 }}
+              style={{
+                fontFamily: "Ambit",
+                fontWeight: 700,
+                fontSize: "clamp(40px, 7vw, 80px)",
+                letterSpacing: "-2.5px",
+                lineHeight: 1,
+              }}
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
@@ -178,14 +190,16 @@ export default function IntroLoader() {
                 style={{ transformStyle: "preserve-3d" }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/MilkLogo-Black.png" alt="Milk" style={{ width: "clamp(70px, 8vw, 130px)", display: "block" }} />
+                <img
+                  src="/MilkLogo-Black.png"
+                  alt="Milk"
+                  style={{ width: "clamp(70px, 8vw, 130px)", display: "block" }}
+                />
               </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
-
       </div>
-
     </motion.div>
   );
 }

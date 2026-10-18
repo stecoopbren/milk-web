@@ -4,12 +4,12 @@ import { useEffect, useRef } from "react";
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 interface Props {
-  waveIntensity?:  number;                    // 0–1, disturbance strength
-  viscosity?:      number;                    // 0–1, damping (higher = longer waves)
-  baseColor?:      [number, number, number];  // RGB 0–1
+  waveIntensity?: number; // 0–1, disturbance strength
+  viscosity?: number; // 0–1, damping (higher = longer waves)
+  baseColor?: [number, number, number]; // RGB 0–1
   highlightColor?: [number, number, number];
-  shadowColor?:    [number, number, number];
-  loopSweep?:      boolean;                   // repeat auto-disturb sweep on a loop
+  shadowColor?: [number, number, number];
+  loopSweep?: boolean; // repeat auto-disturb sweep on a loop
 }
 
 // ── Vertex shader (shared) ────────────────────────────────────────────────────
@@ -112,12 +112,12 @@ const RENDER_FRAG = `
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function LiquidWave({
-  waveIntensity  = 0.82,
-  viscosity      = 0.985,
-  baseColor      = [1.000, 1.000, 1.000] as [number,number,number],   // #FFFFFF
-  highlightColor = [1.000, 1.000, 1.000] as [number,number,number],   // pure white crest
-  shadowColor    = [0.880, 0.876, 0.872] as [number,number,number],   // soft warm grey — visible depth without harsh contrast
-  loopSweep      = false,
+  waveIntensity = 0.82,
+  viscosity = 0.985,
+  baseColor = [1.0, 1.0, 1.0] as [number, number, number], // #FFFFFF
+  highlightColor = [1.0, 1.0, 1.0] as [number, number, number], // pure white crest
+  shadowColor = [0.88, 0.876, 0.872] as [number, number, number], // soft warm grey — visible depth without harsh contrast
+  loopSweep = false,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -125,7 +125,11 @@ export default function LiquidWave({
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const gl = canvas.getContext("webgl", { antialias: false, alpha: false, preserveDrawingBuffer: false });
+    const gl = canvas.getContext("webgl", {
+      antialias: false,
+      alpha: false,
+      preserveDrawingBuffer: false,
+    });
     if (!gl) return;
 
     // ── GL helpers ─────────────────────────────────────────────────────────
@@ -144,7 +148,10 @@ export default function LiquidWave({
     }
     function mkTex(w: number, h: number, fill: number = 128) {
       const data = new Uint8Array(w * h * 4);
-      for (let i = 0; i < data.length; i += 4) { data[i] = fill; data[i+3] = 255; }
+      for (let i = 0; i < data.length; i += 4) {
+        data[i] = fill;
+        data[i + 3] = 255;
+      }
       const t = gl!.createTexture()!;
       gl!.bindTexture(gl!.TEXTURE_2D, t);
       gl!.texImage2D(gl!.TEXTURE_2D, 0, gl!.RGBA, w, h, 0, gl!.RGBA, gl!.UNSIGNED_BYTE, data);
@@ -168,27 +175,27 @@ export default function LiquidWave({
 
     // Cache uniform locations (avoids per-frame string lookups)
     const simU = {
-      curr:      gl.getUniformLocation(simProg, "u_curr"),
-      prev:      gl.getUniformLocation(simProg, "u_prev"),
-      res:       gl.getUniformLocation(simProg, "u_res"),
-      mouse:     gl.getUniformLocation(simProg, "u_mouse"),
-      active:    gl.getUniformLocation(simProg, "u_active"),
-      speed:     gl.getUniformLocation(simProg, "u_speed"),
+      curr: gl.getUniformLocation(simProg, "u_curr"),
+      prev: gl.getUniformLocation(simProg, "u_prev"),
+      res: gl.getUniformLocation(simProg, "u_res"),
+      mouse: gl.getUniformLocation(simProg, "u_mouse"),
+      active: gl.getUniformLocation(simProg, "u_active"),
+      speed: gl.getUniformLocation(simProg, "u_speed"),
       intensity: gl.getUniformLocation(simProg, "u_intensity"),
-      damp:      gl.getUniformLocation(simProg, "u_damp"),
+      damp: gl.getUniformLocation(simProg, "u_damp"),
     };
     const renU = {
       height: gl.getUniformLocation(renProg, "u_height"),
       simRes: gl.getUniformLocation(renProg, "u_simRes"),
-      base:   gl.getUniformLocation(renProg, "u_base"),
-      hi:     gl.getUniformLocation(renProg, "u_hi"),
-      lo:     gl.getUniformLocation(renProg, "u_lo"),
+      base: gl.getUniformLocation(renProg, "u_base"),
+      hi: gl.getUniformLocation(renProg, "u_hi"),
+      lo: gl.getUniformLocation(renProg, "u_lo"),
     };
 
     // ── Full-screen quad ───────────────────────────────────────────────────
     const quadBuf = gl.createBuffer()!;
     gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
 
     function bindQuad(prog: WebGLProgram) {
       gl!.bindBuffer(gl!.ARRAY_BUFFER, quadBuf);
@@ -201,30 +208,35 @@ export default function LiquidWave({
     // We keep three: curr (t), prev (t-1), next (write target)
     const SIM_W = 512;
     let SIM_H = 320;
-    let W = 0, H = 0, DPR = 1;
+    let W = 0,
+      H = 0,
+      DPR = 1;
 
     let texCurr = mkTex(SIM_W, SIM_H);
     let texPrev = mkTex(SIM_W, SIM_H);
     let texNext = mkTex(SIM_W, SIM_H);
-    let fbCurr  = mkFB(texCurr);
-    let fbPrev  = mkFB(texPrev);
-    let fbNext  = mkFB(texNext);
+    let fbCurr = mkFB(texCurr);
+    let fbPrev = mkFB(texPrev);
+    let fbNext = mkFB(texNext);
 
     const resize = () => {
       DPR = window.devicePixelRatio || 1;
       W = canvas.offsetWidth;
       H = canvas.offsetHeight;
-      canvas.width  = W * DPR;
+      canvas.width = W * DPR;
       canvas.height = H * DPR;
       SIM_H = Math.round(SIM_W * (H / W));
 
       // Rebuild sim textures at new aspect ratio
-      [texCurr, texPrev, texNext].forEach(t => gl!.deleteTexture(t));
-      [fbCurr, fbPrev, fbNext].forEach(f => gl!.deleteFramebuffer(f));
+      [texCurr, texPrev, texNext].forEach((t) => gl!.deleteTexture(t));
+      [fbCurr, fbPrev, fbNext].forEach((f) => gl!.deleteFramebuffer(f));
 
-      texCurr = mkTex(SIM_W, SIM_H); fbCurr = mkFB(texCurr);
-      texPrev = mkTex(SIM_W, SIM_H); fbPrev = mkFB(texPrev);
-      texNext = mkTex(SIM_W, SIM_H); fbNext = mkFB(texNext);
+      texCurr = mkTex(SIM_W, SIM_H);
+      fbCurr = mkFB(texCurr);
+      texPrev = mkTex(SIM_W, SIM_H);
+      fbPrev = mkFB(texPrev);
+      texNext = mkTex(SIM_W, SIM_H);
+      fbNext = mkFB(texNext);
     };
 
     resize();
@@ -232,14 +244,18 @@ export default function LiquidWave({
 
     // ── Mouse ──────────────────────────────────────────────────────────────
     const mouse = { x: 0.5, y: 0.5, active: 0, speed: 0 };
-    let lastMx = -1, lastMy = -1, lastT = 0;
+    let lastMx = -1,
+      lastMy = -1,
+      lastT = 0;
 
     const onMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
       // Only active while cursor is over the canvas
       if (
-        e.clientX < rect.left || e.clientX > rect.right ||
-        e.clientY < rect.top  || e.clientY > rect.bottom
+        e.clientX < rect.left ||
+        e.clientX > rect.right ||
+        e.clientY < rect.top ||
+        e.clientY > rect.bottom
       ) {
         mouse.active = 0;
         return;
@@ -249,21 +265,28 @@ export default function LiquidWave({
       const my = 1.0 - (e.clientY - rect.top) / H; // flip Y for WebGL
 
       const now = performance.now();
-      const dt  = Math.max(8, now - lastT);
+      const dt = Math.max(8, now - lastT);
 
       if (lastMx >= 0) {
-        const dx = mx - lastMx, dy = my - lastMy;
+        const dx = mx - lastMx,
+          dy = my - lastMy;
         const uvSpeed = Math.hypot(dx, dy) / (dt / 1000);
         mouse.speed = Math.min(1.0, uvSpeed / 1.8);
       }
 
-      mouse.x      = mx;
-      mouse.y      = my;
+      mouse.x = mx;
+      mouse.y = my;
       mouse.active = 1;
-      lastMx = mx; lastMy = my; lastT = now;
+      lastMx = mx;
+      lastMy = my;
+      lastT = now;
     };
 
-    const onLeave = () => { mouse.active = 0; mouse.speed = 0; lastMx = -1; };
+    const onLeave = () => {
+      mouse.active = 0;
+      mouse.speed = 0;
+      lastMx = -1;
+    };
     // Listen on window so pointer-events:none on the wrapper doesn't block us
     window.addEventListener("mousemove", onMove);
     window.addEventListener("mouseleave", onLeave);
@@ -274,15 +297,15 @@ export default function LiquidWave({
     let autoTimerId: ReturnType<typeof setTimeout>;
 
     const runSweep = () => {
-      const startT  = performance.now();
+      const startT = performance.now();
       const duration = 2200;
 
       const sweep = () => {
-        const p   = Math.min((performance.now() - startT) / duration, 1);
+        const p = Math.min((performance.now() - startT) / duration, 1);
         // Curved path: start upper-left of text, arc through center, exit lower-right
-        auto.x     = 0.18 + p * 0.64;
-        auto.y     = 0.55 + Math.sin(p * Math.PI) * 0.22;
-        auto.speed = Math.sin(p * Math.PI) * 0.7;   // ramp up then down
+        auto.x = 0.18 + p * 0.64;
+        auto.y = 0.55 + Math.sin(p * Math.PI) * 0.22;
+        auto.speed = Math.sin(p * Math.PI) * 0.7; // ramp up then down
         auto.active = p < 1 ? 1 : 0;
         if (p < 1) requestAnimationFrame(sweep);
         else {
@@ -298,7 +321,9 @@ export default function LiquidWave({
     // ── Gyroscope (mobile) ─────────────────────────────────────────────────
     // Maps device tilt to a virtual cursor that stirs the liquid
     const gyro = { x: 0.5, y: 0.5, active: 0, speed: 0 };
-    let lastGamma = 0, lastBeta = 0, gyroReady = false;
+    let lastGamma = 0,
+      lastBeta = 0,
+      gyroReady = false;
 
     const onOrientation = (e: DeviceOrientationEvent) => {
       if (e.gamma === null || e.beta === null) return;
@@ -306,20 +331,20 @@ export default function LiquidWave({
       // gamma: left/right tilt (−90→90), beta: front/back tilt (−180→180)
       // Clamp to a comfortable ±40° range
       const gamma = Math.max(-40, Math.min(40, e.gamma));
-      const beta  = Math.max(-40, Math.min(40, (e.beta ?? 0) - 45));
+      const beta = Math.max(-40, Math.min(40, (e.beta ?? 0) - 45));
 
       const x = (gamma + 40) / 80;
-      const y = 1 - (beta  + 40) / 80; // flip Y for WebGL
+      const y = 1 - (beta + 40) / 80; // flip Y for WebGL
 
       const dg = e.gamma - lastGamma;
       const db = (e.beta ?? 0) - lastBeta;
-      gyro.speed  = Math.min(1, Math.hypot(dg, db) / 8);
-      gyro.x      = x;
-      gyro.y      = y;
+      gyro.speed = Math.min(1, Math.hypot(dg, db) / 8);
+      gyro.x = x;
+      gyro.y = y;
       gyro.active = 1;
 
       lastGamma = e.gamma;
-      lastBeta  = e.beta ?? 0;
+      lastBeta = e.beta ?? 0;
     };
 
     const startGyro = () => {
@@ -361,7 +386,9 @@ export default function LiquidWave({
       registerGyroListener();
     } else {
       // iOS, first visit — wait for intro to finish before prompting
-      window.addEventListener("milk:intro-exit", registerGyroListener, { once: true } as EventListenerOptions);
+      window.addEventListener("milk:intro-exit", registerGyroListener, {
+        once: true,
+      } as EventListenerOptions);
     }
 
     // ── Render loop ────────────────────────────────────────────────────────
@@ -376,18 +403,20 @@ export default function LiquidWave({
       gl.useProgram(simProg);
       bindQuad(simProg);
 
-      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, texCurr);
-      gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, texPrev);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, texCurr);
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, texPrev);
       gl.uniform1i(simU.curr, 0);
       gl.uniform1i(simU.prev, 1);
-      gl.uniform2f(simU.res,       SIM_W, SIM_H);
+      gl.uniform2f(simU.res, SIM_W, SIM_H);
       // Auto-sweep takes priority, then real mouse, then gyro
       const input = auto.active ? auto : mouse.active ? mouse : gyro;
-      gl.uniform2f(simU.mouse,     input.x, input.y);
-      gl.uniform1f(simU.active,    input.active);
-      gl.uniform1f(simU.speed,     input.speed);
+      gl.uniform2f(simU.mouse, input.x, input.y);
+      gl.uniform1f(simU.active, input.active);
+      gl.uniform1f(simU.speed, input.speed);
       gl.uniform1f(simU.intensity, waveIntensity);
-      gl.uniform1f(simU.damp,      viscosity);
+      gl.uniform1f(simU.damp, viscosity);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
       // ── Render pass: next → screen ────────────────────────────────────
@@ -396,17 +425,18 @@ export default function LiquidWave({
       gl.useProgram(renProg);
       bindQuad(renProg);
 
-      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, texNext);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, texNext);
       gl.uniform1i(renU.height, 0);
       gl.uniform2f(renU.simRes, SIM_W, SIM_H);
-      gl.uniform3fv(renU.base,  baseColor);
-      gl.uniform3fv(renU.hi,    highlightColor);
-      gl.uniform3fv(renU.lo,    shadowColor);
+      gl.uniform3fv(renU.base, baseColor);
+      gl.uniform3fv(renU.hi, highlightColor);
+      gl.uniform3fv(renU.lo, shadowColor);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
       // ── Rotate buffers: next→curr, curr→prev, prev→next (free) ───────
       [texCurr, texPrev, texNext] = [texNext, texCurr, texPrev];
-      [fbCurr,  fbPrev,  fbNext]  = [fbNext,  fbCurr,  fbPrev];
+      [fbCurr, fbPrev, fbNext] = [fbNext, fbCurr, fbPrev];
     };
 
     tick();
@@ -424,8 +454,8 @@ export default function LiquidWave({
       gl.deleteProgram(simProg);
       gl.deleteProgram(renProg);
     };
-  // Props are read inside the loop via closure — stable refs, no re-mount needed
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Props are read inside the loop via closure — stable refs, no re-mount needed
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

@@ -8,7 +8,9 @@ const BASE = "#FFFFFF";
 
 export default function LiquidBackground() {
   const [vh, setVh] = useState(900);
-  useEffect(() => { setVh(window.innerHeight); }, []);
+  useEffect(() => {
+    setVh(window.innerHeight);
+  }, []);
 
   const { scrollY } = useScroll();
 
@@ -16,7 +18,16 @@ export default function LiquidBackground() {
   const opacity = useTransform(scrollY, [vh * 2.4, vh * 3.0], [1, 0]);
 
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 0, background: BASE, opacity: 0.8, pointerEvents: "none" }}>
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 0,
+        background: BASE,
+        opacity: 0.8,
+        pointerEvents: "none",
+      }}
+    >
       <motion.div style={{ position: "absolute", inset: 0, opacity }}>
         <LiquidWave />
       </motion.div>
