@@ -15,7 +15,9 @@ export const metadata: Metadata = {
     title: "Portfolio — Milk Design Studio",
     description:
       "Case studies from Milk Design Studio — brand strategy, product design, and digital transformation work for ambitious founders and teams.",
-    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Milk Design Studio Portfolio" }],
+    images: [
+      { url: "/opengraph-image", width: 1200, height: 630, alt: "Milk Design Studio Portfolio" },
+    ],
   },
   twitter: {
     card: "summary_large_image",

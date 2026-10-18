@@ -69,8 +69,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Milk Design Studio — Strategy, Product & Brand Design",
-    description:
-      "Design studio helping founders turn big ideas into world-class businesses.",
+    description: "Design studio helping founders turn big ideas into world-class businesses.",
     images: ["/opengraph-image"],
   },
   icons: { icon: "/FavIcon.png" },
@@ -96,9 +95,7 @@ const jsonLd = [
       "Market & User Research",
       "Business Model Design",
     ],
-    sameAs: [
-      "https://www.instagram.com/milkdotdesign/",
-    ],
+    sameAs: ["https://www.instagram.com/milkdotdesign/"],
   },
   {
     "@context": "https://schema.org",
@@ -145,8 +142,8 @@ export default function RootLayout({
           <ScrollCue />
           <BackToTop />
           {children}
-        <Analytics />
-</ClientWrapper>
+          <Analytics />
+        </ClientWrapper>
       </body>
     </html>
   );

@@ -16,7 +16,7 @@ const fs = require("fs");
 const path = require("path");
 
 const PUBLIC_DIR = path.join(__dirname, "../public");
-const MAX_DIM = 1920;          // longest edge cap
+const MAX_DIM = 1920; // longest edge cap
 const SKIP_BELOW = 300 * 1024; // skip files already under 300 KB
 const DRY = process.argv.includes("--dry");
 
@@ -26,9 +26,9 @@ const SKIP_DIRS = new Set(["Font", "circular-std-book-cufonfonts-webfont"]);
 // Formats we handle
 const HANDLERS = {
   ".webp": (pipeline) => pipeline.webp({ quality: 82 }),
-  ".jpg":  (pipeline) => pipeline.jpeg({ quality: 85, mozjpeg: true }),
+  ".jpg": (pipeline) => pipeline.jpeg({ quality: 85, mozjpeg: true }),
   ".jpeg": (pipeline) => pipeline.jpeg({ quality: 85, mozjpeg: true }),
-  ".png":  (pipeline) => pipeline.png({ compressionLevel: 9, effort: 10 }),
+  ".png": (pipeline) => pipeline.png({ compressionLevel: 9, effort: 10 }),
 };
 
 function formatMB(bytes) {
@@ -111,7 +111,7 @@ async function main() {
       const pct = Math.round((saved / result.before) * 100);
       console.log(
         `  ${DRY ? "[dry] " : ""}${rel}\n` +
-        `    ${formatMB(result.before)} → ${formatMB(result.after)}  (${pct}% smaller)\n`
+          `    ${formatMB(result.before)} → ${formatMB(result.after)}  (${pct}% smaller)\n`,
       );
       totalBefore += result.before;
       totalAfter += result.after;
