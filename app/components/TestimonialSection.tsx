@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
+import Image from "next/image";
 import {
   motion,
   AnimatePresence,
@@ -89,7 +90,7 @@ export default function TestimonialSection() {
     return () => {
       controls.stop();
     };
-  }, [inView]);
+  }, [inView, progress]);
 
   const go = (dir: 1 | -1) => {
     progress.set(1);
@@ -141,7 +142,11 @@ export default function TestimonialSection() {
                       </blockquote>
 
                       <div className="flex flex-col items-center gap-3">
-                        <img
+                        <Image
+                          width={0}
+                          height={0}
+                          sizes="40px"
+                          loading="eager"
                           src={t.avatar}
                           alt={t.name}
                           className="h-10 w-10 shrink-0 rounded-full object-cover"

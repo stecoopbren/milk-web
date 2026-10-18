@@ -111,6 +111,8 @@ const logos = [
   { src: "/NIQ_logo.png", alt: "NIQ", height: 22 },
 ];
 
+const cycleWords = ["Business.", "Services.", "Products."];
+
 export default function HeroSection() {
   const ref = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -173,7 +175,6 @@ export default function HeroSection() {
     return () => window.removeEventListener("milk:intro-exit", onIntroExit);
   }, []);
 
-  const cycleWords = ["Business.", "Services.", "Products."];
   const [wordIndex, setWordIndex] = useState(0);
   useEffect(() => {
     if (!animated) return;

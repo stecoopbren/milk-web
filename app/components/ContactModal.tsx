@@ -483,7 +483,7 @@ export default function ContactModal({ open, onClose, initialService }: Props) {
         setStreaming(false);
       }
     },
-    [reason, answers],
+    [reason, serializedAnswers],
   );
 
   // Start AI conversation on entering chat step

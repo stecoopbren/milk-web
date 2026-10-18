@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect, useSyncExternalStore } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { track } from "@vercel/analytics";
 import {
@@ -198,11 +199,14 @@ function CaseHeroImageStrip({ images, inView }: { images: string[]; inView: bool
                     }}
                   />
                 ) : (
-                  <img
+                  <Image
+                    width={0}
+                    height={0}
+                    sizes="100vw"
                     src={src}
                     alt=""
                     {...(i === 0
-                      ? { fetchPriority: "high" as const }
+                      ? { fetchPriority: "high" as const, loading: "eager" as const }
                       : { loading: "lazy" as const })}
                     style={{
                       width: "100%",
@@ -859,7 +863,10 @@ function ScrollGallerySection({
             marginBottom: 10,
           }}
         >
-          <img
+          <Image
+            width={0}
+            height={0}
+            sizes="100vw"
             src={img0}
             alt=""
             loading="lazy"
@@ -869,7 +876,10 @@ function ScrollGallerySection({
         <div style={{ display: "flex", gap: 10, height: "38svh" }}>
           {img1 && (
             <div style={{ flex: 1, borderRadius: 12, overflow: "hidden" }}>
-              <img
+              <Image
+                width={0}
+                height={0}
+                sizes="100vw"
                 src={img1}
                 alt=""
                 loading="lazy"
@@ -879,7 +889,10 @@ function ScrollGallerySection({
           )}
           {img2 && (
             <div style={{ flex: 1, borderRadius: 12, overflow: "hidden" }}>
-              <img
+              <Image
+                width={0}
+                height={0}
+                sizes="100vw"
                 src={img2}
                 alt=""
                 loading="lazy"
@@ -914,7 +927,15 @@ function ScrollGallerySection({
               }}
               className={`${baseClass} z-10 rounded-xl`}
             >
-              <img src={img1} alt="" loading="lazy" style={imgStyle(pos1)} />
+              <Image
+                width={0}
+                height={0}
+                sizes="100vw"
+                src={img1}
+                alt=""
+                loading="lazy"
+                style={imgStyle(pos1)}
+              />
             </motion.div>
 
             {/* Right image → drifts up, then converges */}
@@ -929,7 +950,15 @@ function ScrollGallerySection({
               }}
               className={`${baseClass} z-20 rounded-xl`}
             >
-              <img src={img2} alt="" loading="lazy" style={imgStyle(pos2)} />
+              <Image
+                width={0}
+                height={0}
+                sizes="100vw"
+                src={img2}
+                alt=""
+                loading="lazy"
+                style={imgStyle(pos2)}
+              />
             </motion.div>
 
             {/* Hero → near center, then expands to full screen */}
@@ -944,7 +973,15 @@ function ScrollGallerySection({
               }}
               className={`${baseClass} z-30 rounded-xl`}
             >
-              <img src={img0} alt="" loading="lazy" style={imgStyle(pos0)} />
+              <Image
+                width={0}
+                height={0}
+                sizes="100vw"
+                src={img0}
+                alt=""
+                loading="lazy"
+                style={imgStyle(pos0)}
+              />
             </motion.div>
           </div>
         </div>
@@ -1113,7 +1150,15 @@ function MobileTimelineCard({ item }: { item: ChapterItemType; i: number }) {
             className="h-full w-full object-cover"
           />
         ) : (
-          <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
+          <Image
+            width={0}
+            height={0}
+            sizes="100vw"
+            loading="eager"
+            src={item.image}
+            alt={item.title}
+            className="h-full w-full object-cover"
+          />
         )}
       </motion.div>
     </motion.div>
@@ -1250,7 +1295,11 @@ function PhaseSnapSection({
             style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
           />
         ) : (
-          <img
+          <Image
+            width={0}
+            height={0}
+            sizes="100vw"
+            loading="eager"
             src={item.image}
             alt={item.title}
             style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
@@ -1510,8 +1559,11 @@ function ContainedMedia({
           )
         ) : (
           <div className="h-[80svh] w-full overflow-hidden rounded-[4px] lg:h-auto">
-            <img
-              src={image}
+            <Image
+              width={0}
+              height={0}
+              sizes="100vw"
+              src={image!}
               alt={alt ?? ""}
               loading="lazy"
               className="h-full w-full object-cover lg:h-auto"
@@ -1796,7 +1848,7 @@ export default function CaseTemplate({ caseData }: { caseData: CaseData }) {
       client: caseData.client,
       title: caseData.title.replace(/\n/g, " "),
     });
-  }, []);
+  }, [caseData.slug, caseData.client, caseData.title]);
 
   const isGXMOverview = caseData.slug === GXM_OVERVIEW_SLUG;
 

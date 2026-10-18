@@ -102,7 +102,7 @@ function MethodCard({
       },
       900 + flipDelay * 600,
     );
-  }, [inView]);
+  }, [inView, flipDelay]);
 
   const isHinting = hintState === "hinting" && !isFlipped;
 

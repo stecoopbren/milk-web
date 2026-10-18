@@ -48,8 +48,6 @@ export default function IntroLoader() {
   useEffect(() => {
     if (pathname !== "/" || introHasShown || sessionStorage.getItem("milk:intro-shown")) {
       setTimeout(() => window.dispatchEvent(new CustomEvent("milk:intro-exit")), 50);
-      // sessionStorage is client-only, so this must run after mount.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDone(true);
       return;
     }
@@ -86,6 +84,8 @@ export default function IntroLoader() {
       timeouts.forEach(clearTimeout);
       introHasShown = false;
     };
+    // Mount-only: re-running on route change would restart the intro.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (done) return null;
