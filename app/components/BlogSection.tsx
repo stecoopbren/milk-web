@@ -10,7 +10,16 @@ const ease = [0.22, 1, 0.36, 1] as const;
 
 function ChevronLeft() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M15 18l-6-6 6-6" />
     </svg>
   );
@@ -18,7 +27,16 @@ function ChevronLeft() {
 
 function ChevronRight() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M9 18l6-6-6-6" />
     </svg>
   );
@@ -26,7 +44,16 @@ function ChevronRight() {
 
 function IconArrowUpRight() {
   return (
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M3 13L13 3M13 3H6M13 3v7" />
     </svg>
   );
@@ -36,12 +63,12 @@ function IconArrowUpRight() {
 
 function Dots({ count, active }: { count: number; active: number }) {
   return (
-    <div className="flex gap-2 items-center justify-center">
+    <div className="flex items-center justify-center gap-2">
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
           className={`rounded-full transition-all duration-300 ${
-            i === active ? "w-5 h-[6px] bg-[#0C0C12]" : "w-[6px] h-[6px] bg-[#C0C0C0]"
+            i === active ? "h-[6px] w-5 bg-[#0C0C12]" : "h-[6px] w-[6px] bg-[#C0C0C0]"
           }`}
         />
       ))}
@@ -70,33 +97,31 @@ function PostCard({ post, index }: { post: MediumPost; index: number }) {
       href={post.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group flex flex-col bg-white rounded-2xl overflow-hidden border border-[#EBEBEB] flex-shrink-0 hover:border-[#D0D0D0] transition-colors duration-300"
+      className="group flex flex-shrink-0 flex-col overflow-hidden rounded-2xl border border-[#EBEBEB] bg-white transition-colors duration-300 hover:border-[#D0D0D0]"
       style={{ width: "clamp(272px, calc(100vw - 88px), 360px)" }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.55, delay: index * 0.07, ease }}
     >
       {/* Thumbnail */}
-      <div className="overflow-hidden bg-[#F2F2F2] flex-shrink-0" style={{ height: 223 }}>
+      <div className="flex-shrink-0 overflow-hidden bg-[#F2F2F2]" style={{ height: 223 }}>
         {post.thumbnail ? (
           <img
             src={post.thumbnail}
             alt={post.title}
             loading="lazy"
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-[#F0F0F0] to-[#E4E4E4]" />
+          <div className="h-full w-full bg-gradient-to-br from-[#F0F0F0] to-[#E4E4E4]" />
         )}
       </div>
 
       {/* Content */}
-      <div className="flex flex-col flex-1 p-5 gap-3">
+      <div className="flex flex-1 flex-col gap-3 p-5">
         {/* Date */}
         {post.publishedAt && (
-          <p className="text-micro text-[#A0A0A0]">
-            {formatDate(post.publishedAt)}
-          </p>
+          <p className="text-micro text-[#A0A0A0]">{formatDate(post.publishedAt)}</p>
         )}
 
         {/* Title */}
@@ -109,13 +134,13 @@ function PostCard({ post, index }: { post: MediumPost; index: number }) {
 
         {/* Excerpt */}
         {post.excerpt && (
-          <p className="text-body text-[#565656] line-clamp-2 flex-1" style={{ fontSize: 14 }}>
+          <p className="text-body line-clamp-2 flex-1 text-[#565656]" style={{ fontSize: 14 }}>
             {post.excerpt}
           </p>
         )}
 
         {/* CTA */}
-        <span className="mt-auto border border-[#2E2E2E]/20 rounded-full px-5 py-2 font-sans font-medium text-[13px] text-[#2E2E2E] tracking-[-0.3px] transition-colors hover:border-[#2E2E2E]/50 inline-flex items-center gap-2 self-start">
+        <span className="mt-auto inline-flex items-center gap-2 self-start rounded-full border border-[#2E2E2E]/20 px-5 py-2 font-sans text-[13px] font-medium tracking-[-0.3px] text-[#2E2E2E] transition-colors hover:border-[#2E2E2E]/50">
           Read on Medium
           <IconArrowUpRight />
         </span>
@@ -129,17 +154,17 @@ function PostCard({ post, index }: { post: MediumPost; index: number }) {
 function SkeletonCard() {
   return (
     <div
-      className="flex-shrink-0 bg-white rounded-2xl overflow-hidden border border-[#EBEBEB] animate-pulse"
+      className="flex-shrink-0 animate-pulse overflow-hidden rounded-2xl border border-[#EBEBEB] bg-white"
       style={{ width: "clamp(272px, calc(100vw - 88px), 360px)" }}
     >
       <div style={{ height: 223 }} className="bg-[#F0F0F0]" />
-      <div className="p-5 flex flex-col gap-3">
-        <div className="h-2.5 w-14 bg-[#F0F0F0] rounded-full" />
-        <div className="h-5 w-full bg-[#F0F0F0] rounded-md" />
-        <div className="h-5 w-3/4 bg-[#F0F0F0] rounded-md" />
-        <div className="h-4 w-full bg-[#F0F0F0] rounded-md mt-1" />
-        <div className="h-4 w-5/6 bg-[#F0F0F0] rounded-md" />
-        <div className="h-4 w-24 bg-[#F0F0F0] rounded-full mt-2" />
+      <div className="flex flex-col gap-3 p-5">
+        <div className="h-2.5 w-14 rounded-full bg-[#F0F0F0]" />
+        <div className="h-5 w-full rounded-md bg-[#F0F0F0]" />
+        <div className="h-5 w-3/4 rounded-md bg-[#F0F0F0]" />
+        <div className="mt-1 h-4 w-full rounded-md bg-[#F0F0F0]" />
+        <div className="h-4 w-5/6 rounded-md bg-[#F0F0F0]" />
+        <div className="mt-2 h-4 w-24 rounded-full bg-[#F0F0F0]" />
       </div>
     </div>
   );
@@ -198,12 +223,12 @@ export default function BlogSection() {
   return (
     <section
       ref={sectionRef}
-      className="snap-section bg-white flex flex-col justify-center"
+      className="snap-section flex flex-col justify-center bg-white"
       style={{ minHeight: "100svh", paddingTop: 80, paddingBottom: 80 }}
     >
       {/* ── Header ──────────────────────────────────────────────────── */}
       <motion.div
-        className="flex flex-col items-center gap-3 px-8 lg:px-[180px] mb-10 text-center"
+        className="mb-10 flex flex-col items-center gap-3 px-8 text-center lg:px-[180px]"
         initial={{ opacity: 0, y: 20 }}
         animate={inView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.7, ease }}
@@ -228,7 +253,7 @@ export default function BlogSection() {
         ref={scrollRef}
         onScroll={updateScrollBtns}
         data-horizontal-scroll="true"
-        className="flex gap-4 hide-scrollbar"
+        className="hide-scrollbar flex gap-4"
         style={{
           overflowX: "auto",
           paddingLeft: "clamp(32px, 12.5vw, 180px)",
@@ -245,7 +270,7 @@ export default function BlogSection() {
 
       {/* ── Controllers ─────────────────────────────────────────────────── */}
       <motion.div
-        className="flex items-center justify-center gap-4 mt-8"
+        className="mt-8 flex items-center justify-center gap-4"
         initial={{ opacity: 0 }}
         animate={inView ? { opacity: 1 } : {}}
         transition={{ duration: 0.7, delay: 0.15, ease }}
@@ -253,7 +278,7 @@ export default function BlogSection() {
         <button
           onClick={() => scroll("left")}
           disabled={!canScrollLeft}
-          className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors disabled:opacity-25 disabled:pointer-events-none"
+          className="inline-flex items-center justify-center rounded-full border border-[#2E2E2E]/15 p-2.5 text-[#2E2E2E] transition-colors hover:border-[#2E2E2E]/40 disabled:pointer-events-none disabled:opacity-25"
           aria-label="Previous posts"
         >
           <ChevronLeft />
@@ -262,7 +287,7 @@ export default function BlogSection() {
         <button
           onClick={() => scroll("right")}
           disabled={!canScrollRight}
-          className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors disabled:opacity-25 disabled:pointer-events-none"
+          className="inline-flex items-center justify-center rounded-full border border-[#2E2E2E]/15 p-2.5 text-[#2E2E2E] transition-colors hover:border-[#2E2E2E]/40 disabled:pointer-events-none disabled:opacity-25"
           aria-label="Next posts"
         >
           <ChevronRight />
