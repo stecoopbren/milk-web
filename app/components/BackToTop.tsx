@@ -7,10 +7,10 @@ import { motion, AnimatePresence } from "framer-motion";
 const SHOW_AFTER_SECTION = 2;
 
 // ── Ring geometry — ring sits exactly on the button border ────────────────────
-const BTN    = 56;                        // button diameter (px)
+const BTN = 56; // button diameter (px)
 const STROKE = 2.5;
-const R      = BTN / 2 - STROKE / 2;     // inset so stroke stays inside the circle
-const CIRC   = 2 * Math.PI * R;
+const R = BTN / 2 - STROKE / 2; // inset so stroke stays inside the circle
+const CIRC = 2 * Math.PI * R;
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -21,11 +21,11 @@ function smoothScrollTop() {
 }
 
 export default function BackToTop() {
-  const [visible,  setVisible]  = useState(false);
+  const [visible, setVisible] = useState(false);
   const [progress, setProgress] = useState(0);
 
   const update = useCallback(() => {
-    const scrolled  = window.scrollY;
+    const scrolled = window.scrollY;
     const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
     setProgress(maxScroll > 0 ? scrolled / maxScroll : 0);
     setVisible(scrolled > window.innerHeight * SHOW_AFTER_SECTION);
@@ -44,9 +44,10 @@ export default function BackToTop() {
       {visible && (
         <motion.button
           onClick={() => smoothScrollTop()}
-          className="fixed bottom-8 right-8 z-50 flex items-center justify-center rounded-full"
+          className="fixed right-8 bottom-8 z-50 flex items-center justify-center rounded-full"
           style={{
-            width: BTN, height: BTN,
+            width: BTN,
+            height: BTN,
             background: "#1a1a1a",
             boxShadow: "0 2px 12px rgba(0,0,0,0.18)",
           }}
@@ -58,7 +59,6 @@ export default function BackToTop() {
           transition={{ default: { duration: 0.35, ease }, scale: { duration: 0.1 } }}
           aria-label="Back to top"
         >
-
           {/* Progress ring — same size as button, arc is the border */}
           <svg
             width={BTN}
@@ -92,9 +92,14 @@ export default function BackToTop() {
           {/* Arrow */}
           <svg
             className="relative"
-            width="16" height="16" viewBox="0 0 16 16"
-            fill="none" stroke="white" strokeWidth="1.75"
-            strokeLinecap="round" strokeLinejoin="round"
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="white"
+            strokeWidth="1.75"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
             <path d="M8 13V3M3 8l5-5 5 5" />
           </svg>

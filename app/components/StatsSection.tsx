@@ -42,16 +42,25 @@ interface StatProps {
   delay: number;
 }
 
-function Stat({ prefix = "", suffix = "", end, decimals, unit = "", label, sublabel, inView, delay }: StatProps) {
+function Stat({
+  prefix = "",
+  suffix = "",
+  end,
+  decimals,
+  unit = "",
+  label,
+  sublabel,
+  inView,
+  delay,
+}: StatProps) {
   const count = useCountUp(end, decimals, 2, inView);
   const display = `${prefix}${decimals > 0 ? count.toFixed(decimals) : Math.floor(count)}${unit}${suffix}`;
 
   return (
-    <div className="relative flex-1 flex flex-col justify-end gap-5 px-0 py-10 lg:py-16 overflow-hidden min-h-[220px] lg:min-h-[280px]">
-
+    <div className="relative flex min-h-[220px] flex-1 flex-col justify-end gap-5 overflow-hidden px-0 py-10 lg:min-h-[280px] lg:py-16">
       {/* Ghost watermark number */}
       <motion.span
-        className="absolute top-0 left-0 font-sans font-medium leading-[0.85] select-none pointer-events-none text-[#0C0C12] whitespace-nowrap"
+        className="pointer-events-none absolute top-0 left-0 font-sans leading-[0.85] font-medium whitespace-nowrap text-[#0C0C12] select-none"
         style={{ fontSize: "clamp(80px, 11vw, 148px)", opacity: 0 }}
         animate={inView ? { opacity: 0.055 } : {}}
         transition={{ duration: 1.4, ease, delay: delay + 0.1 }}
@@ -61,7 +70,7 @@ function Stat({ prefix = "", suffix = "", end, decimals, unit = "", label, subla
 
       {/* Actual number */}
       <motion.p
-        className="relative font-sans font-medium text-[#0C0C12] leading-none"
+        className="relative font-sans leading-none font-medium text-[#0C0C12]"
         style={{ fontSize: "clamp(44px, 5.5vw, 72px)", letterSpacing: "-3px" }}
         initial={{ opacity: 0, y: 24 }}
         animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -77,14 +86,11 @@ function Stat({ prefix = "", suffix = "", end, decimals, unit = "", label, subla
         animate={inView ? { opacity: 1 } : {}}
         transition={{ duration: 0.6, ease, delay: delay + 0.35 }}
       >
-        <p className="font-sans text-[#0C0C12] text-[15px] tracking-[-0.3px] leading-snug">
+        <p className="font-sans text-[15px] leading-snug tracking-[-0.3px] text-[#0C0C12]">
           {label}
         </p>
-        <p className="text-micro font-sans text-[#B0B0B0] leading-snug">
-          {sublabel}
-        </p>
+        <p className="text-micro font-sans leading-snug text-[#B0B0B0]">{sublabel}</p>
       </motion.div>
-
     </div>
   );
 }
@@ -92,7 +98,7 @@ function Stat({ prefix = "", suffix = "", end, decimals, unit = "", label, subla
 function Divider({ inView, delay }: { inView: boolean; delay: number }) {
   return (
     <motion.div
-      className="hidden lg:block w-px bg-[#E4E4E4] self-stretch origin-top"
+      className="hidden w-px origin-top self-stretch bg-[#E4E4E4] lg:block"
       initial={{ scaleY: 0 }}
       animate={inView ? { scaleY: 1 } : {}}
       transition={{ duration: 0.9, ease, delay }}
@@ -106,18 +112,13 @@ export default function StatsSection() {
 
   return (
     <SectionReveal id="results" className="px-8 lg:px-[180px]">
-      <div ref={ref} className="flex flex-col gap-10 w-full max-w-[1062px] mx-auto">
-
-        <RevealLine
-          className="text-ui text-[#565656]"
-          delay={0.1}
-          inView={inView}
-        >
+      <div ref={ref} className="mx-auto flex w-full max-w-[1062px] flex-col gap-10">
+        <RevealLine className="text-ui text-[#565656]" delay={0.1} inView={inView}>
           By the numbers
         </RevealLine>
 
         {/* Stats row */}
-        <div className="flex flex-col lg:flex-row gap-0">
+        <div className="flex flex-col gap-0 lg:flex-row">
           <Stat
             prefix="$"
             suffix="+"
@@ -130,7 +131,7 @@ export default function StatsSection() {
             delay={0.2}
           />
           <Divider inView={inView} delay={0.3} />
-          <div className="lg:pl-12 xl:pl-16 flex-1">
+          <div className="flex-1 lg:pl-12 xl:pl-16">
             <Stat
               suffix="+"
               end={40}
@@ -142,7 +143,7 @@ export default function StatsSection() {
             />
           </div>
           <Divider inView={inView} delay={0.44} />
-          <div className="lg:pl-12 xl:pl-16 flex-1">
+          <div className="flex-1 lg:pl-12 xl:pl-16">
             <Stat
               end={12}
               decimals={0}
@@ -154,7 +155,6 @@ export default function StatsSection() {
             />
           </div>
         </div>
-
       </div>
     </SectionReveal>
   );

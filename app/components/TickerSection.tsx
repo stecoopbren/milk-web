@@ -13,14 +13,20 @@ const textStyle = {
 
 // ── ScrollWord: color transitions from gray → dark as scroll progresses ───────
 function ScrollWord({
-  word, index, total, progress,
+  word,
+  index,
+  total,
+  progress,
 }: {
-  word: string; index: number; total: number; progress: MotionValue<number>;
+  word: string;
+  index: number;
+  total: number;
+  progress: MotionValue<number>;
 }) {
   const phaseStart = -0.75;
-  const phaseEnd   = 0.75;
+  const phaseEnd = 0.75;
   const start = phaseStart + (index / total) * (phaseEnd - phaseStart);
-  const end   = phaseStart + ((index + 1) / total) * (phaseEnd - phaseStart);
+  const end = phaseStart + ((index + 1) / total) * (phaseEnd - phaseStart);
   const color = useTransform(progress, [start, end], ["#C0C0C0", "#0C0C12"]);
   return <motion.span style={{ color, display: "inline" }}>{word}</motion.span>;
 }
@@ -58,19 +64,19 @@ function DesktopSection() {
 
   // Eyebrow is always visible — no scroll-gated opacity
   const eyebrowOpacity = 1;
-  const eyebrowY       = 0;
+  const eyebrowY = 0;
 
   return (
     <div
       ref={outerRef}
-      className="hidden lg:block snap-section"
+      className="snap-section hidden lg:block"
       data-free-scroll="true"
       style={{ height: "200vh", scrollSnapAlign: "none" }}
     >
-      <div className="sticky top-0 h-screen flex items-center justify-center px-[180px] text-center overflow-hidden">
+      <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden px-[180px] text-center">
         <MultiplayerCursors />
 
-        <div className="flex flex-col items-center gap-6 relative" style={{ zIndex: 1 }}>
+        <div className="relative flex flex-col items-center gap-6" style={{ zIndex: 1 }}>
           {/* Eyebrow */}
           <motion.p
             style={{ opacity: eyebrowOpacity, y: eyebrowY, fontFamily: "Ambit" }}
@@ -80,16 +86,19 @@ function DesktopSection() {
           </motion.p>
 
           {/* Headline with scroll-reveal */}
-          <h2
-            className="text-display leading-[0.9] text-center text-[#0C0C12]"
-          >
+          <h2 className="text-display text-center leading-[0.9] text-[#0C0C12]">
             {/* First line — always black */}
             We have all
             <br />
             {/* Second line — scroll-reveal gray → black */}
             {revealWords.map((word, i) => (
               <span key={word}>
-                <ScrollWord word={word} index={i} total={revealWords.length} progress={scrollYProgress} />
+                <ScrollWord
+                  word={word}
+                  index={i}
+                  total={revealWords.length}
+                  progress={scrollYProgress}
+                />
                 {i < revealWords.length - 1 && " "}
               </span>
             ))}
@@ -106,10 +115,13 @@ function MobileSection() {
   const inView = useInView(ref, { once: false, amount: 0.4 });
 
   return (
-    <div ref={ref} className="lg:hidden snap-section h-screen flex items-center justify-center px-8 relative">
+    <div
+      ref={ref}
+      className="snap-section relative flex h-screen items-center justify-center px-8 lg:hidden"
+    >
       <MultiplayerCursors mobile />
 
-      <div className="flex flex-col items-center gap-4 text-center relative" style={{ zIndex: 1 }}>
+      <div className="relative flex flex-col items-center gap-4 text-center" style={{ zIndex: 1 }}>
         <motion.p
           initial={{ opacity: 0, y: 12 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -124,7 +136,7 @@ function MobileSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.9, ease, delay: 0.1 }}
-          className="text-display text-[#0C0C12] leading-[0.9] text-center text-[64px] lg:text-[172px]"
+          className="text-display text-center text-[64px] leading-[0.9] text-[#0C0C12] lg:text-[172px]"
         >
           We have all
           <br />

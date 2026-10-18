@@ -22,7 +22,11 @@ function Word({
 }) {
   const start = index / total;
   const end = Math.min((index + 4) / total, 1);
-  const color = useTransform(progress, [start, end], [defaultHighlighted ? "#0C0C12" : "#C0C0C0", "#0C0C12"]);
+  const color = useTransform(
+    progress,
+    [start, end],
+    [defaultHighlighted ? "#0C0C12" : "#C0C0C0", "#0C0C12"],
+  );
   return (
     <>
       <motion.span style={{ color, display: "inline" }}>{word}</motion.span>
@@ -63,23 +67,38 @@ export default function BioSection() {
       data-free-scroll="true"
       style={{ height: "250vh", scrollSnapAlign: "none" }}
     >
-      <div className="sticky top-0 flex items-start justify-center px-8 lg:px-[180px]" style={{ height: "100svh", paddingTop: 148 }}>
-        <div className="relative w-full flex flex-col items-center gap-4">
-          <p className="text-serif-eyebrow text-[#0C0C12]">
-            Long story short
-          </p>
-          <div className="text-case-title text-center w-full">
-            <div style={{ color: "#0C0C12" }}>
-              I help teams of all sizes
-            </div>
+      <div
+        className="sticky top-0 flex items-start justify-center px-8 lg:px-[180px]"
+        style={{ height: "100svh", paddingTop: 148 }}
+      >
+        <div className="relative flex w-full flex-col items-center gap-4">
+          <p className="text-serif-eyebrow text-[#0C0C12]">Long story short</p>
+          <div className="text-case-title w-full text-center">
+            <div style={{ color: "#0C0C12" }}>I help teams of all sizes</div>
             <div>
               {line2.map((word, i) => (
-                <Word key={i} word={word} index={i} total={total} progress={progress} trailingSpace={i < line2.length - 1} defaultHighlighted={false} />
+                <Word
+                  key={i}
+                  word={word}
+                  index={i}
+                  total={total}
+                  progress={progress}
+                  trailingSpace={i < line2.length - 1}
+                  defaultHighlighted={false}
+                />
               ))}
             </div>
             <div>
               {line3.map((word, i) => (
-                <Word key={i + line2.length} word={word} index={i + line2.length} total={total} progress={progress} trailingSpace={i < line3.length - 1} defaultHighlighted={[0, 1].includes(i)} />
+                <Word
+                  key={i + line2.length}
+                  word={word}
+                  index={i + line2.length}
+                  total={total}
+                  progress={progress}
+                  trailingSpace={i < line3.length - 1}
+                  defaultHighlighted={[0, 1].includes(i)}
+                />
               ))}
             </div>
           </div>
@@ -91,8 +110,18 @@ export default function BioSection() {
                 initial="hidden"
                 animate={inView ? "visible" : "hidden"}
                 variants={{
-                  hidden: { y: 320, x: "-50%", opacity: 0, transition: { duration: 1.0, ease: [0.22, 1, 0.36, 1] } },
-                  visible: { y: 0, x: "-50%", opacity: 1, transition: { duration: 1.4, ease: [0.22, 1, 0.36, 1], delay: 0.5 } },
+                  hidden: {
+                    y: 320,
+                    x: "-50%",
+                    opacity: 0,
+                    transition: { duration: 1.0, ease: [0.22, 1, 0.36, 1] },
+                  },
+                  visible: {
+                    y: 0,
+                    x: "-50%",
+                    opacity: 1,
+                    transition: { duration: 1.4, ease: [0.22, 1, 0.36, 1], delay: 0.5 },
+                  },
                 }}
               >
                 <Lottie animationData={animData} loop />
@@ -103,8 +132,16 @@ export default function BioSection() {
                 initial="hidden"
                 animate={inView ? "visible" : "hidden"}
                 variants={{
-                  hidden: { y: 480, opacity: 0, transition: { duration: 1.0, ease: [0.22, 1, 0.36, 1] } },
-                  visible: { y: 0, opacity: 1, transition: { duration: 1.6, ease: [0.22, 1, 0.36, 1], delay: 0.5 } },
+                  hidden: {
+                    y: 480,
+                    opacity: 0,
+                    transition: { duration: 1.0, ease: [0.22, 1, 0.36, 1] },
+                  },
+                  visible: {
+                    y: 0,
+                    opacity: 1,
+                    transition: { duration: 1.6, ease: [0.22, 1, 0.36, 1], delay: 0.5 },
+                  },
                 }}
               >
                 <Lottie animationData={animData} loop />
