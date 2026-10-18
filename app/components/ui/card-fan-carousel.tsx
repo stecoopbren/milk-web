@@ -20,11 +20,11 @@ const HALF = 3;
 const FAN_POSITIONS = [
   { rot: -21, scale: 0.7756, x: -21, y: 3.6, zIndex: 1 },
   { rot: -14, scale: 0.8498, x: -14, y: 2.0, zIndex: 2 },
-  { rot: -7,  scale: 0.9346, x: -7,  y: 0.6, zIndex: 3 },
-  { rot: 0,   scale: 1.0,    x: 0,   y: 0.0, zIndex: 10 },
-  { rot: 7,   scale: 0.9346, x: 7,   y: 0.6, zIndex: 3 },
-  { rot: 14,  scale: 0.8498, x: 14,  y: 2.0, zIndex: 2 },
-  { rot: 21,  scale: 0.7756, x: 21,  y: 3.6, zIndex: 1 },
+  { rot: -7, scale: 0.9346, x: -7, y: 0.6, zIndex: 3 },
+  { rot: 0, scale: 1.0, x: 0, y: 0.0, zIndex: 10 },
+  { rot: 7, scale: 0.9346, x: 7, y: 0.6, zIndex: 3 },
+  { rot: 14, scale: 0.8498, x: 14, y: 2.0, zIndex: 2 },
+  { rot: 21, scale: 0.7756, x: 21, y: 3.6, zIndex: 1 },
 ];
 
 function getResponsiveMultiplier(width: number) {
@@ -76,26 +76,32 @@ export default function SocialCards({ cards }: SocialCardsProps) {
   const needsPagination = totalCards > MAX_VISIBLE;
   const [centerIndex, setCenterIndex] = useState(needsPagination ? HALF : totalCards >> 1);
 
-  const getVisibleMap = useCallback((center: number) => {
-    const map = new Map<number, number>();
-    if (!needsPagination) {
-      cards.forEach((_, i) => map.set(i, i));
+  const getVisibleMap = useCallback(
+    (center: number) => {
+      const map = new Map<number, number>();
+      if (!needsPagination) {
+        cards.forEach((_, i) => map.set(i, i));
+        return map;
+      }
+      for (let slot = 0; slot < MAX_VISIBLE; slot++) {
+        map.set((((center + slot - HALF) % totalCards) + totalCards) % totalCards, slot);
+      }
       return map;
-    }
-    for (let slot = 0; slot < MAX_VISIBLE; slot++) {
-      map.set(((center + slot - HALF) % totalCards + totalCards) % totalCards, slot);
-    }
-    return map;
-  }, [totalCards, needsPagination, cards]);
+    },
+    [totalCards, needsPagination, cards],
+  );
 
-  const cycle = useCallback((direction: "left" | "right") => {
-    if (isAnimating.current || !needsPagination) return;
-    isAnimating.current = true;
-    directionRef.current = direction;
-    setCenterIndex(prev =>
-      direction === "right" ? (prev + 1) % totalCards : (prev - 1 + totalCards) % totalCards
-    );
-  }, [totalCards, needsPagination]);
+  const cycle = useCallback(
+    (direction: "left" | "right") => {
+      if (isAnimating.current || !needsPagination) return;
+      isAnimating.current = true;
+      directionRef.current = direction;
+      setCenterIndex((prev) =>
+        direction === "right" ? (prev + 1) % totalCards : (prev - 1 + totalCards) % totalCards,
+      );
+    },
+    [totalCards, needsPagination],
+  );
 
   useEffect(() => {
     const container = containerRef.current;
@@ -141,17 +147,37 @@ export default function SocialCards({ cards }: SocialCardsProps) {
 
         if (isFirstMount) {
           gsap.set(card, { x: 0, y: `${12 * hMult}rem`, rotation: 0, scale: 0.5, opacity: 0 });
-          gsap.to(card, { ...target, duration: 1.2, ease: "elastic.out(1.05,.78)", delay: 0.2 + slot * 0.06, onComplete: onCardDone });
+          gsap.to(card, {
+            ...target,
+            duration: 1.2,
+            ease: "elastic.out(1.05,.78)",
+            delay: 0.2 + slot * 0.06,
+            onComplete: onCardDone,
+          });
         } else if (!wasVisible) {
           const enterX = direction === "right" ? 40 : -40;
-          gsap.set(card, { x: `${enterX}rem`, y: `${y * hMult}rem`, rotation: direction === "right" ? 30 : -30, scale: 0.5, opacity: 0 });
+          gsap.set(card, {
+            x: `${enterX}rem`,
+            y: `${y * hMult}rem`,
+            rotation: direction === "right" ? 30 : -30,
+            scale: 0.5,
+            opacity: 0,
+          });
           gsap.to(card, { ...target, duration: 0.6, ease: "power2.out", onComplete: onCardDone });
         } else {
           gsap.to(card, { ...target, duration: 0.5, ease: "power2.out", onComplete: onCardDone });
         }
       } else if (wasVisible) {
         const exitX = direction === "right" ? -40 : 40;
-        gsap.to(card, { x: `${exitX}rem`, opacity: 0, scale: 0.5, rotation: direction === "right" ? -30 : 30, duration: 0.4, ease: "power2.in", zIndex: 0 });
+        gsap.to(card, {
+          x: `${exitX}rem`,
+          opacity: 0,
+          scale: 0.5,
+          rotation: direction === "right" ? -30 : 30,
+          duration: 0.4,
+          ease: "power2.in",
+          zIndex: 0,
+        });
       } else if (isFirstMount) {
         gsap.set(card, { opacity: 0, scale: 0.3, x: 0, y: 0, zIndex: 0 });
       }
@@ -191,7 +217,8 @@ export default function SocialCards({ cards }: SocialCardsProps) {
             targetScale *= 1.08;
           } else {
             const normalized = centerSlot > 0 ? (slot - centerSlot) / centerSlot : 0;
-            const pushStrength = 8 * (1 - Math.abs(normalized)) * (1 + 0.2 * Math.max(0, 3 - distance));
+            const pushStrength =
+              8 * (1 - Math.abs(normalized)) * (1 + 0.2 * Math.max(0, 3 - distance));
 
             if (slot < hoveredSlot) {
               targetX -= pushStrength * mult;
@@ -209,8 +236,14 @@ export default function SocialCards({ cards }: SocialCardsProps) {
         }
 
         gsap.to(el, {
-          x: `${targetX}rem`, y: `${targetY}rem`, rotation: targetRot, scale: targetScale,
-          duration: 0.5, delay, ease: "elastic.out(1,.75)", overwrite: "auto",
+          x: `${targetX}rem`,
+          y: `${targetY}rem`,
+          rotation: targetRot,
+          scale: targetScale,
+          duration: 0.5,
+          delay,
+          ease: "elastic.out(1,.75)",
+          overwrite: "auto",
         });
         gsap.set(el, { zIndex: base.zIndex });
       });
@@ -219,8 +252,14 @@ export default function SocialCards({ cards }: SocialCardsProps) {
     const enterHandlers = visibleEntries.map(({ el, slot }) => {
       const handler = () => {
         if (isAnimating.current) return;
-        if (leaveTimer) { clearTimeout(leaveTimer); leaveTimer = null; }
-        if (activeSlot !== slot) { activeSlot = slot; updateHoverLayout(slot); }
+        if (leaveTimer) {
+          clearTimeout(leaveTimer);
+          leaveTimer = null;
+        }
+        if (activeSlot !== slot) {
+          activeSlot = slot;
+          updateHoverLayout(slot);
+        }
       };
       el.addEventListener("mouseenter", handler);
       return { el, handler };
@@ -229,11 +268,16 @@ export default function SocialCards({ cards }: SocialCardsProps) {
     const onMouseLeave = () => {
       if (isAnimating.current) return;
       if (leaveTimer) clearTimeout(leaveTimer);
-      leaveTimer = setTimeout(() => { activeSlot = null; updateHoverLayout(null); }, 50);
+      leaveTimer = setTimeout(() => {
+        activeSlot = null;
+        updateHoverLayout(null);
+      }, 50);
     };
     container.addEventListener("mouseleave", onMouseLeave);
 
-    const onResize = () => { if (!isAnimating.current) updateHoverLayout(activeSlot); };
+    const onResize = () => {
+      if (!isAnimating.current) updateHoverLayout(activeSlot);
+    };
     window.addEventListener("resize", onResize);
 
     return () => {
@@ -247,18 +291,29 @@ export default function SocialCards({ cards }: SocialCardsProps) {
   if (!totalCards) return null;
 
   const chevron = (direction: "left" | "right") => (
-    <svg className="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      className="h-4 w-4 md:h-5 md:w-5"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <polyline points={direction === "left" ? "15 18 9 12 15 6" : "9 18 15 12 9 6"} />
     </svg>
   );
 
   return (
-    <div className="flex flex-col items-center w-full">
-      <div className="flex items-center justify-center w-full">
-        <div ref={containerRef} className="fan-layout flex relative justify-center items-center w-full">
+    <div className="flex w-full flex-col items-center">
+      <div className="flex w-full items-center justify-center">
+        <div
+          ref={containerRef}
+          className="fan-layout relative flex w-full items-center justify-center"
+        >
           {cards.map((card, index) => {
             const image = (
-              <div className="relative w-full h-full overflow-hidden rounded-xl">
+              <div className="relative h-full w-full overflow-hidden rounded-xl">
                 {card.videoUrl ? (
                   <video
                     src={card.videoUrl}
@@ -266,38 +321,59 @@ export default function SocialCards({ cards }: SocialCardsProps) {
                     muted
                     loop
                     playsInline
-                    className="absolute inset-0 w-full h-full object-cover"
+                    className="absolute inset-0 h-full w-full object-cover"
                   />
                 ) : (
                   <img
                     src={card.imgUrl}
                     loading="lazy"
                     alt={card.alt || `Card ${index}`}
-                    className="absolute inset-0 w-full h-full object-cover"
+                    className="absolute inset-0 h-full w-full object-cover"
                   />
                 )}
               </div>
             );
             return card.linkUrl ? (
-              <a key={index} href={card.linkUrl} target={card.linkUrl.startsWith("http") ? "_blank" : "_self"} rel="noopener noreferrer" className="fan-card block">{image}</a>
+              <a
+                key={index}
+                href={card.linkUrl}
+                target={card.linkUrl.startsWith("http") ? "_blank" : "_self"}
+                rel="noopener noreferrer"
+                className="fan-card block"
+              >
+                {image}
+              </a>
             ) : (
-              <div key={index} className="fan-card">{image}</div>
+              <div key={index} className="fan-card">
+                {image}
+              </div>
             );
           })}
         </div>
       </div>
 
       {needsPagination && (
-        <div className="flex items-center justify-center gap-4 mt-8 z-30">
-          <button className={`${ARROW_CLASSES} w-10 h-10 md:w-12 md:h-12`} onClick={() => cycle("left")} aria-label="Previous">
+        <div className="z-30 mt-8 flex items-center justify-center gap-4">
+          <button
+            className={`${ARROW_CLASSES} h-10 w-10 md:h-12 md:w-12`}
+            onClick={() => cycle("left")}
+            aria-label="Previous"
+          >
             {chevron("left")}
           </button>
           <div className="flex items-center gap-2">
             {cards.map((_, i) => (
-              <span key={i} className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${i === centerIndex ? "bg-black/60 scale-[1.3]" : "bg-black/15"}`} />
+              <span
+                key={i}
+                className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${i === centerIndex ? "scale-[1.3] bg-black/60" : "bg-black/15"}`}
+              />
             ))}
           </div>
-          <button className={`${ARROW_CLASSES} w-10 h-10 md:w-12 md:h-12`} onClick={() => cycle("right")} aria-label="Next">
+          <button
+            className={`${ARROW_CLASSES} h-10 w-10 md:h-12 md:w-12`}
+            onClick={() => cycle("right")}
+            aria-label="Next"
+          >
             {chevron("right")}
           </button>
         </div>

@@ -1,30 +1,34 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { motion, useScroll, useMotionValue, useMotionValueEvent, useTransform, animate } from "framer-motion";
+import {
+  motion,
+  useScroll,
+  useMotionValue,
+  useMotionValueEvent,
+  useTransform,
+  animate,
+} from "framer-motion";
 
 const TYPE_TARGET = "Why Milk?";
-const PAN_END = 0.50;
-const OVERLAY_START = 0.65;  // holds still from 50%→65% so text is readable before overlay
-const OVERLAY_END   = 0.72;  // fully white
-const REVEAL1_START    = 0.72; // "Distilled it." fades in
-const REVEAL1_PEAK     = 0.78; // "Distilled it." fully visible
+const PAN_END = 0.5;
+const OVERLAY_START = 0.65; // holds still from 50%→65% so text is readable before overlay
+const OVERLAY_END = 0.72; // fully white
+const REVEAL1_START = 0.72; // "Distilled it." fades in
+const REVEAL1_PEAK = 0.78; // "Distilled it." fully visible
 const REVEAL1_HOLD_END = 0.87; // "Distilled it." starts fading out
-const REVEAL1_EXIT     = 0.94; // "Distilled it." fully gone
-const REVEAL2_START  = 0.94; // "Now I bring it to yours." fades in — starts only after Reveal1 is gone
-const REVEAL2_END    = 1.00; // fully visible
+const REVEAL1_EXIT = 0.94; // "Distilled it." fully gone
+const REVEAL2_START = 0.94; // "Now I bring it to yours." fades in — starts only after Reveal1 is gone
+const REVEAL2_END = 1.0; // fully visible
 
-const videos = [
-  "/v09044g40000d0e102nog65gpr487m80.MP4",
-  "/v09044g40000cpjmcavog65s1brudlgg.MP4",
-];
+const videos = ["/v09044g40000d0e102nog65gpr487m80.MP4", "/v09044g40000cpjmcavog65s1brudlgg.MP4"];
 
 function lerp(a: number, b: number, t: number) {
   return a + (b - a) * Math.max(0, Math.min(1, t));
 }
 
 export default function TeamSection() {
-  const outerRef  = useRef<HTMLDivElement>(null);
+  const outerRef = useRef<HTMLDivElement>(null);
 
   // On mobile, switch to native-scroll with a shorter height so the user
   // can naturally swipe through the section. On desktop, keep data-free-scroll
@@ -36,7 +40,7 @@ export default function TeamSection() {
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
-  const trackRef  = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const frame1Ref = useRef<HTMLSpanElement>(null);
   const frame3Ref = useRef<HTMLDivElement>(null);
   const video1Ref = useRef<HTMLVideoElement>(null);
@@ -44,18 +48,18 @@ export default function TeamSection() {
 
   // Refs for values used inside the event handler — avoids stale closures
   const translateMaxRef = useRef(0);
-  const xInitialRef     = useRef(0);
+  const xInitialRef = useRef(0);
 
   const [typedChars, setTypedChars] = useState(0);
 
-  const x         = useMotionValue(0);
-  const nudgeX    = useMotionValue(0);
+  const x = useMotionValue(0);
+  const nudgeX = useMotionValue(0);
   const combinedX = useTransform([x, nudgeX], (latest: number[]) => latest[0] + latest[1]);
   const overlayOp = useMotionValue(0);
   const reveal1Op = useMotionValue(0);
-  const reveal1Y  = useMotionValue(28);
+  const reveal1Y = useMotionValue(28);
   const reveal2Op = useMotionValue(0);
-  const reveal2Y  = useMotionValue(28);
+  const reveal2Y = useMotionValue(28);
 
   const { scrollYProgress } = useScroll({
     target: outerRef,
@@ -75,19 +79,22 @@ export default function TeamSection() {
     playAll();
 
     // Retry when the section scrolls into view (catches deferred mobile autoplay)
-    const obs = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) playAll();
-    }, { threshold: 0 });
+    const obs = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) playAll();
+      },
+      { threshold: 0 },
+    );
     if (outerRef.current) obs.observe(outerRef.current);
 
     // Retry on first user touch/scroll (iOS sometimes needs a gesture context)
     window.addEventListener("touchstart", playAll, { once: true });
-    window.addEventListener("scroll",     playAll, { once: true });
+    window.addEventListener("scroll", playAll, { once: true });
 
     return () => {
       obs.disconnect();
       window.removeEventListener("touchstart", playAll);
-      window.removeEventListener("scroll",     playAll);
+      window.removeEventListener("scroll", playAll);
     };
   }, []);
 
@@ -95,9 +102,9 @@ export default function TeamSection() {
     const measure = () => {
       if (!trackRef.current || !frame1Ref.current || !frame3Ref.current) return;
 
-      const vw        = window.innerWidth;
+      const vw = window.innerWidth;
       const paddingPx = vw * 0.1;
-      const frame1W   = frame1Ref.current.offsetWidth;
+      const frame1W = frame1Ref.current.offsetWidth;
 
       const xInit = Math.max(0, vw - 2 * paddingPx - frame1W);
       xInitialRef.current = xInit;
@@ -111,7 +118,7 @@ export default function TeamSection() {
       // Pan stops when the text's right edge lands at 90vw-440px on desktop.
       // On narrow viewports (mobile) 90vw-440 goes negative, so we clamp the
       // target text position to 30vw minimum — keeping "doesn't." in frame.
-      const max = Math.max(0, frame3Right - Math.max(vw * 0.90, vw * 0.30 + 440));
+      const max = Math.max(0, frame3Right - Math.max(vw * 0.9, vw * 0.3 + 440));
       translateMaxRef.current = max;
 
       const v = scrollYProgress.get();
@@ -176,7 +183,7 @@ export default function TeamSection() {
 
   useMotionValueEvent(scrollYProgress, "change", (v) => {
     // Typewriter
-    setTypedChars(Math.floor(Math.min(1, v / 0.10) * TYPE_TARGET.length));
+    setTypedChars(Math.floor(Math.min(1, v / 0.1) * TYPE_TARGET.length));
 
     // Pan from initial offset → fully panned
     const max = translateMaxRef.current;
@@ -217,11 +224,10 @@ export default function TeamSection() {
       style={{ height: isDesktop ? "900vh" : "500vh", scrollSnapAlign: "none" }}
     >
       <div className="sticky top-0 overflow-hidden" style={{ height: "100svh" }}>
-
         {/* Horizontal track */}
         <motion.div
           ref={trackRef}
-          className="absolute top-0 left-0 h-full flex items-center"
+          className="absolute top-0 left-0 flex h-full items-center"
           style={{ x: combinedX, gap: "10vw", paddingLeft: "10vw" }}
         >
           {/* Frame 1 — "You might be wondering" + typewriter "Why Milk?" as one line */}
@@ -233,32 +239,67 @@ export default function TeamSection() {
                 {typedChars < TYPE_TARGET.length && (
                   <motion.span
                     animate={{ opacity: [1, 1, 0, 0] }}
-                    transition={{ duration: 0.9, repeat: Infinity, ease: "linear", times: [0, 0.5, 0.5, 1] }}
-                  >|</motion.span>
+                    transition={{
+                      duration: 0.9,
+                      repeat: Infinity,
+                      ease: "linear",
+                      times: [0, 0.5, 0.5, 1],
+                    }}
+                  >
+                    |
+                  </motion.span>
                 )}
               </span>
             </h2>
           </div>
 
           {/* Video 1 */}
-          <div className="shrink-0 rounded-2xl overflow-hidden" style={{ height: "72vh", aspectRatio: "9/16" }}>
-            <video ref={video1Ref} src={videos[0]} autoPlay muted loop playsInline preload="auto" className="w-full h-full object-cover" />
+          <div
+            className="shrink-0 overflow-hidden rounded-2xl"
+            style={{ height: "72vh", aspectRatio: "9/16" }}
+          >
+            <video
+              ref={video1Ref}
+              src={videos[0]}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              className="h-full w-full object-cover"
+            />
           </div>
 
           {/* Frame 2 */}
-          <div className="shrink-0 whitespace-nowrap text-center">
+          <div className="shrink-0 text-center whitespace-nowrap">
             <h2 className="text-heading" style={{ fontFamily: "Ambit", whiteSpace: "nowrap" }}>
               Been inside great teams.
             </h2>
           </div>
 
           {/* Video 2 */}
-          <div className="shrink-0 rounded-2xl overflow-hidden" style={{ height: "72vh", aspectRatio: "9/16" }}>
-            <video ref={video2Ref} src={videos[1]} autoPlay muted loop playsInline preload="auto" className="w-full h-full object-cover" />
+          <div
+            className="shrink-0 overflow-hidden rounded-2xl"
+            style={{ height: "72vh", aspectRatio: "9/16" }}
+          >
+            <video
+              ref={video2Ref}
+              src={videos[1]}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              className="h-full w-full object-cover"
+            />
           </div>
 
           {/* Frame 3 */}
-          <div ref={frame3Ref} className="shrink-0 whitespace-nowrap" style={{ paddingRight: "440px" }}>
+          <div
+            ref={frame3Ref}
+            className="shrink-0 whitespace-nowrap"
+            style={{ paddingRight: "440px" }}
+          >
             <h2 className="text-heading" style={{ fontFamily: "Ambit", whiteSpace: "nowrap" }}>
               Seen what works and what doesn't.
             </h2>
@@ -267,18 +308,20 @@ export default function TeamSection() {
 
         {/* White overlay */}
         <motion.div
-          className="absolute inset-0 pointer-events-none"
+          className="pointer-events-none absolute inset-0"
           style={{ opacity: overlayOp, background: "#FFFFFF", zIndex: 10 }}
         />
 
-
         {/* Reveal texts — same center position, sequential */}
-        <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 20 }}>
+        <div className="pointer-events-none absolute inset-0" style={{ zIndex: 20 }}>
           <motion.div
             className="absolute inset-0 flex items-center justify-center"
             style={{ opacity: reveal1Op, y: reveal1Y }}
           >
-            <h2 className="text-heading text-center px-8 lg:px-[180px]" style={{ whiteSpace: "normal" }}>
+            <h2
+              className="text-heading px-8 text-center lg:px-[180px]"
+              style={{ whiteSpace: "normal" }}
+            >
               Distilled it.
             </h2>
           </motion.div>
@@ -286,12 +329,11 @@ export default function TeamSection() {
             className="absolute inset-0 flex items-center justify-center"
             style={{ opacity: reveal2Op, y: reveal2Y }}
           >
-            <h2 className="text-heading text-center px-8 lg:px-[180px]">
+            <h2 className="text-heading px-8 text-center lg:px-[180px]">
               Now I bring it to yours.
             </h2>
           </motion.div>
         </div>
-
       </div>
     </div>
   );

@@ -30,7 +30,7 @@ export default function SceneTransition() {
 
   return (
     <motion.div
-      className="fixed inset-0 pointer-events-none"
+      className="pointer-events-none fixed inset-0"
       style={{
         zIndex: 150,
         backdropFilter: "blur(14px) brightness(0.96) saturate(0.9)",
