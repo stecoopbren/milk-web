@@ -6,11 +6,11 @@ const navColumns = [
   {
     label: "Navigate",
     links: [
+      { label: "Work",        href: "/#portfolio" },
       { label: "About",       href: "/#about-us" },
       { label: "Why Milk?",   href: "/#who-we-are" },
       { label: "Formula",     href: "/#method" },
       { label: "Disciplines", href: "/#services" },
-      { label: "Work",        href: "/#portfolio" },
     ],
   },
   {
