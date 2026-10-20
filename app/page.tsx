@@ -35,13 +35,13 @@ export default function Home() {
     <main className="relative">
 <Nav />
       <HeroSection />
+      <ProjectsSection />
       <PositioningSection />
       <TeamSection />
       <BioSection />
       <MethodSection />
       <ServicesSection />
       <TestimonialSection />
-      <ProjectsSection />
       <BlogSection />
       <Footer />
     </main>

@@ -184,7 +184,9 @@ export default function ScrollSnapController() {
           }
           // At or near section top: activate only when the section is genuinely
           // taller than the viewport (has content to scroll through).
-          return r.top <= 150 && isTaller;
+          // Threshold kept tight (10px) so the zone doesn't activate prematurely
+          // while the user is still on the preceding snap section.
+          return r.top <= 10 && isTaller;
         }) ?? null;
 
     const isInNativeScrollZone = (): boolean => getCurrentNativeScrollEl() !== null;
@@ -384,6 +386,11 @@ export default function ScrollSnapController() {
       if (isSnapping) return;
       // One snap per gesture — absorb trackpad momentum until silence or new gesture
       if (gestureSnapped) return;
+      // Block during post-snap cooldown. gestureSnapped resets after 380ms but Lenis
+      // takes 650ms, leaving a window where decaying trackpad momentum can fire a second
+      // unintended snap. cooldown expires 300ms after Lenis completes (~950ms total),
+      // closing that gap. Touch already checks cooldown in onTouchEnd.
+      if (cooldown) return;
 
       accumulatedDelta += e.deltaY;
 

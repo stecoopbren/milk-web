@@ -74,16 +74,16 @@ export default function PositioningSection() {
         whileInView="visible"
         viewport={{ once: true, margin: "-80px" }}
       >
-        <p className="text-serif-eyebrow text-[#B0B0B0]">( About me &amp; Milk ® )</p>
+        <p className="text-serif-eyebrow text-[#B0B0B0]">( How we work )</p>
 
         <h2 className="text-section-heading text-center" style={{ maxWidth: 720 }}>
-          I help teams turn uncertainty into direction.
+          Different challenges. Different ways to tackle them.
         </h2>
 
         <p className="text-body text-[#565656]" style={{ maxWidth: 500 }}>
           Hi, I&apos;m Steven 👋🏼 For 10+ years, I&apos;ve worked across strategy,
-          product, research, and design, helping teams figure out what matters,
-          and turn that direction into something real. Now, that&apos;s Milk.
+          product, research, and design, helping teams figure out what matters
+          and build something that lasts. Now, that&apos;s Milk.
         </p>
 
         <a
