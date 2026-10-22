@@ -266,7 +266,17 @@ export default function ScrollSnapController() {
       // Block residual momentum from the snap that brought us into this zone.
       // The 380ms gesture gap can reset gestureSnapped before Lenis finishes
       // (650ms), leaving a window where trailing trackpad events auto-step.
-      if (Date.now() - lastSnapTime < SNAP_BLOCK) return;
+      if (Date.now() - lastSnapTime < SNAP_BLOCK) {
+        // Stop Lenis so it doesn't drift the page past free-scroll sections
+        // while the block is active. Lenis registers its wheel listener before
+        // the controller, so it starts scrolling before e.preventDefault fires.
+        const lenis = (window as any).__lenis;
+        if (lenis) {
+          lenis.stop();
+          lenis.start();
+        }
+        return;
+      }
 
       // Kill native touch momentum before Lenis takes over (critical on mobile).
       window.scrollTo({ top: window.scrollY, behavior: "instant" as ScrollBehavior });
