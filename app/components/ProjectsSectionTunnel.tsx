@@ -38,7 +38,8 @@ const projects: Project[] = [
     slug: "regenerative-community",
     category: "REAL ESTATE PROJECT",
     title: "Designing a thriving regenerative community in the jungle.",
-    description: "Full community master plan delivered in 10 weeks. Architecture, brand, and go-to-market strategy aligned from day one.",
+    description:
+      "Full community master plan delivered in 10 weeks. Architecture, brand, and go-to-market strategy aligned from day one.",
     img: "https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&auto=format&fit=crop&q=80",
   },
   {
@@ -46,7 +47,8 @@ const projects: Project[] = [
     slug: "bold-identity",
     category: "BRAND IDENTITY",
     title: "Building a bold identity for a new generation of thinkers.",
-    description: "Complete identity system: logo, type, color, and motion. Shipped in 4 weeks and ready to scale across every touchpoint.",
+    description:
+      "Complete identity system: logo, type, color, and motion. Shipped in 4 weeks and ready to scale across every touchpoint.",
     img: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&auto=format&fit=crop&q=80",
   },
   {
@@ -54,7 +56,8 @@ const projects: Project[] = [
     slug: "product-launch",
     category: "PRODUCT DESIGN",
     title: "Crafting a seamless digital product from zero to launch.",
-    description: "Zero to launch in 8 weeks. Research, UX, UI, and handoff: the team shipped on time with a product users actually wanted.",
+    description:
+      "Zero to launch in 8 weeks. Research, UX, UI, and handoff: the team shipped on time with a product users actually wanted.",
     img: "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=800&auto=format&fit=crop&q=80",
   },
   {
@@ -62,7 +65,8 @@ const projects: Project[] = [
     slug: "brand-system",
     category: "BRAND SYSTEM",
     title: "A unified brand system for a global SaaS platform.",
-    description: "End-to-end identity: logo, typography, colour, and component library, delivered in six weeks.",
+    description:
+      "End-to-end identity: logo, typography, colour, and component library, delivered in six weeks.",
     img: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&auto=format&fit=crop&q=80",
   },
   {
@@ -101,11 +105,17 @@ export function ProjectCard({
   useEffect(() => {
     if (!inView || hintState !== "idle") return;
     let t2: ReturnType<typeof setTimeout>;
-    const t1 = setTimeout(() => {
-      setHintState("hinting");
-      t2 = setTimeout(() => setHintState("done"), 1000);
-    }, 1100 + flipDelay * 1000);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
+    const t1 = setTimeout(
+      () => {
+        setHintState("hinting");
+        t2 = setTimeout(() => setHintState("done"), 1000);
+      },
+      1100 + flipDelay * 1000,
+    );
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
   }, [inView, flipDelay, hintState]);
 
   const isHinting = hintState === "hinting" && !isFlipped;
@@ -114,10 +124,10 @@ export function ProjectCard({
     <div
       className="w-full cursor-pointer select-none"
       style={{ perspective: "1200px", aspectRatio: "3/4" }}
-      onClick={() => setIsFlipped(f => !f)}
+      onClick={() => setIsFlipped((f) => !f)}
     >
       <motion.div
-        className="relative w-full h-full"
+        className="relative h-full w-full"
         style={{ transformStyle: "preserve-3d" }}
         animate={{ rotateY: isFlipped ? 180 : isHinting ? [0, 35, 0] : 0 }}
         whileHover={!isHinting && !isFlipped ? { rotateY: 30 } : {}}
@@ -128,38 +138,42 @@ export function ProjectCard({
         }
       >
         <div
-          className="absolute inset-0 rounded-2xl overflow-hidden"
+          className="absolute inset-0 overflow-hidden rounded-2xl"
           style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}
         >
-          <img src={project.img} alt={project.title} className="w-full h-full object-cover" />
+          <img src={project.img} alt={project.title} className="h-full w-full object-cover" />
           <div className="absolute inset-0 bg-black/35" />
-          <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-6">
-            <span className="font-mono text-[13px] text-white/70 tracking-[-0.39px]">
+          <div className="absolute top-0 right-0 left-0 flex items-center justify-between p-6">
+            <span className="font-mono text-[13px] tracking-[-0.39px] text-white/70">
               {project.category}
             </span>
           </div>
         </div>
 
         <div
-          className="absolute inset-0 bg-white border border-black/[0.07] rounded-2xl flex flex-col p-8 gap-4"
-          style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
+          className="absolute inset-0 flex flex-col gap-4 rounded-2xl border border-black/[0.07] bg-white p-8"
+          style={{
+            backfaceVisibility: "hidden",
+            WebkitBackfaceVisibility: "hidden",
+            transform: "rotateY(180deg)",
+          }}
         >
-          <div className="flex items-start justify-between w-full">
-            <span className="font-mono text-[13px] text-[#0C0C12] tracking-[-0.39px]">
+          <div className="flex w-full items-start justify-between">
+            <span className="font-mono text-[13px] tracking-[-0.39px] text-[#0C0C12]">
               {project.category}
             </span>
             <a
               href={"/cases/" + project.slug}
-              onClick={e => e.stopPropagation()}
-              className="text-[#B0B0B0] hover:text-[#0C0C12] transition-colors"
+              onClick={(e) => e.stopPropagation()}
+              className="text-[#B0B0B0] transition-colors hover:text-[#0C0C12]"
             >
               <ArrowUpRight />
             </a>
           </div>
-          <h3 className="font-sans font-medium text-[#0C0C12] text-[22px] tracking-[-1.1px] leading-[1.1]">
+          <h3 className="font-sans text-[22px] leading-[1.1] font-medium tracking-[-1.1px] text-[#0C0C12]">
             {project.title}
           </h3>
-          <p className="font-sans font-medium text-[#565656] text-[14px] tracking-[-0.39px] leading-[1.4]">
+          <p className="font-sans text-[14px] leading-[1.4] font-medium tracking-[-0.39px] text-[#565656]">
             {project.description}
           </p>
         </div>
@@ -171,7 +185,7 @@ export function ProjectCard({
 // ── Tunnel card ───────────────────────────────────────────────────────────────
 const CARD_W = 240;
 const CARD_H = 320;
-const SPEED  = 0.000013; // progress per ms — full cycle ≈ 77 s
+const SPEED = 0.000013; // progress per ms — full cycle ≈ 77 s
 
 function TunnelCard({
   project,
@@ -192,17 +206,13 @@ function TunnelCard({
 
   const z = useTransform(t, [0, 1], [-1400, 600]);
 
-  const xFrom = direction === "left" ?  1100 : -1100;
-  const xTo   = direction === "left" ? -1100 :  1100;
+  const xFrom = direction === "left" ? 1100 : -1100;
+  const xTo = direction === "left" ? -1100 : 1100;
   const x = useTransform(t, [0, 1], [xFrom, xTo]);
 
-  const y = useTransform(
-    t,
-    [0, 0.42, 1],
-    [yOffset * 1.1, yOffset * 0.9, yOffset * 1.1],
-  );
+  const y = useTransform(t, [0, 0.42, 1], [yOffset * 1.1, yOffset * 0.9, yOffset * 1.1]);
 
-  const opacity    = useTransform(t, [0, 0.06, 0.80, 1], [0, 1, 1, 0]);
+  const opacity = useTransform(t, [0, 0.06, 0.8, 1], [0, 1, 1, 0]);
   const dimOpacity = useTransform(t, [0, 0.55, 1], [0.65, 0, 0]);
 
   return (
@@ -211,7 +221,10 @@ function TunnelCard({
       style={{
         width: CARD_W,
         height: CARD_H,
-        x, y, z, opacity,
+        x,
+        y,
+        z,
+        opacity,
         left: "50%",
         top: "50%",
         marginLeft: -CARD_W / 2,
@@ -223,29 +236,53 @@ function TunnelCard({
         boxShadow: "0 0 80px rgba(255,255,255,0.18), 0 28px 80px rgba(0,0,0,0.55)",
         transition: { duration: 0.35, ease },
       }}
-      onClick={() => { window.location.href = `/cases/${project.slug}`; }}
+      onClick={() => {
+        window.location.href = `/cases/${project.slug}`;
+      }}
     >
-      <div style={{ width: "100%", height: "100%", borderRadius: 18, overflow: "hidden", position: "relative" }}>
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          borderRadius: 18,
+          overflow: "hidden",
+          position: "relative",
+        }}
+      >
         <img
           src={project.img}
           alt={project.title}
           style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
         />
-        <motion.div className="absolute inset-0 pointer-events-none" style={{ background: "#000", opacity: dimOpacity }} />
         <motion.div
-          className="absolute inset-0 pointer-events-none"
+          className="pointer-events-none absolute inset-0"
+          style={{ background: "#000", opacity: dimOpacity }}
+        />
+        <motion.div
+          className="pointer-events-none absolute inset-0"
           style={{ borderRadius: 18 }}
           initial={{ opacity: 0 }}
           whileHover={{ opacity: 1, transition: { duration: 0.25 } }}
         >
-          <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at 40% 30%, rgba(255,255,255,0.22) 0%, transparent 65%)" }} />
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background:
+                "radial-gradient(ellipse at 40% 30%, rgba(255,255,255,0.22) 0%, transparent 65%)",
+            }}
+          />
         </motion.div>
         <div
-          className="absolute bottom-0 left-0 right-0 p-4"
+          className="absolute right-0 bottom-0 left-0 p-4"
           style={{ background: "linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 100%)" }}
         >
-          <p className="font-mono text-[10px] text-white/55 tracking-[-0.2px] mb-0.5">{project.category}</p>
-          <p className="font-sans font-medium text-white text-[13px] tracking-[-0.4px] leading-tight">{project.title}</p>
+          <p className="mb-0.5 font-mono text-[10px] tracking-[-0.2px] text-white/55">
+            {project.category}
+          </p>
+          <p className="font-sans text-[13px] leading-tight font-medium tracking-[-0.4px] text-white">
+            {project.title}
+          </p>
         </div>
       </div>
     </motion.div>
@@ -266,14 +303,23 @@ export default function ProjectsSectionFloatingCards() {
 
   const rawMouseX = useMotionValue(0);
   const rawMouseY = useMotionValue(0);
-  const rotY = useSpring(useTransform(rawMouseX, [-0.5, 0.5], [-22, 22]), { stiffness: 120, damping: 18 });
-  const rotX = useSpring(useTransform(rawMouseY, [-0.5, 0.5], [12, -12]), { stiffness: 120, damping: 18 });
+  const rotY = useSpring(useTransform(rawMouseX, [-0.5, 0.5], [-22, 22]), {
+    stiffness: 120,
+    damping: 18,
+  });
+  const rotX = useSpring(useTransform(rawMouseY, [-0.5, 0.5], [12, -12]), {
+    stiffness: 120,
+    damping: 18,
+  });
 
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    rawMouseX.set((e.clientX - r.left) / r.width  - 0.5);
-    rawMouseY.set((e.clientY - r.top)  / r.height - 0.5);
-  }, [rawMouseX, rawMouseY]);
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const r = e.currentTarget.getBoundingClientRect();
+      rawMouseX.set((e.clientX - r.left) / r.width - 0.5);
+      rawMouseY.set((e.clientY - r.top) / r.height - 0.5);
+    },
+    [rawMouseX, rawMouseY],
+  );
 
   const handleMouseLeave = useCallback(() => {
     rawMouseX.set(0);
@@ -281,10 +327,16 @@ export default function ProjectsSectionFloatingCards() {
   }, [rawMouseX, rawMouseY]);
 
   const streamA = projects.slice(0, 3).map((p, i) => ({
-    project: p, initialT: i / 3, direction: "left" as const, yOffset: -380,
+    project: p,
+    initialT: i / 3,
+    direction: "left" as const,
+    yOffset: -380,
   }));
   const streamB = projects.slice(3).map((p, i) => ({
-    project: p, initialT: (i / 3) + 1 / 6, direction: "right" as const, yOffset: 380,
+    project: p,
+    initialT: i / 3 + 1 / 6,
+    direction: "right" as const,
+    yOffset: 380,
   }));
 
   const showTunnel = !isMobile && !reducedMotion;
@@ -298,12 +350,17 @@ export default function ProjectsSectionFloatingCards() {
     >
       {showTunnel && (
         <>
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 50 }}>
+          <div
+            className="pointer-events-none absolute inset-0 flex items-center justify-center"
+            style={{ zIndex: 50 }}
+          >
             <h1
-              className="font-sans font-medium text-[#0C0C12] leading-[0.85] select-none text-center"
+              className="text-center font-sans leading-[0.85] font-medium text-[#0C0C12] select-none"
               style={{ fontSize: "clamp(56px, 8vw, 100px)", letterSpacing: "-3.36px" }}
             >
-              Featured<br />Work
+              Featured
+              <br />
+              Work
             </h1>
           </div>
 
@@ -313,19 +370,39 @@ export default function ProjectsSectionFloatingCards() {
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
           >
-            <motion.div className="absolute inset-0" style={{ rotateX: rotX, rotateY: rotY, transformStyle: "preserve-3d" }}>
+            <motion.div
+              className="absolute inset-0"
+              style={{ rotateX: rotX, rotateY: rotY, transformStyle: "preserve-3d" }}
+            >
               {[...streamA, ...streamB].map(({ project, initialT, direction, yOffset }) => (
-                <TunnelCard key={project.id} project={project} initialT={initialT} direction={direction} yOffset={yOffset} />
+                <TunnelCard
+                  key={project.id}
+                  project={project}
+                  initialT={initialT}
+                  direction={direction}
+                  yOffset={yOffset}
+                />
               ))}
             </motion.div>
             <div
-              className="absolute inset-0 pointer-events-none"
-              style={{ background: "radial-gradient(ellipse 80% 70% at 50% 50%, transparent 40%, #FFFFFF 100%)", zIndex: 20 }}
+              className="pointer-events-none absolute inset-0"
+              style={{
+                background:
+                  "radial-gradient(ellipse 80% 70% at 50% 50%, transparent 40%, #FFFFFF 100%)",
+                zIndex: 20,
+              }}
             />
           </div>
 
-          <div className="absolute bottom-8 right-[180px] pointer-events-auto" style={{ zIndex: 30 }}>
-            <a href="/portfolio" className="font-sans text-[15px] text-[#565656] tracking-[-0.45px] hover:opacity-50 transition-opacity" style={{ textDecoration: "none" }}>
+          <div
+            className="pointer-events-auto absolute right-[180px] bottom-8"
+            style={{ zIndex: 30 }}
+          >
+            <a
+              href="/portfolio"
+              className="font-sans text-[15px] tracking-[-0.45px] text-[#565656] transition-opacity hover:opacity-50"
+              style={{ textDecoration: "none" }}
+            >
               See All Work
             </a>
           </div>
@@ -341,29 +418,51 @@ export default function ProjectsSectionFloatingCards() {
             }
           `}</style>
 
-          <div className="absolute left-8 right-8" style={{ top: 108, zIndex: 10 }}>
+          <div className="absolute right-8 left-8" style={{ top: 108, zIndex: 10 }}>
             <h1
-              className="font-sans font-medium text-[#0C0C12] leading-[0.85] select-none"
+              className="font-sans leading-[0.85] font-medium text-[#0C0C12] select-none"
               style={{ fontSize: "clamp(56px, 16vw, 88px)", letterSpacing: "-3px" }}
             >
-              Featured<br />Work
+              Featured
+              <br />
+              Work
             </h1>
           </div>
 
-          <div className="absolute left-0 right-0 overflow-hidden" style={{ top: "52vh", zIndex: 10 }}>
-            <div style={{ display: "flex", gap: 12, width: "max-content", animation: "marquee-left 35s linear infinite" }}>
+          <div
+            className="absolute right-0 left-0 overflow-hidden"
+            style={{ top: "52vh", zIndex: 10 }}
+          >
+            <div
+              style={{
+                display: "flex",
+                gap: 12,
+                width: "max-content",
+                animation: "marquee-left 35s linear infinite",
+              }}
+            >
               {[...projects, ...projects].map((project, i) => (
                 <MobileCard key={i} project={project} />
               ))}
             </div>
             <div
-              className="absolute inset-0 pointer-events-none"
-              style={{ background: "linear-gradient(to right, #FFFFFF 0%, transparent 12%, transparent 88%, #FFFFFF 100%)" }}
+              className="pointer-events-none absolute inset-0"
+              style={{
+                background:
+                  "linear-gradient(to right, #FFFFFF 0%, transparent 12%, transparent 88%, #FFFFFF 100%)",
+              }}
             />
           </div>
 
-          <div className="absolute bottom-8 left-0 right-0 flex justify-center pointer-events-auto" style={{ zIndex: 20 }}>
-            <a href="/portfolio" className="font-sans text-[15px] text-[#565656] tracking-[-0.45px] hover:opacity-50 transition-opacity" style={{ textDecoration: "none" }}>
+          <div
+            className="pointer-events-auto absolute right-0 bottom-8 left-0 flex justify-center"
+            style={{ zIndex: 20 }}
+          >
+            <a
+              href="/portfolio"
+              className="font-sans text-[15px] tracking-[-0.45px] text-[#565656] transition-opacity hover:opacity-50"
+              style={{ textDecoration: "none" }}
+            >
               See All Work
             </a>
           </div>
@@ -377,13 +476,36 @@ function MobileCard({ project }: { project: Project }) {
   return (
     <a
       href={`/cases/${project.slug}`}
-      style={{ display: "block", width: 160, height: 213, borderRadius: 14, overflow: "hidden", position: "relative", flexShrink: 0, textDecoration: "none" }}
+      style={{
+        display: "block",
+        width: 160,
+        height: 213,
+        borderRadius: 14,
+        overflow: "hidden",
+        position: "relative",
+        flexShrink: 0,
+        textDecoration: "none",
+      }}
     >
-      <img src={project.img} alt={project.title} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 55%)" }} />
+      <img
+        src={project.img}
+        alt={project.title}
+        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 55%)",
+        }}
+      />
       <div style={{ position: "absolute", bottom: 10, left: 10, right: 10 }}>
-        <p className="font-mono text-[9px] text-white/55 tracking-[-0.2px] mb-0.5">{project.category}</p>
-        <p className="font-sans font-medium text-white text-[11px] tracking-[-0.3px] leading-tight">{project.title}</p>
+        <p className="mb-0.5 font-mono text-[9px] tracking-[-0.2px] text-white/55">
+          {project.category}
+        </p>
+        <p className="font-sans text-[11px] leading-tight font-medium tracking-[-0.3px] text-white">
+          {project.title}
+        </p>
       </div>
     </a>
   );
@@ -391,7 +513,16 @@ function MobileCard({ project }: { project: Project }) {
 
 function ArrowUpRight() {
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M3 13L13 3M13 3H6M13 3v7" />
     </svg>
   );

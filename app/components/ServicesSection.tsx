@@ -31,15 +31,15 @@ const serviceColors = [
 ];
 
 const serviceTitles: Record<string, string> = {
-  "Design Ops":            "My team is good. So why does everything take so long?",
+  "Design Ops": "My team is good. So why does everything take so long?",
   "Business Model Design": "Everyone loves the idea. I'm just not sure the numbers work.",
-  "Service Design":        "The product works. The experience around it doesn't.",
-  "Process Design":        "Smart people, slow output. That's where we are right now.",
-  "Market & User Research":"We keep building the wrong things for the right reasons.",
-  "Product Design":        "I know what I want to build. I just can't make it real.",
-  "Design Systems":        "Every launch looks like a different company made it.",
-  "AI Enablement":         "Everyone's doing AI. I want to do it in a way that actually matters.",
-  "Branding":              "We have great meetings. Nobody remembers us afterward.",
+  "Service Design": "The product works. The experience around it doesn't.",
+  "Process Design": "Smart people, slow output. That's where we are right now.",
+  "Market & User Research": "We keep building the wrong things for the right reasons.",
+  "Product Design": "I know what I want to build. I just can't make it real.",
+  "Design Systems": "Every launch looks like a different company made it.",
+  "AI Enablement": "Everyone's doing AI. I want to do it in a way that actually matters.",
+  Branding: "We have great meetings. Nobody remembers us afterward.",
 };
 
 const serviceDescriptions: Record<string, { tagline: string; body: string }> = {
@@ -67,7 +67,7 @@ const serviceDescriptions: Record<string, { tagline: string; body: string }> = {
     tagline: "Designing how your team works, not just what they build.",
     body: "When the people are good but the output is slow, the problem is almost never the people. It's the invisible friction: unclear ownership, handoffs that lose context, decisions that loop back to the same conversation three times.\n\nThe fix isn't adding process. It's removing what's slowing talented people down.",
   },
-  "Branding": {
+  Branding: {
     tagline: "Creating an identity that earns trust before you say a word.",
     body: "A brand isn't what you say in a pitch. It's what people feel after you've left the room. The visual identity, how you write, the experience of working with you: all of it has to add up to the same thing, every time.\n\nWe start by defining what that thing is. Then we build the expression around it: identity, voice, touchpoints that leave a consistent impression whether someone met you in a meeting or just saw your name somewhere.",
   },
@@ -82,29 +82,40 @@ const serviceDescriptions: Record<string, { tagline: string; body: string }> = {
 };
 
 const serviceCtas: Record<string, string> = {
-  "Design Ops":            "Can you help me figure out why my team is good but everything still feels slow?",
-  "Business Model Design": "The idea feels solid. Can you help me make sure the business behind it actually works?",
-  "Service Design":        "The product works. So why do our customers still struggle with it?",
-  "Process Design":        "We have the right people. Can you help me understand why nothing moves fast enough?",
-  "Market & User Research":"How do we stop building the wrong things, even when the intentions are right?",
-  "Product Design":        "I have a clear vision. Can you help me turn it into something real?",
-  "Design Systems":        "Every launch looks like a different company made it. Can we fix that?",
-  "AI Enablement":         "Everyone's doing AI. Can you help us do it in a way that actually matters?",
-  "Branding":              "People like us when they meet us. Can you help us figure out why they forget us?",
+  "Design Ops": "Can you help me figure out why my team is good but everything still feels slow?",
+  "Business Model Design":
+    "The idea feels solid. Can you help me make sure the business behind it actually works?",
+  "Service Design": "The product works. So why do our customers still struggle with it?",
+  "Process Design":
+    "We have the right people. Can you help me understand why nothing moves fast enough?",
+  "Market & User Research":
+    "How do we stop building the wrong things, even when the intentions are right?",
+  "Product Design": "I have a clear vision. Can you help me turn it into something real?",
+  "Design Systems": "Every launch looks like a different company made it. Can we fix that?",
+  "AI Enablement": "Everyone's doing AI. Can you help us do it in a way that actually matters?",
+  Branding: "People like us when they meet us. Can you help us figure out why they forget us?",
 };
 
 const serviceQuotes: Record<string, string> = {
-  "Design Ops":            "Speed in a design team is almost never about the designers. It's about the hundred small decisions nobody made about how the work actually moves.",
-  "Business Model Design": "That uncertainty isn't a weakness. It's the most honest thing you've said. Most founders skip that question entirely and find out the hard way.",
-  "Service Design":        "The app is never the whole experience. It's just the part that's easiest to point at.",
-  "Process Design":        "I've never walked into a team where the talent was the problem. It's always the system the talent is trying to work inside of.",
-  "Market & User Research":"Good intentions and wrong assumptions cost exactly the same amount. Research is just the discipline of finding out earlier.",
-  "Product Design":        "The vision is never the problem. It's the translation. Every step between your head and the product is a decision, and most of them get made by default.",
-  "Design Systems":        "Inconsistency isn't a design problem. It's a coordination problem. The system is just the agreement everyone needed to have anyway.",
-  "AI Enablement":         "The teams that will win with AI aren't the ones moving fastest. They're the ones who stopped to ask what they were actually trying to do.",
-  "Branding":              "Being likeable in a room is not the same as being memorable after you've left it. That gap is exactly where brand lives.",
+  "Design Ops":
+    "Speed in a design team is almost never about the designers. It's about the hundred small decisions nobody made about how the work actually moves.",
+  "Business Model Design":
+    "That uncertainty isn't a weakness. It's the most honest thing you've said. Most founders skip that question entirely and find out the hard way.",
+  "Service Design":
+    "The app is never the whole experience. It's just the part that's easiest to point at.",
+  "Process Design":
+    "I've never walked into a team where the talent was the problem. It's always the system the talent is trying to work inside of.",
+  "Market & User Research":
+    "Good intentions and wrong assumptions cost exactly the same amount. Research is just the discipline of finding out earlier.",
+  "Product Design":
+    "The vision is never the problem. It's the translation. Every step between your head and the product is a decision, and most of them get made by default.",
+  "Design Systems":
+    "Inconsistency isn't a design problem. It's a coordination problem. The system is just the agreement everyone needed to have anyway.",
+  "AI Enablement":
+    "The teams that will win with AI aren't the ones moving fastest. They're the ones who stopped to ask what they were actually trying to do.",
+  Branding:
+    "Being likeable in a room is not the same as being memorable after you've left it. That gap is exactly where brand lives.",
 };
-
 
 export default function ServicesSection() {
   const [expanded, setExpanded] = useState<number | null>(null);
@@ -112,40 +123,40 @@ export default function ServicesSection() {
   return (
     <div
       id="services"
-      className="snap-section relative pt-[100px] pb-[180px] lg:pb-[260px] min-h-[150svh] lg:min-h-[calc(100svh+1px)]"
+      className="snap-section relative min-h-[150svh] pt-[100px] pb-[180px] lg:min-h-[calc(100svh+1px)] lg:pb-[260px]"
       data-native-scroll="true"
       style={{ scrollSnapAlign: "none" }}
     >
       <div className="px-8 lg:px-[180px]">
-
-        <div className="flex flex-col lg:flex-row lg:gap-32 lg:items-start">
-
+        <div className="flex flex-col lg:flex-row lg:items-start lg:gap-32">
           {/* Left: sticky heading */}
-          <div className="mb-12 lg:mb-0 lg:w-[38%] lg:shrink-0 lg:sticky lg:self-start lg:top-[50vh] lg:-translate-y-1/2 text-center lg:text-left">
+          <div className="mb-12 text-center lg:sticky lg:top-[50vh] lg:mb-0 lg:w-[38%] lg:shrink-0 lg:-translate-y-1/2 lg:self-start lg:text-left">
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, ease }}
             >
-            <p className="text-serif-eyebrow text-[#0C0C12] mb-5">Disciplines</p>
-            <h2
-              style={{
-                fontFamily: "Ambit",
-                fontWeight: 700,
-                fontSize: "clamp(36px, 4vw, 64px)",
-                letterSpacing: "-0.05em",
-                lineHeight: 0.92,
-                color: "#0C0C12",
-              }}
-            >
-              Different tools.<br />Same mission.
-            </h2>
+              <p className="text-serif-eyebrow mb-5 text-[#0C0C12]">Disciplines</p>
+              <h2
+                style={{
+                  fontFamily: "Ambit",
+                  fontWeight: 700,
+                  fontSize: "clamp(36px, 4vw, 64px)",
+                  letterSpacing: "-0.05em",
+                  lineHeight: 0.92,
+                  color: "#0C0C12",
+                }}
+              >
+                Different tools.
+                <br />
+                Same mission.
+              </h2>
             </motion.div>
           </div>
 
           {/* Right: FAQ accordion */}
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0 flex-1">
             {services.map((service, i) => {
               const isOpen = expanded === i;
               return (
@@ -153,10 +164,10 @@ export default function ServicesSection() {
                   {/* Header */}
                   <button
                     onClick={() => setExpanded(isOpen ? null : i)}
-                    className="w-full flex items-center justify-between gap-6 text-left"
+                    className="flex w-full items-center justify-between gap-6 text-left"
                     style={{ paddingTop: 26, paddingBottom: 26, touchAction: "manipulation" }}
                   >
-                    <div className="flex items-center min-w-0">
+                    <div className="flex min-w-0 items-center">
                       <span
                         style={{
                           fontFamily: "Ambit",
@@ -173,8 +184,14 @@ export default function ServicesSection() {
                     <motion.svg
                       animate={{ rotate: isOpen ? 180 : 0 }}
                       transition={{ duration: 0.25, ease }}
-                      width="20" height="20" viewBox="0 0 24 24" fill="none"
-                      stroke="#0C0C12" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#0C0C12"
+                      strokeWidth="1.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                       className="shrink-0"
                     >
                       <path d="M6 9l6 6 6-6" />
@@ -192,23 +209,33 @@ export default function ServicesSection() {
                         style={{ overflow: "hidden" }}
                       >
                         <div style={{ paddingBottom: 36 }}>
-
                           {/* Body */}
                           <div className="flex flex-col gap-3">
                             {serviceDescriptions[service]?.body.split("\n\n").map((para, j) => (
-                              <p key={j} className="text-body" style={{ color: "#4A4A4A" }}>{para}</p>
+                              <p key={j} className="text-body" style={{ color: "#4A4A4A" }}>
+                                {para}
+                              </p>
                             ))}
                           </div>
 
                           {/* CTA block */}
-                          <div className="mt-8 pl-5 border-l-2 border-[#0C0C12] flex flex-col gap-3">
+                          <div className="mt-8 flex flex-col gap-3 border-l-2 border-[#0C0C12] pl-5">
                             <p className="text-body text-[#0C0C12]" style={{ fontWeight: 500 }}>
                               {serviceCtas[service]}
                             </p>
                             <motion.button
-                              onClick={() => { track("contact_modal_opened", { source: "services", service }); window.dispatchEvent(new CustomEvent("milk:open-contact", { detail: { service } })); }}
-                              className="inline-flex items-center justify-center font-sans font-medium text-[13px] text-white tracking-[-0.3px] rounded-full w-fit"
-                              style={{ background: "#1a1a1a", padding: "9px 18px", boxShadow: "0 2px 12px rgba(0,0,0,0.18)" }}
+                              onClick={() => {
+                                track("contact_modal_opened", { source: "services", service });
+                                window.dispatchEvent(
+                                  new CustomEvent("milk:open-contact", { detail: { service } }),
+                                );
+                              }}
+                              className="inline-flex w-fit items-center justify-center rounded-full font-sans text-[13px] font-medium tracking-[-0.3px] text-white"
+                              style={{
+                                background: "#1a1a1a",
+                                padding: "9px 18px",
+                                boxShadow: "0 2px 12px rgba(0,0,0,0.18)",
+                              }}
                               whileHover={{ opacity: 0.82 }}
                               whileTap={{ scale: 0.97 }}
                               transition={{ duration: 0.15 }}
@@ -216,7 +243,6 @@ export default function ServicesSection() {
                               Start this conversation
                             </motion.button>
                           </div>
-
                         </div>
                       </motion.div>
                     )}
@@ -225,9 +251,7 @@ export default function ServicesSection() {
               );
             })}
           </div>
-
         </div>
-
       </div>
     </div>
   );

@@ -11,19 +11,13 @@ export default function FilmGrain() {
             numOctaves="4"
             stitchTiles="stitch"
           >
-            <animate
-              attributeName="seed"
-              from="0"
-              to="200"
-              dur="0.4s"
-              repeatCount="indefinite"
-            />
+            <animate attributeName="seed" from="0" to="200" dur="0.4s" repeatCount="indefinite" />
           </feTurbulence>
           <feColorMatrix type="saturate" values="0" />
         </filter>
       </svg>
       <div
-        className="fixed inset-0 pointer-events-none"
+        className="pointer-events-none fixed inset-0"
         style={{
           zIndex: 9998,
           filter: "url(#film-grain)",

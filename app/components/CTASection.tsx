@@ -23,8 +23,7 @@ export default function CTASection() {
 
   return (
     <SectionReveal id="cta" noExitBlur style={{ minHeight: "calc(100vh - 540px)" }}>
-      <div className="flex flex-col items-center justify-center text-center px-8 lg:px-[180px]">
-
+      <div className="flex flex-col items-center justify-center px-8 text-center lg:px-[180px]">
         {lottieData && (
           <Lottie
             animationData={lottieData}
@@ -34,18 +33,16 @@ export default function CTASection() {
         )}
 
         <div className="flex flex-col items-center" style={{ gap: 16 }}>
-          <span className="text-serif-eyebrow text-[#2E2E2E] block">
-            Still got questions?
-          </span>
+          <span className="text-serif-eyebrow block text-[#2E2E2E]">Still got questions?</span>
 
-          <h2 className="text-section-title text-[#0C0C12] text-center">
+          <h2 className="text-section-title text-center text-[#0C0C12]">
             Don&apos;t be shy, say hi!
           </h2>
         </div>
 
         <motion.button
           onClick={openContact}
-          className="inline-flex items-center gap-2 font-sans font-medium text-[15px] text-white tracking-[-0.45px] rounded-full"
+          className="inline-flex items-center gap-2 rounded-full font-sans text-[15px] font-medium tracking-[-0.45px] text-white"
           style={{
             marginTop: 16,
             background: "#1a1a1a",
@@ -58,7 +55,6 @@ export default function CTASection() {
         >
           Break the Ice →
         </motion.button>
-
       </div>
     </SectionReveal>
   );

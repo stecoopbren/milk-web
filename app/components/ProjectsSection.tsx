@@ -2,13 +2,17 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
-import CinematicBoard, { type BoardShot, type CursorDef, DEFAULT_SHOTS, DEFAULT_CURSORS } from "./CinematicBoard";
+import CinematicBoard, {
+  type BoardShot,
+  type CursorDef,
+  DEFAULT_SHOTS,
+  DEFAULT_CURSORS,
+} from "./CinematicBoard";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
 import "swiper/css";
 import "swiper/css/pagination";
-
 
 export type OrbitItem = {
   title: string;
@@ -76,7 +80,8 @@ export const projects: Project[] = [
     slug: "gxm-validate-before-you-build",
     category: "Product Strategy & UX Design",
     title: "From hypothesis to evidence.",
-    description: "12 interviews, full audit, competitive analysis. Build decision backed by evidence.",
+    description:
+      "12 interviews, full audit, competitive analysis. Build decision backed by evidence.",
     img: "/GXM/Case 2/Screenshot 2026-08-03 at 10.25.22 AM.png",
     hidden: true,
   },
@@ -85,7 +90,8 @@ export const projects: Project[] = [
     slug: "gxm-design-system-brand-foundations",
     category: "Product Design · Design Systems",
     title: "Velocity by design. Not by headcount.",
-    description: "Design tokens, PrimeReact, Token Studio sync. The system that made thirty-day delivery possible.",
+    description:
+      "Design tokens, PrimeReact, Token Studio sync. The system that made thirty-day delivery possible.",
     img: "/GXM/Case 4/Screenshot 2026-08-17 at 3.22.01 PM.png",
     hidden: true,
   },
@@ -94,7 +100,9 @@ export const projects: Project[] = [
 // Orbit-ready items
 export const orbitItems: OrbitItem[] = [
   {
-    title: "Digital Transformation", role: "Product Strategy & Design Lead", year: "2024",
+    title: "Digital Transformation",
+    role: "Product Strategy & Design Lead",
+    year: "2024",
     image: "/GXM/IMG_9711.jpg",
     staticImage: "/GXM/mockuuups-female-in-the-office-working-on-a-macbook-mockup.webp",
     images: [
@@ -113,11 +121,15 @@ export const orbitItems: OrbitItem[] = [
       "/GXM/Case 2/Screenshot 2026-08-03 at 5.43.18 PM.png",
       "/GXM/Case 2/Screenshot 2026-08-03 at 5.31.41 PM.png",
     ],
-    href: "/cases/gxm", tag: "Enterprise SaaS",
+    href: "/cases/gxm",
+    tag: "Enterprise SaaS",
   },
   {
-    title: "Regenerative Community", role: "Growth & Brand Lead", year: "2026",
-    image: "/Chaguite/hero.webp", staticImage: "/Chaguite/hf_concept4_regen.webp",
+    title: "Regenerative Community",
+    role: "Growth & Brand Lead",
+    year: "2026",
+    image: "/Chaguite/hero.webp",
+    staticImage: "/Chaguite/hf_concept4_regen.webp",
     images: [
       "/Chaguite/hero.webp",
       "/Chaguite/concept-2.webp",
@@ -127,11 +139,15 @@ export const orbitItems: OrbitItem[] = [
       "/Chaguite/hf_interior_regen.webp",
       "/Chaguite/concept-5.webp",
     ],
-    href: "/cases/regenerative-community", tag: "Real Estate",
+    href: "/cases/regenerative-community",
+    tag: "Real Estate",
   },
   {
-    title: "Casa Siwä", role: "Brand & Experience Lead", year: "2025",
-    image: "/Siwa/siwa-stone-hero.webp", staticImage: "/Siwa/siwa-stone-hero.webp",
+    title: "Casa Siwä",
+    role: "Brand & Experience Lead",
+    year: "2025",
+    image: "/Siwa/siwa-stone-hero.webp",
+    staticImage: "/Siwa/siwa-stone-hero.webp",
     images: [
       "/Siwa/siwa-stone-hero.webp",
       "/Siwa/hf_20260530_004913_e18d2766-720f-4b3d-aeea-19042417dcfc.webp",
@@ -141,10 +157,13 @@ export const orbitItems: OrbitItem[] = [
       "/Siwa/hf_20260530_010811_ab2a0e3b-dac8-4a94-aeec-97b849ecf02a.webp",
       "/Siwa/hf_20260530_011818_1ccc9b48-4177-4e24-931e-79b8b3b2da5f.webp",
     ],
-    href: "/cases/casa-siwa", tag: "Hospitality",
+    href: "/cases/casa-siwa",
+    tag: "Hospitality",
   },
   {
-    title: "Dropclub", role: "Business Design & Lean Validation", year: "2026",
+    title: "Dropclub",
+    role: "Business Design & Lean Validation",
+    year: "2026",
     image: "/DC/Mocks/Lifestyle.png",
     staticImage: "/DC/Mocks/Lifestyle.png",
     images: [
@@ -155,15 +174,26 @@ export const orbitItems: OrbitItem[] = [
       "/DC/Stories/dc-nude.webp",
       "/DC/Stories/dc-sambas.webp",
     ],
-    href: "/cases/dropclub", tag: "Commerce",
+    href: "/cases/dropclub",
+    tag: "Commerce",
   },
 ];
 
 // ProjectCard kept for PortfolioHero
-export function ProjectCard({ project }: { project: Project; flipDelay?: number; inView?: boolean }) {
+export function ProjectCard({
+  project,
+}: {
+  project: Project;
+  flipDelay?: number;
+  inView?: boolean;
+}) {
   return (
-    <a href={`/cases/${project.slug}`} className="block w-full rounded-2xl overflow-hidden" style={{ aspectRatio: "3/4" }}>
-      <img src={project.img} alt={project.title} className="w-full h-full object-cover" />
+    <a
+      href={`/cases/${project.slug}`}
+      className="block w-full overflow-hidden rounded-2xl"
+      style={{ aspectRatio: "3/4" }}
+    >
+      <img src={project.img} alt={project.title} className="h-full w-full object-cover" />
     </a>
   );
 }
@@ -172,14 +202,32 @@ const ease = [0.22, 1, 0.36, 1] as const;
 
 function ChevronLeft() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M15 18l-6-6 6-6" />
     </svg>
   );
 }
 function ChevronRight() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M9 18l6-6-6-6" />
     </svg>
   );
@@ -224,8 +272,19 @@ function SlideContent({
   return (
     <a
       href={isActive ? item.href : undefined}
-      onClick={(e) => { if (!isActive) { e.preventDefault(); swiperRef.current?.slideToLoop(index); } }}
-      style={{ display: "block", width: "100%", height: "100%", position: "relative", textDecoration: "none" }}
+      onClick={(e) => {
+        if (!isActive) {
+          e.preventDefault();
+          swiperRef.current?.slideToLoop(index);
+        }
+      }}
+      style={{
+        display: "block",
+        width: "100%",
+        height: "100%",
+        position: "relative",
+        textDecoration: "none",
+      }}
     >
       {/* Image or CinematicBoard (desktop only) */}
       {!isMobile && index === activeIndex && item.cinematicSrc && cinematicReady ? (
@@ -253,7 +312,13 @@ function SlideContent({
       {/* Caption on active */}
       {isActive && (
         <div style={{ position: "absolute", inset: 0 }}>
-          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.75) 100%)" }} />
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.75) 100%)",
+            }}
+          />
           <div style={{ position: "absolute", bottom: 24, left: 24, right: 24 }}>
             <p className="text-micro" style={{ color: "rgba(255,255,255,0.55)", marginBottom: 6 }}>
               {item.tag} · {item.year}
@@ -272,15 +337,23 @@ function SlideContent({
 }
 
 // ── Dot indicators (shared) ────────────────────────────────────────────────────
-function Dots({ count, active, onDotClick }: { count: number; active: number; onDotClick: (i: number) => void }) {
+function Dots({
+  count,
+  active,
+  onDotClick,
+}: {
+  count: number;
+  active: number;
+  onDotClick: (i: number) => void;
+}) {
   return (
-    <div className="flex gap-2 items-center justify-center">
+    <div className="flex items-center justify-center gap-2">
       {Array.from({ length: count }).map((_, i) => (
         <button
           key={i}
           onClick={() => onDotClick(i)}
           className={`rounded-full transition-all duration-300 ${
-            i === active ? "w-5 h-[6px] bg-[#0C0C12]" : "w-[6px] h-[6px] bg-[#C0C0C0]"
+            i === active ? "h-[6px] w-5 bg-[#0C0C12]" : "h-[6px] w-[6px] bg-[#C0C0C0]"
           }`}
           aria-label={`Go to project ${i + 1}`}
         />
@@ -314,7 +387,7 @@ function SwipeHint() {
     <AnimatePresence>
       {visible && (
         <motion.div
-          className="absolute inset-0 flex items-center justify-center pointer-events-none"
+          className="pointer-events-none absolute inset-0 flex items-center justify-center"
           style={{ zIndex: 20 }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -328,19 +401,56 @@ function SwipeHint() {
               transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
             >
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M13 4l-6 6 6 6" stroke="#2E2E2E" strokeOpacity="0.4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path
+                  d="M13 4l-6 6 6 6"
+                  stroke="#2E2E2E"
+                  strokeOpacity="0.4"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
-              <div style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(47,47,47,0.08)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: "50%",
+                  background: "rgba(47,47,47,0.08)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
                 <svg width="16" height="20" viewBox="0 0 16 20" fill="none">
-                  <path d="M8 1C9.5 1 10.5 2 10.5 3.5v8C10.5 13 9.5 14 8 14s-2.5-1-2.5-2.5v-8C5.5 2 6.5 1 8 1z" stroke="#2E2E2E" strokeOpacity="0.4" strokeWidth="1.2" />
-                  <path d="M10.5 6.5C12 6.5 14 7.5 14 9.5v4C14 16.5 11.5 19 8 19S2 16.5 2 13.5v-4C2 7.5 4 6.5 5.5 6.5" stroke="#2E2E2E" strokeOpacity="0.4" strokeWidth="1.2" strokeLinecap="round" />
+                  <path
+                    d="M8 1C9.5 1 10.5 2 10.5 3.5v8C10.5 13 9.5 14 8 14s-2.5-1-2.5-2.5v-8C5.5 2 6.5 1 8 1z"
+                    stroke="#2E2E2E"
+                    strokeOpacity="0.4"
+                    strokeWidth="1.2"
+                  />
+                  <path
+                    d="M10.5 6.5C12 6.5 14 7.5 14 9.5v4C14 16.5 11.5 19 8 19S2 16.5 2 13.5v-4C2 7.5 4 6.5 5.5 6.5"
+                    stroke="#2E2E2E"
+                    strokeOpacity="0.4"
+                    strokeWidth="1.2"
+                    strokeLinecap="round"
+                  />
                 </svg>
               </div>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M7 4l6 6-6 6" stroke="#2E2E2E" strokeOpacity="0.4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path
+                  d="M7 4l6 6-6 6"
+                  stroke="#2E2E2E"
+                  strokeOpacity="0.4"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </motion.div>
-            <span className="text-micro" style={{ color: "rgba(47,47,47,0.4)" }}>swipe</span>
+            <span className="text-micro" style={{ color: "rgba(47,47,47,0.4)" }}>
+              swipe
+            </span>
           </div>
         </motion.div>
       )}
@@ -353,22 +463,33 @@ function CoverflowCarousel({ initialIndex = 0 }: { initialIndex?: number }) {
   const swiperMobile = useRef<SwiperType | null>(null);
   const [activeIndex, setActiveIndex] = useState(initialIndex);
   const n = orbitItems.length;
-  const goNext = () => setActiveIndex(i => (i + 1) % n);
-  const goPrev = () => setActiveIndex(i => (i - 1 + n) % n);
+  const goNext = () => setActiveIndex((i) => (i + 1) % n);
+  const goPrev = () => setActiveIndex((i) => (i - 1 + n) % n);
 
   return (
     <div
       id="portfolio"
       className="snap-section flex flex-col"
-      style={{ height: "100vh", paddingTop: 80, paddingBottom: 36, background: "#FFFFFF", overflowY: "clip" }}
+      style={{
+        height: "100vh",
+        paddingTop: 80,
+        paddingBottom: 36,
+        background: "#FFFFFF",
+        overflowY: "clip",
+      }}
     >
       <style>{mobileCss}</style>
 
       {/* ── DESKTOP: custom 3-card coverflow ── */}
-      <div className="hidden lg:flex flex-col" style={{ flex: 1, justifyContent: "center" }}>
+      <div className="hidden flex-col lg:flex" style={{ flex: 1, justifyContent: "center" }}>
         <h2
-          className="font-sans font-medium text-[#0C0C12] text-center shrink-0"
-          style={{ fontSize: "clamp(40px, 7vw, 88px)", letterSpacing: "-0.05em", lineHeight: 0.9, marginBottom: 32 }}
+          className="shrink-0 text-center font-sans font-medium text-[#0C0C12]"
+          style={{
+            fontSize: "clamp(40px, 7vw, 88px)",
+            letterSpacing: "-0.05em",
+            lineHeight: 0.9,
+            marginBottom: 32,
+          }}
         >
           Featured Work
         </h2>
@@ -390,7 +511,16 @@ function CoverflowCarousel({ initialIndex = 0 }: { initialIndex?: number }) {
               <a
                 key={item.href}
                 href={isActive ? item.href : undefined}
-                onClick={isActive ? undefined : (e) => { e.preventDefault(); if (isVisible) { isRight ? goNext() : goPrev(); } }}
+                onClick={
+                  isActive
+                    ? undefined
+                    : (e) => {
+                        e.preventDefault();
+                        if (isVisible) {
+                          isRight ? goNext() : goPrev();
+                        }
+                      }
+                }
                 style={{
                   position: "absolute",
                   top: 0,
@@ -407,7 +537,9 @@ function CoverflowCarousel({ initialIndex = 0 }: { initialIndex?: number }) {
                   transform: `translateX(${tx}px) rotateY(${ry}deg) scale(${sc})`,
                   opacity: op,
                   transition: "transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease",
-                  boxShadow: isActive ? "0 24px 80px rgba(0,0,0,0.28)" : "0 8px 40px rgba(0,0,0,0.15)",
+                  boxShadow: isActive
+                    ? "0 24px 80px rgba(0,0,0,0.28)"
+                    : "0 8px 40px rgba(0,0,0,0.15)",
                 }}
               >
                 <img
@@ -417,11 +549,30 @@ function CoverflowCarousel({ initialIndex = 0 }: { initialIndex?: number }) {
                 />
                 {isActive && (
                   <div style={{ position: "absolute", inset: 0 }}>
-                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.75) 100%)" }} />
+                    <div
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        background:
+                          "linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.75) 100%)",
+                      }}
+                    />
                     <div style={{ position: "absolute", bottom: 24, left: 24, right: 24 }}>
-                      <p className="text-micro" style={{ color: "rgba(255,255,255,0.55)", marginBottom: 6 }}>{item.tag} · {item.year}</p>
-                      <p className="text-subheading" style={{ color: "#fff" }}>{item.title}</p>
-                      <p className="text-body" style={{ color: "rgba(255,255,255,0.5)", marginTop: 6 }}>{item.role}</p>
+                      <p
+                        className="text-micro"
+                        style={{ color: "rgba(255,255,255,0.55)", marginBottom: 6 }}
+                      >
+                        {item.tag} · {item.year}
+                      </p>
+                      <p className="text-subheading" style={{ color: "#fff" }}>
+                        {item.title}
+                      </p>
+                      <p
+                        className="text-body"
+                        style={{ color: "rgba(255,255,255,0.5)", marginTop: 6 }}
+                      >
+                        {item.role}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -430,10 +581,10 @@ function CoverflowCarousel({ initialIndex = 0 }: { initialIndex?: number }) {
           })}
         </div>
 
-        <div className="shrink-0 flex items-center justify-center gap-4" style={{ marginTop: 28 }}>
+        <div className="flex shrink-0 items-center justify-center gap-4" style={{ marginTop: 28 }}>
           <button
             onClick={goPrev}
-            className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors"
+            className="inline-flex items-center justify-center rounded-full border border-[#2E2E2E]/15 p-2.5 text-[#2E2E2E] transition-colors hover:border-[#2E2E2E]/40"
             aria-label="Previous project"
           >
             <ChevronLeft />
@@ -441,7 +592,7 @@ function CoverflowCarousel({ initialIndex = 0 }: { initialIndex?: number }) {
           <Dots count={n} active={activeIndex} onDotClick={setActiveIndex} />
           <button
             onClick={goNext}
-            className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors"
+            className="inline-flex items-center justify-center rounded-full border border-[#2E2E2E]/15 p-2.5 text-[#2E2E2E] transition-colors hover:border-[#2E2E2E]/40"
             aria-label="Next project"
           >
             <ChevronRight />
@@ -450,17 +601,24 @@ function CoverflowCarousel({ initialIndex = 0 }: { initialIndex?: number }) {
       </div>
 
       {/* ── MOBILE: peek slider ── */}
-      <div className="flex lg:hidden flex-col" style={{ flex: 1, justifyContent: "center" }}>
+      <div className="flex flex-col lg:hidden" style={{ flex: 1, justifyContent: "center" }}>
         <h2
-          className="font-sans font-medium text-[#0C0C12] text-center shrink-0"
-          style={{ fontSize: "clamp(32px, 9vw, 48px)", letterSpacing: "-0.05em", lineHeight: 0.9, marginBottom: 24 }}
+          className="shrink-0 text-center font-sans font-medium text-[#0C0C12]"
+          style={{
+            fontSize: "clamp(32px, 9vw, 48px)",
+            letterSpacing: "-0.05em",
+            lineHeight: 0.9,
+            marginBottom: 24,
+          }}
         >
           Featured Work
         </h2>
 
         <div className="relative w-full">
           <Swiper
-            onSwiper={(s) => { swiperMobile.current = s; }}
+            onSwiper={(s) => {
+              swiperMobile.current = s;
+            }}
             onSlideChange={(s) => setActiveIndex(s.realIndex)}
             initialSlide={0}
             effect="slide"
@@ -478,9 +636,13 @@ function CoverflowCarousel({ initialIndex = 0 }: { initialIndex?: number }) {
               <SwiperSlide key={item.href}>
                 {({ isActive }) => (
                   <SlideContent
-                    item={item} index={i} activeIndex={activeIndex}
-                    isActive={isActive} cinematicReady={false}
-                    isMobile={true} swiperRef={swiperMobile}
+                    item={item}
+                    index={i}
+                    activeIndex={activeIndex}
+                    isActive={isActive}
+                    cinematicReady={false}
+                    isMobile={true}
+                    swiperRef={swiperMobile}
                   />
                 )}
               </SwiperSlide>
@@ -489,18 +651,22 @@ function CoverflowCarousel({ initialIndex = 0 }: { initialIndex?: number }) {
           <SwipeHint />
         </div>
 
-        <div className="shrink-0 flex items-center justify-center gap-4" style={{ marginTop: 20 }}>
+        <div className="flex shrink-0 items-center justify-center gap-4" style={{ marginTop: 20 }}>
           <button
             onClick={() => swiperMobile.current?.slidePrev()}
-            className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors"
+            className="inline-flex items-center justify-center rounded-full border border-[#2E2E2E]/15 p-2.5 text-[#2E2E2E] transition-colors hover:border-[#2E2E2E]/40"
             aria-label="Previous project"
           >
             <ChevronLeft />
           </button>
-          <Dots count={orbitItems.length} active={activeIndex} onDotClick={(i) => swiperMobile.current?.slideToLoop(i)} />
+          <Dots
+            count={orbitItems.length}
+            active={activeIndex}
+            onDotClick={(i) => swiperMobile.current?.slideToLoop(i)}
+          />
           <button
             onClick={() => swiperMobile.current?.slideNext()}
-            className="border border-[#2E2E2E]/15 rounded-full p-2.5 inline-flex items-center justify-center text-[#2E2E2E] hover:border-[#2E2E2E]/40 transition-colors"
+            className="inline-flex items-center justify-center rounded-full border border-[#2E2E2E]/15 p-2.5 text-[#2E2E2E] transition-colors hover:border-[#2E2E2E]/40"
             aria-label="Next project"
           >
             <ChevronRight />

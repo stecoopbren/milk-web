@@ -54,20 +54,86 @@ interface CinematicBoardProps {
 // ── Preset shots for a wide FigJam board (override per case) ──────────────────
 
 export const DEFAULT_SHOTS: BoardShot[] = [
-  { x: 0,   y: 0,   scale: 1.05, hold: 3.0 },
-  { x: 18,  y: 8,   scale: 2.1,  hold: 5.0, label: "Workflow Engine" },
-  { x: -8,  y: -10, scale: 2.4,  hold: 5.5, label: "Future State Flow" },
-  { x: -20, y: 12,  scale: 2.0,  hold: 4.5, label: "MVP Flow Map" },
-  { x: 0,   y: 0,   scale: 1.2,  hold: 3.0 },
+  { x: 0, y: 0, scale: 1.05, hold: 3.0 },
+  { x: 18, y: 8, scale: 2.1, hold: 5.0, label: "Workflow Engine" },
+  { x: -8, y: -10, scale: 2.4, hold: 5.5, label: "Future State Flow" },
+  { x: -20, y: 12, scale: 2.0, hold: 4.5, label: "MVP Flow Map" },
+  { x: 0, y: 0, scale: 1.2, hold: 3.0 },
 ];
 
 export const DEFAULT_CURSORS: CursorDef[] = [
-  { name: "Steven", color: "#FF3377", path: [[25, 50], [42, 32], [58, 55], [38, 68]], stepDuration: 3.2, startDelay: 0.0 },
-  { name: "Lena",   color: "#FACC15", path: [[68, 22], [55, 40], [72, 58], [60, 35]], stepDuration: 3.8, startDelay: 0.8 },
-  { name: "Marcus", color: "#3B82F6", path: [[15, 30], [30, 55], [20, 72], [35, 45]], stepDuration: 4.1, startDelay: 1.4 },
-  { name: "Elise",  color: "#22C55E", path: [[78, 45], [62, 28], [80, 18], [70, 60]], stepDuration: 3.5, startDelay: 2.0 },
-  { name: "Jordan", color: "#A855F7", path: [[48, 70], [60, 50], [45, 35], [55, 65]], stepDuration: 4.4, startDelay: 1.0 },
-  { name: "Hugo",   color: "#F97316", path: [[82, 70], [72, 48], [88, 30], [75, 65]], stepDuration: 3.9, startDelay: 2.6 },
+  {
+    name: "Steven",
+    color: "#FF3377",
+    path: [
+      [25, 50],
+      [42, 32],
+      [58, 55],
+      [38, 68],
+    ],
+    stepDuration: 3.2,
+    startDelay: 0.0,
+  },
+  {
+    name: "Lena",
+    color: "#FACC15",
+    path: [
+      [68, 22],
+      [55, 40],
+      [72, 58],
+      [60, 35],
+    ],
+    stepDuration: 3.8,
+    startDelay: 0.8,
+  },
+  {
+    name: "Marcus",
+    color: "#3B82F6",
+    path: [
+      [15, 30],
+      [30, 55],
+      [20, 72],
+      [35, 45],
+    ],
+    stepDuration: 4.1,
+    startDelay: 1.4,
+  },
+  {
+    name: "Elise",
+    color: "#22C55E",
+    path: [
+      [78, 45],
+      [62, 28],
+      [80, 18],
+      [70, 60],
+    ],
+    stepDuration: 3.5,
+    startDelay: 2.0,
+  },
+  {
+    name: "Jordan",
+    color: "#A855F7",
+    path: [
+      [48, 70],
+      [60, 50],
+      [45, 35],
+      [55, 65],
+    ],
+    stepDuration: 4.4,
+    startDelay: 1.0,
+  },
+  {
+    name: "Hugo",
+    color: "#F97316",
+    path: [
+      [82, 70],
+      [72, 48],
+      [88, 30],
+      [75, 65],
+    ],
+    stepDuration: 3.9,
+    startDelay: 2.6,
+  },
 ];
 
 // ── Collaboration cursor ───────────────────────────────────────────────────────
@@ -80,7 +146,7 @@ function Cursor({ def, w, h }: { def: CursorDef; w: number; h: number }) {
     const t = setTimeout(() => {
       setVisible(true);
       const interval = setInterval(
-        () => setIdx(i => (i + 1) % def.path.length),
+        () => setIdx((i) => (i + 1) % def.path.length),
         def.stepDuration * 1000,
       );
       return () => clearInterval(interval);
@@ -99,14 +165,30 @@ function Cursor({ def, w, h }: { def: CursorDef; w: number; h: number }) {
       style={{ position: "absolute", top: 0, left: 0, pointerEvents: "none", zIndex: 10 }}
     >
       <svg width="20" height="24" viewBox="0 0 20 24" fill="none">
-        <path d="M2 2l14 8-7 2-4 8L2 2z" fill={def.color} stroke="white" strokeWidth="1.5" strokeLinejoin="round" />
+        <path
+          d="M2 2l14 8-7 2-4 8L2 2z"
+          fill={def.color}
+          stroke="white"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+        />
       </svg>
-      <div style={{
-        position: "absolute", top: 18, left: 14,
-        background: def.color, color: "white",
-        fontSize: 11, fontFamily: "DM Sans, sans-serif", fontWeight: 600,
-        padding: "2px 7px", borderRadius: 999, whiteSpace: "nowrap", letterSpacing: "-0.2px",
-      }}>
+      <div
+        style={{
+          position: "absolute",
+          top: 18,
+          left: 14,
+          background: def.color,
+          color: "white",
+          fontSize: 11,
+          fontFamily: "DM Sans, sans-serif",
+          fontWeight: 600,
+          padding: "2px 7px",
+          borderRadius: 999,
+          whiteSpace: "nowrap",
+          letterSpacing: "-0.2px",
+        }}
+      >
         {def.name}
       </div>
     </motion.div>
@@ -172,22 +254,34 @@ export default function CinematicBoard({
       <motion.div
         animate={{ x: tx, y: ty, scale: shot.scale }}
         transition={{ duration: 2.4, ease }}
-        style={{ position: "absolute", width: "200%", height: "100%", transformOrigin: "center center" }}
+        style={{
+          position: "absolute",
+          width: "200%",
+          height: "100%",
+          transformOrigin: "center center",
+        }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={src} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        <img
+          src={src}
+          alt=""
+          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+        />
 
         {/* Radial vignette — draws the eye to the center of each shot */}
-        <div aria-hidden style={{
-          position: "absolute", inset: 0, pointerEvents: "none",
-          background: "radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.6) 100%)",
-        }} />
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            pointerEvents: "none",
+            background: "radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.6) 100%)",
+          }}
+        />
       </motion.div>
 
       {/* ── Collaboration cursors — fixed to container coords, not image ── */}
-      {inView && cursors.map((def, i) => (
-        <Cursor key={i} def={def} w={size.w} h={size.h} />
-      ))}
+      {inView && cursors.map((def, i) => <Cursor key={i} def={def} w={size.w} h={size.h} />)}
 
       {/* ── Shot annotation label ── */}
       <AnimatePresence mode="wait">
@@ -199,13 +293,22 @@ export default function CinematicBoard({
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.4, ease }}
             style={{
-              position: "absolute", bottom: 32, left: 32, zIndex: 20,
+              position: "absolute",
+              bottom: 32,
+              left: 32,
+              zIndex: 20,
               background: "rgba(255,255,255,0.1)",
-              backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)",
+              backdropFilter: "blur(14px)",
+              WebkitBackdropFilter: "blur(14px)",
               border: "1px solid rgba(255,255,255,0.18)",
-              borderRadius: 8, padding: "6px 14px",
-              fontFamily: "DM Mono, monospace", fontSize: 11, fontWeight: 500,
-              color: "rgba(255,255,255,0.8)", letterSpacing: "0.06em", textTransform: "uppercase",
+              borderRadius: 8,
+              padding: "6px 14px",
+              fontFamily: "DM Mono, monospace",
+              fontSize: 11,
+              fontWeight: 500,
+              color: "rgba(255,255,255,0.8)",
+              letterSpacing: "0.06em",
+              textTransform: "uppercase",
             }}
           >
             {shot.label}
@@ -214,10 +317,19 @@ export default function CinematicBoard({
       </AnimatePresence>
 
       {/* ── Bottom fade — blends into page background ── */}
-      <div aria-hidden style={{
-        position: "absolute", bottom: 0, left: 0, right: 0, height: 100, zIndex: 5, pointerEvents: "none",
-        background: `linear-gradient(to bottom, transparent, ${bg})`,
-      }} />
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: 100,
+          zIndex: 5,
+          pointerEvents: "none",
+          background: `linear-gradient(to bottom, transparent, ${bg})`,
+        }}
+      />
     </motion.div>
   );
 }

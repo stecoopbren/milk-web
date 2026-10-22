@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { usePathname } from 'next/navigation';
-import { useEffect } from 'react';
+import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 
 function easeOutQuart(t: number): number {
   return 1 - Math.pow(1 - t, 4);
@@ -10,7 +10,10 @@ function easeOutQuart(t: number): number {
 function smoothScrollTo(targetY: number, onDone: () => void) {
   const lenis = (window as any).__lenis;
   const distance = Math.abs(targetY - window.scrollY);
-  if (distance < 4) { onDone(); return; }
+  if (distance < 4) {
+    onDone();
+    return;
+  }
 
   let fired = false;
   const fireEnd = () => {
@@ -41,14 +44,19 @@ function smoothScrollTo(targetY: number, onDone: () => void) {
       duration: 0.65,
       easing: easeOutQuart,
       lock: true,
-      onComplete: () => { clearTimeout(safetyTimer); fireEnd(); },
+      onComplete: () => {
+        clearTimeout(safetyTimer);
+        fireEnd();
+      },
     });
   } else {
     // Fallback (no Lenis): native smooth scroll with fixed timeout.
     window.dispatchEvent(new Event("milk:snap-start"));
     document.body.classList.add("is-snapping");
     window.scrollTo({ top: targetY, behavior: "smooth" });
-    setTimeout(() => { fireEnd(); }, 750);
+    setTimeout(() => {
+      fireEnd();
+    }, 750);
   }
 }
 
@@ -56,8 +64,8 @@ export default function ScrollSnapController() {
   const pathname = usePathname();
 
   useEffect(() => {
-    const snapPages = ['/', '/portfolio'];
-    if (!snapPages.includes(pathname) && !pathname.startsWith('/cases/')) return;
+    const snapPages = ["/", "/portfolio"];
+    if (!snapPages.includes(pathname) && !pathname.startsWith("/cases/")) return;
 
     let isSnapping = false;
     let cooldown = false;
@@ -66,13 +74,16 @@ export default function ScrollSnapController() {
     // Block all navigation until the intro animation has finished.
     // Without this, swipes during the IntroLoader scroll the page behind
     // the overlay and reveal the wrong section when the loader dismisses.
-    let ready = pathname !== '/' || !!sessionStorage.getItem('milk:intro-shown');
-    const onIntroExit = () => { ready = true; };
-    window.addEventListener('milk:intro-exit', onIntroExit, { once: true });
+    let ready = pathname !== "/" || !!sessionStorage.getItem("milk:intro-shown");
+    const onIntroExit = () => {
+      ready = true;
+    };
+    window.addEventListener("milk:intro-exit", onIntroExit, { once: true });
 
     const getSections = (): HTMLElement[] =>
-      (Array.from(document.querySelectorAll('.snap-section')) as HTMLElement[])
-        .filter((el) => getComputedStyle(el).display !== 'none');
+      (Array.from(document.querySelectorAll(".snap-section")) as HTMLElement[]).filter(
+        (el) => getComputedStyle(el).display !== "none",
+      );
 
     const getSectionTop = (el: HTMLElement): number =>
       el.getBoundingClientRect().top + window.scrollY;
@@ -85,7 +96,10 @@ export default function ScrollSnapController() {
       let minDist = Infinity;
       sections.forEach((el, i) => {
         const dist = Math.abs(getSectionTop(el) - scrollTop);
-        if (dist < minDist) { minDist = dist; closest = i; }
+        if (dist < minDist) {
+          minDist = dist;
+          closest = i;
+        }
       });
       return closest;
     };
@@ -94,7 +108,7 @@ export default function ScrollSnapController() {
 
     const snapToIndex = (index: number) => {
       // Stop native scroll momentum before Lenis animates (critical on iOS).
-      window.scrollTo({ top: window.scrollY, behavior: 'instant' as ScrollBehavior });
+      window.scrollTo({ top: window.scrollY, behavior: "instant" as ScrollBehavior });
       accumulatedDelta = 0;
       clearTimeout(wheelTimeout);
       const sections = getSections();
@@ -124,14 +138,16 @@ export default function ScrollSnapController() {
       lastSnapTime = Date.now();
       smoothScrollTo(targetY, () => {
         isSnapping = false;
-        setTimeout(() => { cooldown = false; }, SNAP_COOLDOWN);
+        setTimeout(() => {
+          cooldown = false;
+        }, SNAP_COOLDOWN);
       });
     };
 
     // Disable browser scroll restoration and force top on load
-    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
     window.scrollTo(0, 0);
-    document.documentElement.style.overscrollBehaviorY = 'none';
+    document.documentElement.style.overscrollBehaviorY = "none";
     currentIndex = 0;
 
     // External nav can dispatch 'milk:snap-to' with { id: 'section-id' } or { index: number }
@@ -139,14 +155,14 @@ export default function ScrollSnapController() {
       accumulatedDelta = 0;
       const detail = (e as CustomEvent).detail;
       const sections = getSections();
-      if (typeof detail?.index === 'number') {
+      if (typeof detail?.index === "number") {
         snapToIndex(detail.index);
         return;
       }
-      const idx = sections.findIndex(el => el.id === detail?.id);
+      const idx = sections.findIndex((el) => el.id === detail?.id);
       if (idx !== -1) snapToIndex(idx);
     };
-    window.addEventListener('milk:snap-to', onSnapTo);
+    window.addEventListener("milk:snap-to", onSnapTo);
 
     // ── Free-scroll detection ─────────────────────────────────────────────────
     // A free-scroll zone element straddles the viewport: its top is above/at the
@@ -154,12 +170,11 @@ export default function ScrollSnapController() {
     // short free-scroll sections like BioSection (250vh = 2.5 viewports): at the
     // 2nd page r.bottom = 0.5*vh < innerHeight-10, so the old check exited prematurely.
     const isInFreeScrollZone = (): boolean =>
-      (Array.from(document.querySelectorAll('[data-free-scroll]')) as HTMLElement[])
-        .some((el) => {
-          const sTop = getSectionTop(el);
-          const sEnd = sTop + el.offsetHeight - window.innerHeight;
-          return window.scrollY >= sTop - 10 && window.scrollY <= sEnd + 10;
-        });
+      (Array.from(document.querySelectorAll("[data-free-scroll]")) as HTMLElement[]).some((el) => {
+        const sTop = getSectionTop(el);
+        const sEnd = sTop + el.offsetHeight - window.innerHeight;
+        return window.scrollY >= sTop - 10 && window.scrollY <= sEnd + 10;
+      });
 
     // ── Native-scroll detection ───────────────────────────────────────────────
     // Sections with data-native-scroll have dynamic height (e.g. accordion).
@@ -171,8 +186,8 @@ export default function ScrollSnapController() {
     //     viewport entirely — prevents premature snap when the section bottom
     //     comes into view mid-scroll (e.g. after expanding a deep accordion).
     const getCurrentNativeScrollEl = (): HTMLElement | null =>
-      (Array.from(document.querySelectorAll('[data-native-scroll]')) as HTMLElement[])
-        .find((el) => {
+      (Array.from(document.querySelectorAll("[data-native-scroll]")) as HTMLElement[]).find(
+        (el) => {
           const r = el.getBoundingClientRect();
           const sectionTop = r.top + window.scrollY;
           const isTaller = el.offsetHeight > window.innerHeight;
@@ -187,7 +202,8 @@ export default function ScrollSnapController() {
           // Threshold kept tight (10px) so the zone doesn't activate prematurely
           // while the user is still on the preceding snap section.
           return r.top <= 10 && isTaller;
-        }) ?? null;
+        },
+      ) ?? null;
 
     const isInNativeScrollZone = (): boolean => getCurrentNativeScrollEl() !== null;
 
@@ -210,7 +226,7 @@ export default function ScrollSnapController() {
       const el = getCurrentNativeScrollEl();
       if (!el) return false;
       if (el.offsetHeight <= window.innerHeight) return false;
-      return (el.offsetHeight - window.innerHeight) < window.innerHeight * SHALLOW_THRESHOLD;
+      return el.offsetHeight - window.innerHeight < window.innerHeight * SHALLOW_THRESHOLD;
     };
 
     // ── Wheel ─────────────────────────────────────────────────────────────────
@@ -230,8 +246,11 @@ export default function ScrollSnapController() {
     // Ignored while snapping: a swipe's own ramp-up deltas grow and would
     // falsely unlock, letting its momentum tail fire a second snap.
     const isNewGesture = (deltaY: number): boolean =>
-      gestureSnapped && !isSnapping && !cooldown
-      && Math.abs(deltaY) > Math.abs(lastWheelDeltaY) * 1.3 && Math.abs(deltaY) > 15;
+      gestureSnapped &&
+      !isSnapping &&
+      !cooldown &&
+      Math.abs(deltaY) > Math.abs(lastWheelDeltaY) * 1.3 &&
+      Math.abs(deltaY) > 15;
     // Silence is measured from event timestamps, not a timer: a main-thread
     // stall would fire a timer while momentum events are still queued.
     const checkGestureGap = (e: WheelEvent) => {
@@ -250,7 +269,7 @@ export default function ScrollSnapController() {
       if (Date.now() - lastSnapTime < SNAP_BLOCK) return;
 
       // Kill native touch momentum before Lenis takes over (critical on mobile).
-      window.scrollTo({ top: window.scrollY, behavior: 'instant' as ScrollBehavior });
+      window.scrollTo({ top: window.scrollY, behavior: "instant" as ScrollBehavior });
 
       // Sync currentIndex to the active free-scroll zone before stepping.
       // This is necessary when multiple consecutive sections have data-free-scroll
@@ -316,7 +335,9 @@ export default function ScrollSnapController() {
           snapToIndex(direction > 0 ? currentIndex + 1 : currentIndex - 1);
           return;
         }
-        setTimeout(() => { cooldown = false; }, SNAP_COOLDOWN);
+        setTimeout(() => {
+          cooldown = false;
+        }, SNAP_COOLDOWN);
       });
     };
 
@@ -326,7 +347,7 @@ export default function ScrollSnapController() {
       // horizontal-scroll container (e.g. BlogSection card carousel). Without
       // this, mixed-direction trackpad events that have deltaY > deltaX get
       // intercepted and snap the page away while the user is scrolling sideways.
-      if ((e.target as Element)?.closest('[data-horizontal-scroll]')) return;
+      if ((e.target as Element)?.closest("[data-horizontal-scroll]")) return;
       const lenis = (window as any).__lenis;
       // Native-scroll zone: stop Lenis so its inertia doesn't overshoot the
       // section, then let the browser scroll natively.
@@ -359,7 +380,10 @@ export default function ScrollSnapController() {
           // Downward: snap if this event would reach the bottom, so momentum
           // can't overshoot and get pulled back by onScrollEnd.
           const r = nativeEl.getBoundingClientRect();
-          if (nativeEl.offsetHeight > window.innerHeight + 20 && r.bottom - e.deltaY <= window.innerHeight + 4) {
+          if (
+            nativeEl.offsetHeight > window.innerHeight + 20 &&
+            r.bottom - e.deltaY <= window.innerHeight + 4
+          ) {
             e.preventDefault();
             if (gestureSnapped) return;
             gestureSnapped = true;
@@ -396,7 +420,9 @@ export default function ScrollSnapController() {
 
       if (Math.abs(accumulatedDelta) < 50) {
         clearTimeout(wheelTimeout);
-        wheelTimeout = setTimeout(() => { accumulatedDelta = 0; }, 200);
+        wheelTimeout = setTimeout(() => {
+          accumulatedDelta = 0;
+        }, 200);
         return;
       }
 
@@ -459,7 +485,8 @@ export default function ScrollSnapController() {
         // Treat them exactly like normal snap sections: prevent native scroll
         // so the controller drives navigation via snapToIndex.
         if (isShallowNativeSection()) {
-          if ((e.target as Element)?.closest('button,a,input,select,textarea,[role="button"]')) return;
+          if ((e.target as Element)?.closest('button,a,input,select,textarea,[role="button"]'))
+            return;
           e.preventDefault();
           return;
         }
@@ -467,7 +494,7 @@ export default function ScrollSnapController() {
         // onTouchEnd — so it's set even when onTouchEnd returns early due to
         // cooldown.
         const sections = getSections();
-        const nextFreeEl = sections.find(el => {
+        const nextFreeEl = sections.find((el) => {
           if (!el.dataset.freeScroll) return false;
           return getSectionTop(el) > window.scrollY + 10;
         });
@@ -477,11 +504,13 @@ export default function ScrollSnapController() {
           captureSourceEnd = captureTargetY - window.innerHeight; // native section's max scrollY
           pendingFreeScrollCapture = true;
           clearTimeout(freeScrollCaptureTimer);
-          freeScrollCaptureTimer = setTimeout(() => { pendingFreeScrollCapture = false; }, 3000);
+          freeScrollCaptureTimer = setTimeout(() => {
+            pendingFreeScrollCapture = false;
+          }, 3000);
         }
         return;
       }
-      if ((e.target as Element)?.closest('[data-horizontal-scroll]')) return;
+      if ((e.target as Element)?.closest("[data-horizontal-scroll]")) return;
       if ((e.target as Element)?.closest('button,a,input,select,textarea,[role="button"]')) return;
       e.preventDefault();
     };
@@ -511,8 +540,8 @@ export default function ScrollSnapController() {
         } else {
           // Swipe down at section bottom → escape to next section.
           const r = nativeEl.getBoundingClientRect();
-          const atBottom = nativeEl.offsetHeight > window.innerHeight + 20
-            && r.bottom <= window.innerHeight + 15;
+          const atBottom =
+            nativeEl.offsetHeight > window.innerHeight + 20 && r.bottom <= window.innerHeight + 15;
           if (atBottom) {
             pendingFreeScrollCapture = false;
             clearTimeout(freeScrollCaptureTimer);
@@ -551,10 +580,14 @@ export default function ScrollSnapController() {
       //    clamp there instead of letting it blow into the free-scroll zone.
       //    The user lands at the final frame (e.g. "Now I bring it to yours")
       //    and must make a deliberate swipe to exit.
-      if (pendingFreeScrollCapture && captureSourceEnd > 0 && window.scrollY > captureSourceEnd + 5) {
+      if (
+        pendingFreeScrollCapture &&
+        captureSourceEnd > 0 &&
+        window.scrollY > captureSourceEnd + 5
+      ) {
         pendingFreeScrollCapture = false;
         clearTimeout(freeScrollCaptureTimer);
-        window.scrollTo({ top: captureSourceEnd, behavior: 'instant' });
+        window.scrollTo({ top: captureSourceEnd, behavior: "instant" });
         touchSnapTime = Date.now();
         return;
       }
@@ -574,7 +607,7 @@ export default function ScrollSnapController() {
       //    hasn't reached yet, snap to close the gap (one section at a time so
       //    we don't skip intermediate sections).
       const sections = getSections();
-      const activeFreeIdx = sections.findIndex(el => {
+      const activeFreeIdx = sections.findIndex((el) => {
         if (!el.dataset.freeScroll) return false;
         const sTop = getSectionTop(el);
         const sEnd = sTop + el.offsetHeight - window.innerHeight;
@@ -599,7 +632,7 @@ export default function ScrollSnapController() {
       // Free-scroll zone handling: either we belong here, or momentum overshot us into it.
       if (isInFreeScrollZone()) {
         const sections = getSections();
-        const freeZoneIdx = sections.findIndex(el => {
+        const freeZoneIdx = sections.findIndex((el) => {
           if (!el.dataset.freeScroll) return false;
           const sTop = getSectionTop(el);
           const sEnd = sTop + el.offsetHeight - window.innerHeight;
@@ -635,17 +668,21 @@ export default function ScrollSnapController() {
         const activeNativeEl = getCurrentNativeScrollEl();
 
         // Forward exit: section bottom is at or past the viewport bottom.
-        const bottomReachedEl = activeNativeEl && (() => {
-          const r = activeNativeEl.getBoundingClientRect();
-          return r.bottom <= window.innerHeight + 10
-            && activeNativeEl.offsetHeight > window.innerHeight + 20
-            ? activeNativeEl : null;
-        })();
+        const bottomReachedEl =
+          activeNativeEl &&
+          (() => {
+            const r = activeNativeEl.getBoundingClientRect();
+            return r.bottom <= window.innerHeight + 10 &&
+              activeNativeEl.offsetHeight > window.innerHeight + 20
+              ? activeNativeEl
+              : null;
+          })();
         if (bottomReachedEl) {
           // Never advance from scrollend — iOS momentum can overshoot from anywhere
           // in the section. Always snap to section end. The user must make a
           // deliberate swipe at the bottom (onTouchEnd atBottom) to advance.
-          const snapEl = (bottomReachedEl.closest('.snap-section') as HTMLElement) ?? bottomReachedEl;
+          const snapEl =
+            (bottomReachedEl.closest(".snap-section") as HTMLElement) ?? bottomReachedEl;
           const sectionAbsTop = getSectionTop(snapEl);
           const scrollRange = bottomReachedEl.offsetHeight - window.innerHeight;
           if (scrollRange > 0) {
@@ -655,7 +692,9 @@ export default function ScrollSnapController() {
             lastSnapTime = Date.now();
             smoothScrollTo(sectionEnd, () => {
               isSnapping = false;
-              setTimeout(() => { cooldown = false; }, SNAP_COOLDOWN);
+              setTimeout(() => {
+                cooldown = false;
+              }, SNAP_COOLDOWN);
             });
           }
           return;
@@ -665,17 +704,21 @@ export default function ScrollSnapController() {
         // section, skipping a non-native section above. Snap to the first skipped one.
         // Only fires when the section top is at/above the viewport (r.top >= 0) to
         // prevent snapping back to the top when the user has already scrolled into it.
-        const overscrolledSection = activeNativeEl && (() => {
-          const r = activeNativeEl.getBoundingClientRect();
-          return r.top >= 0 && r.top <= 150 && activeNativeEl.offsetHeight > window.innerHeight
-            ? activeNativeEl : null;
-        })();
+        const overscrolledSection =
+          activeNativeEl &&
+          (() => {
+            const r = activeNativeEl.getBoundingClientRect();
+            return r.top >= 0 && r.top <= 150 && activeNativeEl.offsetHeight > window.innerHeight
+              ? activeNativeEl
+              : null;
+          })();
         if (overscrolledSection) {
           // data-native-scroll may be on an inner element (e.g. MethodSection
           // puts it on an inner div, not the outer snap-section). Walk up to
           // find the snap-section that actually lives in the sections array.
-          const snapEl = (overscrolledSection.closest('.snap-section') as HTMLElement) ?? overscrolledSection;
-          const idx = sections.findIndex(el => el === snapEl);
+          const snapEl =
+            (overscrolledSection.closest(".snap-section") as HTMLElement) ?? overscrolledSection;
+          const idx = sections.findIndex((el) => el === snapEl);
           if (idx !== -1) {
             const target = idx > currentIndex + 1 ? currentIndex + 1 : idx;
             if (target !== currentIndex) snapToIndex(target);
@@ -699,7 +742,9 @@ export default function ScrollSnapController() {
             lastSnapTime = Date.now();
             smoothScrollTo(sectionEnd, () => {
               isSnapping = false;
-              setTimeout(() => { cooldown = false; }, SNAP_COOLDOWN);
+              setTimeout(() => {
+                cooldown = false;
+              }, SNAP_COOLDOWN);
             });
           }
         }
@@ -737,8 +782,8 @@ export default function ScrollSnapController() {
           const nativeEl = getCurrentNativeScrollEl();
           if (nativeEl) {
             const r = nativeEl.getBoundingClientRect();
-            const atBottom = nativeEl.offsetHeight > window.innerHeight + 20
-              && r.bottom <= window.innerHeight + 5;
+            const atBottom =
+              nativeEl.offsetHeight > window.innerHeight + 20 && r.bottom <= window.innerHeight + 5;
             if (atBottom) {
               e.preventDefault();
               return;
@@ -747,28 +792,28 @@ export default function ScrollSnapController() {
         }
         return;
       }
-      if ((e.target as Element)?.closest('[data-horizontal-scroll]')) return;
-      if ((e.target as Element)?.closest('input,textarea')) return;
+      if ((e.target as Element)?.closest("[data-horizontal-scroll]")) return;
+      if ((e.target as Element)?.closest("input,textarea")) return;
       e.preventDefault();
     };
 
-    window.addEventListener('wheel', onWheel, { passive: false });
-    window.addEventListener('touchstart', onTouchStart, { passive: false });
-    window.addEventListener('touchmove', onTouchMove, { passive: false });
-    window.addEventListener('touchend', onTouchEnd, { passive: true });
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('scrollend', onScrollEnd, { passive: true });
+    window.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("touchstart", onTouchStart, { passive: false });
+    window.addEventListener("touchmove", onTouchMove, { passive: false });
+    window.addEventListener("touchend", onTouchEnd, { passive: true });
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("scrollend", onScrollEnd, { passive: true });
 
     return () => {
-      document.documentElement.style.overscrollBehaviorY = '';
-      window.removeEventListener('milk:intro-exit', onIntroExit);
-      window.removeEventListener('wheel', onWheel);
-      window.removeEventListener('touchstart', onTouchStart);
-      window.removeEventListener('touchmove', onTouchMove);
-      window.removeEventListener('touchend', onTouchEnd);
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('scrollend', onScrollEnd);
-      window.removeEventListener('milk:snap-to', onSnapTo);
+      document.documentElement.style.overscrollBehaviorY = "";
+      window.removeEventListener("milk:intro-exit", onIntroExit);
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("scrollend", onScrollEnd);
+      window.removeEventListener("milk:snap-to", onSnapTo);
       clearTimeout(wheelTimeout);
       clearTimeout(freeScrollCaptureTimer);
     };

@@ -34,11 +34,23 @@ function drawCow(ctx: CanvasRenderingContext2D, y: number, frame: number) {
   const legY = y + COW_H;
   const swing = onGround ? legSwing : 0;
   // back legs
-  ctx.beginPath(); ctx.moveTo(x + 8,  legY - 2); ctx.lineTo(x + 6  + swing,  GROUND + 4); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(x + 15, legY - 2); ctx.lineTo(x + 13 - swing,  GROUND + 4); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x + 8, legY - 2);
+  ctx.lineTo(x + 6 + swing, GROUND + 4);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x + 15, legY - 2);
+  ctx.lineTo(x + 13 - swing, GROUND + 4);
+  ctx.stroke();
   // front legs
-  ctx.beginPath(); ctx.moveTo(x + 27, legY - 2); ctx.lineTo(x + 25 + swing,  GROUND + 4); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(x + 34, legY - 2); ctx.lineTo(x + 32 - swing,  GROUND + 4); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x + 27, legY - 2);
+  ctx.lineTo(x + 25 + swing, GROUND + 4);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x + 34, legY - 2);
+  ctx.lineTo(x + 32 - swing, GROUND + 4);
+  ctx.stroke();
 
   // Body
   ctx.fillStyle = "#FFFFFF";
@@ -51,8 +63,12 @@ function drawCow(ctx: CanvasRenderingContext2D, y: number, frame: number) {
 
   // Spots
   ctx.fillStyle = "#0C0C12";
-  ctx.beginPath(); ctx.ellipse(x + 14, y + 10, 7, 5, -0.4, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(x + 28, y + 19, 5, 4,  0.3, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(x + 14, y + 10, 7, 5, -0.4, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(x + 28, y + 19, 5, 4, 0.3, 0, Math.PI * 2);
+  ctx.fill();
 
   // Udder
   ctx.fillStyle = "#FFB6C1";
@@ -81,26 +97,42 @@ function drawCow(ctx: CanvasRenderingContext2D, y: number, frame: number) {
 
   // Nostrils
   ctx.fillStyle = "#0C0C12";
-  ctx.beginPath(); ctx.arc(x + COW_W + 10, y + 13, 1.2, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(x + COW_W + 14, y + 13, 1.2, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x + COW_W + 10, y + 13, 1.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x + COW_W + 14, y + 13, 1.2, 0, Math.PI * 2);
+  ctx.fill();
 
   // Eye
   ctx.fillStyle = "#0C0C12";
-  ctx.beginPath(); ctx.arc(x + COW_W + 8, y + 4, 2, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x + COW_W + 8, y + 4, 2, 0, Math.PI * 2);
+  ctx.fill();
   ctx.fillStyle = "#FFFFFF";
-  ctx.beginPath(); ctx.arc(x + COW_W + 9, y + 3.2, 0.7, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x + COW_W + 9, y + 3.2, 0.7, 0, Math.PI * 2);
+  ctx.fill();
 
   // Horn
   ctx.strokeStyle = "#D4A017";
   ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.moveTo(x + COW_W + 5, y + 0); ctx.lineTo(x + COW_W + 3, y - 7); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x + COW_W + 5, y + 0);
+  ctx.lineTo(x + COW_W + 3, y - 7);
+  ctx.stroke();
 
   // Tail
   ctx.strokeStyle = "#0C0C12";
   ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.moveTo(x + 2, y + 8);
-  ctx.quadraticCurveTo(x - 10, y + 2 + Math.sin(frame * 0.2) * 4, x - 6, y - 5 + Math.sin(frame * 0.2) * 3);
+  ctx.quadraticCurveTo(
+    x - 10,
+    y + 2 + Math.sin(frame * 0.2) * 4,
+    x - 6,
+    y - 5 + Math.sin(frame * 0.2) * 3,
+  );
   ctx.stroke();
 
   ctx.restore();
@@ -144,28 +176,28 @@ function drawMilkCarton(ctx: CanvasRenderingContext2D, obs: Obs) {
 
 export default function CowGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const stateRef   = useRef<State>("idle");
-  const cowYRef    = useRef(GROUND - COW_H);
-  const cowVYRef   = useRef(0);
-  const obsRef     = useRef<Obs[]>([]);
-  const scoreRef   = useRef(0);
-  const speedRef   = useRef(BASE_SPEED);
+  const stateRef = useRef<State>("idle");
+  const cowYRef = useRef(GROUND - COW_H);
+  const cowVYRef = useRef(0);
+  const obsRef = useRef<Obs[]>([]);
+  const scoreRef = useRef(0);
+  const speedRef = useRef(BASE_SPEED);
   const frameCount = useRef(0);
-  const nextObs    = useRef(90);
-  const rafRef     = useRef(0);
-  const [uiState, setUiState]   = useState<State>("idle");
-  const [score, setScore]       = useState(0);
-  const [best, setBest]         = useState(0);
+  const nextObs = useRef(90);
+  const rafRef = useRef(0);
+  const [uiState, setUiState] = useState<State>("idle");
+  const [score, setScore] = useState(0);
+  const [best, setBest] = useState(0);
 
   const reset = useCallback((start = true) => {
-    stateRef.current  = start ? "playing" : "idle";
-    cowYRef.current   = GROUND - COW_H;
-    cowVYRef.current  = 0;
-    obsRef.current    = [];
-    scoreRef.current  = 0;
-    speedRef.current  = BASE_SPEED;
+    stateRef.current = start ? "playing" : "idle";
+    cowYRef.current = GROUND - COW_H;
+    cowVYRef.current = 0;
+    obsRef.current = [];
+    scoreRef.current = 0;
+    speedRef.current = BASE_SPEED;
     frameCount.current = 0;
-    nextObs.current   = 90;
+    nextObs.current = 90;
     setScore(0);
     setUiState(start ? "playing" : "idle");
   }, []);
@@ -192,13 +224,18 @@ export default function CowGame() {
       // Ground
       ctx.strokeStyle = "#0C0C12";
       ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.moveTo(0, GROUND + 4); ctx.lineTo(W, GROUND + 4); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0, GROUND + 4);
+      ctx.lineTo(W, GROUND + 4);
+      ctx.stroke();
 
       // Subtle ground dots
       ctx.fillStyle = "rgba(0,0,0,0.08)";
       for (let i = 0; i < 20; i++) {
-        const dx = ((i * 40 - (frameCount.current * speedRef.current * 0.3)) % W + W) % W;
-        ctx.beginPath(); ctx.arc(dx, GROUND + 9, 1.5, 0, Math.PI * 2); ctx.fill();
+        const dx = (((i * 40 - frameCount.current * speedRef.current * 0.3) % W) + W) % W;
+        ctx.beginPath();
+        ctx.arc(dx, GROUND + 9, 1.5, 0, Math.PI * 2);
+        ctx.fill();
       }
 
       const st = stateRef.current;
@@ -209,15 +246,14 @@ export default function CowGame() {
         ctx.font = "12px monospace";
         ctx.textAlign = "center";
         ctx.fillText("Space · Click · Tap  to play", W / 2, GROUND + 22);
-
       } else if (st === "playing") {
         frameCount.current++;
 
         // Physics
         cowVYRef.current += GRAVITY;
-        cowYRef.current  += cowVYRef.current;
+        cowYRef.current += cowVYRef.current;
         if (cowYRef.current >= GROUND - COW_H) {
-          cowYRef.current  = GROUND - COW_H;
+          cowYRef.current = GROUND - COW_H;
           cowVYRef.current = 0;
         }
 
@@ -232,8 +268,8 @@ export default function CowGame() {
 
         // Move obstacles
         obsRef.current = obsRef.current
-          .map(o => ({ ...o, x: o.x - speedRef.current }))
-          .filter(o => o.x + o.w > 0);
+          .map((o) => ({ ...o, x: o.x - speedRef.current }))
+          .filter((o) => o.x + o.w > 0);
 
         // Speed ramp
         speedRef.current = BASE_SPEED + scoreRef.current / 600;
@@ -253,7 +289,7 @@ export default function CowGame() {
           ) {
             stateRef.current = "dead";
             setUiState("dead");
-            setBest(b => Math.max(b, pts));
+            setBest((b) => Math.max(b, pts));
             break;
           }
         }
@@ -267,7 +303,6 @@ export default function CowGame() {
         ctx.font = "12px monospace";
         ctx.textAlign = "right";
         ctx.fillText(String(Math.floor(scoreRef.current / 6)).padStart(5, "0"), W - 8, 16);
-
       } else {
         // Dead — freeze frame
         for (const obs of obsRef.current) drawMilkCarton(ctx, obs);
@@ -299,10 +334,10 @@ export default function CowGame() {
   }, [jump]);
 
   return (
-    <div className="w-full flex flex-col items-center gap-2">
+    <div className="flex w-full flex-col items-center gap-2">
       {/* Best score */}
       {best > 0 && (
-        <p className="font-mono text-[11px] text-[#B0B0B0] tracking-[-0.3px]">
+        <p className="font-mono text-[11px] tracking-[-0.3px] text-[#B0B0B0]">
           BEST &nbsp;{String(best).padStart(5, "0")}
         </p>
       )}
@@ -312,20 +347,25 @@ export default function CowGame() {
           ref={canvasRef}
           width={W}
           height={H}
-          className="w-full rounded-xl border border-black/[0.06] cursor-pointer"
+          className="w-full cursor-pointer rounded-xl border border-black/[0.06]"
           style={{ touchAction: "none", imageRendering: "crisp-edges" }}
           onClick={jump}
-          onTouchStart={(e) => { e.preventDefault(); jump(); }}
+          onTouchStart={(e) => {
+            e.preventDefault();
+            jump();
+          }}
         />
 
         {/* Game over overlay */}
         {uiState === "dead" && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 pointer-events-none">
-            <p className="font-sans font-medium text-[#0C0C12] text-[15px] tracking-[-0.5px]">Game Over</p>
-            <p className="font-mono text-[11px] text-[#B0B0B0] tracking-[-0.3px]">
+          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-1">
+            <p className="font-sans text-[15px] font-medium tracking-[-0.5px] text-[#0C0C12]">
+              Game Over
+            </p>
+            <p className="font-mono text-[11px] tracking-[-0.3px] text-[#B0B0B0]">
               Score &nbsp;{String(score).padStart(5, "0")}
             </p>
-            <p className="font-mono text-[11px] text-[#B0B0B0] tracking-[-0.3px] mt-1">
+            <p className="mt-1 font-mono text-[11px] tracking-[-0.3px] text-[#B0B0B0]">
               Space · Click · Tap to restart
             </p>
           </div>

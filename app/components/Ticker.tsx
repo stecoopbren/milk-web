@@ -26,11 +26,7 @@ export default function Ticker({ id, lines, suffix }: TickerProps) {
   });
 
   return (
-    <div
-      id={id}
-      ref={outerRef}
-      style={{ position: "relative", height: `${n * 100}vh` }}
-    >
+    <div id={id} ref={outerRef} style={{ position: "relative", height: `${n * 100}vh` }}>
       {lines.map((_, i) => (
         <div
           key={`snap-${i}`}
@@ -46,11 +42,11 @@ export default function Ticker({ id, lines, suffix }: TickerProps) {
         />
       ))}
 
-      <div className="sticky top-0 h-screen flex items-center justify-center px-8 lg:px-[180px]">
+      <div className="sticky top-0 flex h-screen items-center justify-center px-8 lg:px-[180px]">
         <AnimatePresence mode="wait">
           <motion.h2
             key={activeIndex}
-            className="font-sans font-medium tracking-[-3.2px] leading-[0.95] w-full whitespace-pre-line text-center"
+            className="w-full text-center font-sans leading-[0.95] font-medium tracking-[-3.2px] whitespace-pre-line"
             style={{ fontSize: "clamp(36px, 5.5vw, 56px)" }}
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}

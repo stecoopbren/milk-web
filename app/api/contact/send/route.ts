@@ -6,21 +6,27 @@ async function generateSuggestedReply(
   reason: string,
   context: Record<string, string>,
   conversation: { role: string; content: string }[],
-  details: { name?: string; email?: string; company?: string }
+  details: { name?: string; email?: string; company?: string },
 ): Promise<string> {
   if (!process.env.ANTHROPIC_API_KEY) return "";
   try {
     const client = new Anthropic();
-    const contextStr = Object.entries(context ?? {}).map(([k, v]) => `${k}: ${v}`).join(", ");
-    const chatStr = conversation.map(m => `${m.role === "user" ? details.name ?? "Them" : "You"}: ${m.content}`).join("\n");
+    const contextStr = Object.entries(context ?? {})
+      .map(([k, v]) => `${k}: ${v}`)
+      .join(", ");
+    const chatStr = conversation
+      .map((m) => `${m.role === "user" ? (details.name ?? "Them") : "You"}: ${m.content}`)
+      .join("\n");
 
     const msg = await client.messages.create({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 200,
-      messages: [{
-        role: "user",
-        content: `You ARE Steven Cooper (Coop), a design leader in Costa Rica who runs Milk Design Studio. Draft a short, warm, personal reply email to ${details.name ?? "this person"} (${details.email}) who reached out about: ${reason}. Context: ${contextStr}. Conversation: ${chatStr}. Write 2-3 sentences max, in first person, no em dashes, no corporate language. Just the reply body — no subject line, no greeting prefix, no sign-off. Sound like you typed it yourself.`,
-      }],
+      messages: [
+        {
+          role: "user",
+          content: `You ARE Steven Cooper (Coop), a design leader in Costa Rica who runs Milk Design Studio. Draft a short, warm, personal reply email to ${details.name ?? "this person"} (${details.email}) who reached out about: ${reason}. Context: ${contextStr}. Conversation: ${chatStr}. Write 2-3 sentences max, in first person, no em dashes, no corporate language. Just the reply body — no subject line, no greeting prefix, no sign-off. Sound like you typed it yourself.`,
+        },
+      ],
     });
     return msg.content[0].type === "text" ? msg.content[0].text.trim() : "";
   } catch {
@@ -44,26 +50,24 @@ export async function POST(request: NextRequest) {
   const { reason, context, conversation, details } = await request.json();
 
   const [suggestedReply, contextLines, chatLines] = await Promise.all([
-    generateSuggestedReply(
-      reason ?? "",
-      context ?? {},
-      conversation ?? [],
-      details ?? {}
-    ),
+    generateSuggestedReply(reason ?? "", context ?? {}, conversation ?? [], details ?? {}),
     Promise.resolve(
       Object.entries((context ?? {}) as Record<string, string>)
-        .map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:#888;font-size:13px;white-space:nowrap">${k}</td><td style="padding:4px 0;font-size:13px;color:#111">${v}</td></tr>`)
-        .join("")
+        .map(
+          ([k, v]) =>
+            `<tr><td style="padding:4px 12px 4px 0;color:#888;font-size:13px;white-space:nowrap">${k}</td><td style="padding:4px 0;font-size:13px;color:#111">${v}</td></tr>`,
+        )
+        .join(""),
     ),
     Promise.resolve(
       ((conversation ?? []) as { role: string; content: string }[])
-        .map(m => {
+        .map((m) => {
           const isUser = m.role === "user";
           return `<div style="margin-bottom:12px;text-align:${isUser ? "right" : "left"}">
             <span style="display:inline-block;background:${isUser ? "#111" : "#F0F0F0"};color:${isUser ? "#fff" : "#111"};padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.55;max-width:80%">${m.content}</span>
           </div>`;
         })
-        .join("")
+        .join(""),
     ),
   ]);
 
@@ -81,19 +85,27 @@ export async function POST(request: NextRequest) {
         ${contextLines}
       </table>
 
-      ${suggestedReply ? `
+      ${
+        suggestedReply
+          ? `
         <p style="font-size:12px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#888;margin:0 0 12px">Suggested reply</p>
         <div style="background:#111;border-radius:16px;padding:20px;margin-bottom:28px">
           <p style="font-size:14px;line-height:1.65;color:#fff;margin:0;white-space:pre-wrap">${suggestedReply}</p>
         </div>
-      ` : ""}
+      `
+          : ""
+      }
 
-      ${chatLines ? `
+      ${
+        chatLines
+          ? `
         <p style="font-size:12px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:#888;margin:0 0 12px">Conversation</p>
         <div style="background:white;border-radius:16px;padding:20px;margin-bottom:28px;border:1px solid #E8E8E8">
           ${chatLines}
         </div>
-      ` : ""}
+      `
+          : ""
+      }
 
       <p style="font-size:12px;color:#bbb;margin:0">Sent from the contact form at milk.design</p>
     </div>
